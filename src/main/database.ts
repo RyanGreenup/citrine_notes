@@ -16,6 +16,7 @@ export interface Note {
   id: string;
   title: string;
   body: string;
+  parent_id: string;
   user_created_time: number;
   user_updated_time: number;
 }
@@ -72,7 +73,7 @@ export class DatabaseService {
   }
 
   // Create a new note
-  public createNote(title: string, body: string): Note | null {
+  public createNote(title: string, body: string, folderId: string = ''): Note | null {
     try {
       // Generate a new UUID for the note
       const id = require('crypto').randomUUID();
@@ -80,16 +81,17 @@ export class DatabaseService {
       
       // Insert the new note into the database
       const stmt = this.db.prepare(
-        'INSERT INTO notes (id, title, body, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?)'
+        'INSERT INTO notes (id, title, body, parent_id, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?, ?)'
       );
       
-      stmt.run(id, title, body, now, now);
+      stmt.run(id, title, body, folderId, now, now);
       
       // Return the newly created note
       return {
         id,
         title,
         body,
+        parent_id: folderId,
         user_created_time: now,
         user_updated_time: now
       };
@@ -103,7 +105,7 @@ export class DatabaseService {
   public getAllNotes(): Note[] {
     try {
       const stmt = this.db.prepare(
-        'SELECT id, title, body, user_created_time, user_updated_time FROM notes'
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes'
       );
       return stmt.all() as Note[];
     } catch (error) {
@@ -116,7 +118,7 @@ export class DatabaseService {
   public getNoteById(id: string): Note | null {
     try {
       const stmt = this.db.prepare(
-        'SELECT id, title, body, user_created_time, user_updated_time FROM notes WHERE id = ?'
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
       );
       return stmt.get(id) as Note || null;
     } catch (error) {

@@ -74,16 +74,16 @@ describe('DatabaseService', () => {
       // Assert
       expect(notes).toEqual([]);
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT id, title, body, user_created_time, user_updated_time FROM notes'
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes'
       );
     });
     
     it('should return all notes in the database', () => {
       // Arrange
       const mockNotes = [
-        { id: 'note-1', title: 'Note 1', body: 'Body 1', user_created_time: 1000000, user_updated_time: 1000000 },
-        { id: 'note-2', title: 'Note 2', body: 'Body 2', user_created_time: 1000000, user_updated_time: 1000000 },
-        { id: 'note-3', title: 'Note 3', body: 'Body 3', user_created_time: 1000000, user_updated_time: 1000000 }
+        { id: 'note-1', title: 'Note 1', body: 'Body 1', parent_id: 'folder-1', user_created_time: 1000000, user_updated_time: 1000000 },
+        { id: 'note-2', title: 'Note 2', body: 'Body 2', parent_id: 'folder-1', user_created_time: 1000000, user_updated_time: 1000000 },
+        { id: 'note-3', title: 'Note 3', body: 'Body 3', parent_id: 'folder-2', user_created_time: 1000000, user_updated_time: 1000000 }
       ];
       
       const mockDb = require('better-sqlite3')();
@@ -128,7 +128,7 @@ describe('DatabaseService', () => {
       // Assert
       expect(note).toBeNull();
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT id, title, body, user_created_time, user_updated_time FROM notes WHERE id = ?'
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
       );
       expect(mockStatement.get).toHaveBeenCalledWith('non-existent-id');
     });
@@ -139,6 +139,7 @@ describe('DatabaseService', () => {
         id: 'specific-note-id',
         title: 'Test Note',
         body: 'Test Body',
+        parent_id: 'folder-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
       };
@@ -172,7 +173,46 @@ describe('DatabaseService', () => {
   });
   
   describe('createNote', () => {
-    it('should create a new note with the provided title and body', () => {
+    it('should create a new note with the provided title, body, and folder ID', () => {
+      // Arrange
+      const title = 'Test Note';
+      const body = 'This is a test note';
+      const folderId = 'folder-123';
+      const mockDb = require('better-sqlite3')();
+      const mockStatement = { run: jest.fn() };
+      mockDb.prepare.mockReturnValue(mockStatement);
+      
+      // Act
+      const result = dbService.createNote(title, body, folderId);
+      
+      // Assert
+      expect(result).not.toBeNull();
+      expect(result).toEqual({
+        id: 'test-uuid-123',
+        title: 'Test Note',
+        body: 'This is a test note',
+        parent_id: 'folder-123',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      });
+      
+      // Verify the SQL statement was prepared correctly
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'INSERT INTO notes (id, title, body, parent_id, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?, ?)'
+      );
+      
+      // Verify the run method was called with the correct parameters
+      expect(mockStatement.run).toHaveBeenCalledWith(
+        'test-uuid-123', 
+        'Test Note', 
+        'This is a test note',
+        'folder-123',
+        1000000, 
+        1000000
+      );
+    });
+    
+    it('should create a note with empty folder ID when not specified', () => {
       // Arrange
       const title = 'Test Note';
       const body = 'This is a test note';
@@ -189,20 +229,17 @@ describe('DatabaseService', () => {
         id: 'test-uuid-123',
         title: 'Test Note',
         body: 'This is a test note',
+        parent_id: '',
         user_created_time: 1000000,
         user_updated_time: 1000000
       });
       
-      // Verify the SQL statement was prepared correctly
-      expect(mockDb.prepare).toHaveBeenCalledWith(
-        'INSERT INTO notes (id, title, body, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?)'
-      );
-      
-      // Verify the run method was called with the correct parameters
+      // Verify the run method was called with empty folder ID
       expect(mockStatement.run).toHaveBeenCalledWith(
         'test-uuid-123', 
         'Test Note', 
-        'This is a test note', 
+        'This is a test note',
+        '',
         1000000, 
         1000000
       );
@@ -233,8 +270,8 @@ describe('DatabaseService', () => {
       mockDb.prepare.mockReturnValue(mockStatement);
       
       // Act
-      const note1 = dbService.createNote('Note 1', 'Body 1');
-      const note2 = dbService.createNote('Note 2', 'Body 2');
+      const note1 = dbService.createNote('Note 1', 'Body 1', 'folder-1');
+      const note2 = dbService.createNote('Note 2', 'Body 2', 'folder-2');
       
       // Assert
       expect(note1?.id).toBe('uuid-1');
@@ -242,10 +279,10 @@ describe('DatabaseService', () => {
       
       // Verify the run method was called with different IDs
       expect(mockStatement.run).toHaveBeenNthCalledWith(
-        1, 'uuid-1', 'Note 1', 'Body 1', 1000000, 1000000
+        1, 'uuid-1', 'Note 1', 'Body 1', 'folder-1', 1000000, 1000000
       );
       expect(mockStatement.run).toHaveBeenNthCalledWith(
-        2, 'uuid-2', 'Note 2', 'Body 2', 1000000, 1000000
+        2, 'uuid-2', 'Note 2', 'Body 2', 'folder-2', 1000000, 1000000
       );
     });
   });
