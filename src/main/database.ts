@@ -20,6 +20,15 @@ export interface Note {
   user_updated_time: number;
 }
 
+// Define the Folder interface to match the database schema
+export interface Folder {
+  id: string;
+  title: string;
+  parent_id: string;
+  user_created_time: number;
+  user_updated_time: number;
+}
+
 // Database service class
 export class DatabaseService {
   private db: any;
@@ -150,6 +159,34 @@ export class DatabaseService {
       };
     } catch (error) {
       console.error(`Error updating note with ID ${id}:`, error);
+      return null;
+    }
+  }
+
+  // Create a new folder
+  public createFolder(title: string, parentId: string = ''): Folder | null {
+    try {
+      // Generate a new UUID for the folder
+      const id = require('crypto').randomUUID();
+      const now = Date.now();
+      
+      // Insert the new folder into the database
+      const stmt = this.db.prepare(
+        'INSERT INTO folders (id, title, parent_id, created_time, updated_time, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      );
+      
+      stmt.run(id, title, parentId, now, now, now, now);
+      
+      // Return the newly created folder
+      return {
+        id,
+        title,
+        parent_id: parentId,
+        user_created_time: now,
+        user_updated_time: now
+      };
+    } catch (error) {
+      console.error('Error creating new folder:', error);
       return null;
     }
   }

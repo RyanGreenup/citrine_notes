@@ -249,4 +249,90 @@ describe('DatabaseService', () => {
       );
     });
   });
+
+  describe('createFolder', () => {
+    it('should create a new folder with the provided title', () => {
+      // Arrange
+      const title = 'Test Folder';
+      const mockDb = require('better-sqlite3')();
+      const mockStatement = { run: jest.fn() };
+      mockDb.prepare.mockReturnValue(mockStatement);
+      
+      // Act
+      const result = dbService.createFolder(title);
+      
+      // Assert
+      expect(result).not.toBeNull();
+      expect(result).toEqual({
+        id: 'test-uuid-123',
+        title: 'Test Folder',
+        parent_id: '',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      });
+      
+      // Verify the SQL statement was prepared correctly
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'INSERT INTO folders (id, title, parent_id, created_time, updated_time, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      );
+      
+      // Verify the run method was called with the correct parameters
+      expect(mockStatement.run).toHaveBeenCalledWith(
+        'test-uuid-123', 
+        'Test Folder',
+        '',
+        1000000,
+        1000000,
+        1000000,
+        1000000
+      );
+    });
+    
+    it('should create a folder with a parent folder ID when provided', () => {
+      // Arrange
+      const title = 'Child Folder';
+      const parentId = 'parent-folder-id';
+      const mockDb = require('better-sqlite3')();
+      const mockStatement = { run: jest.fn() };
+      mockDb.prepare.mockReturnValue(mockStatement);
+      
+      // Act
+      const result = dbService.createFolder(title, parentId);
+      
+      // Assert
+      expect(result).not.toBeNull();
+      expect(result).toEqual({
+        id: 'test-uuid-123',
+        title: 'Child Folder',
+        parent_id: 'parent-folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      });
+      
+      // Verify the run method was called with the parent ID
+      expect(mockStatement.run).toHaveBeenCalledWith(
+        'test-uuid-123', 
+        'Child Folder',
+        'parent-folder-id',
+        1000000,
+        1000000,
+        1000000,
+        1000000
+      );
+    });
+    
+    it('should return null when an error occurs during folder creation', () => {
+      // Arrange - create a scenario that will cause an error
+      const mockDb = require('better-sqlite3')();
+      mockDb.prepare.mockImplementation(() => {
+        throw new Error('Database error');
+      });
+      
+      // Act
+      const result = dbService.createFolder('Error Folder');
+      
+      // Assert
+      expect(result).toBeNull();
+    });
+  });
 });
