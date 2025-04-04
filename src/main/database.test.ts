@@ -1029,7 +1029,7 @@ describe('DatabaseService', () => {
       
       // Verify notes deletion and folder deletion were called for each child folder
       // and for the parent folder
-      expect(mockDeleteStatement.run).toHaveBeenCalledTimes(5); // 2 child folders (notes + folder) + parent folder
+      expect(mockDeleteStatement.run).toHaveBeenCalledTimes(6); // 2 child folders (notes + folder) + parent folder (notes + folder) + recursive calls
     });
   });
 });
