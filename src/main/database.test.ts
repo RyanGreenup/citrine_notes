@@ -843,4 +843,193 @@ describe('DatabaseService', () => {
       expect(mockDb.prepare).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('deleteFolder', () => {
+    it('should delete a folder and all its notes when the folder exists', () => {
+      // Arrange
+      const folderId = 'folder-to-delete';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return a folder
+      const mockFolder = { 
+        id: folderId, 
+        title: 'Folder to Delete', 
+        parent_id: 'parent-folder-id',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getFolderById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockFolder) };
+      // Second prepare call is for deleting notes in the folder
+      const mockDeleteNotesStatement = { run: jest.fn().mockReturnValue({ changes: 3 }) };
+      // Third prepare call is for deleting the folder
+      const mockDeleteFolderStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockDeleteNotesStatement)
+        .mockReturnValueOnce(mockDeleteFolderStatement);
+      
+      // Act
+      const result = dbService.deleteFolder(folderId);
+      
+      // Assert
+      expect(result).toBe(true);
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM folders WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(folderId);
+      
+      // Verify notes with the folder as parent were deleted
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, 'DELETE FROM notes WHERE parent_id = ?'
+      );
+      expect(mockDeleteNotesStatement.run).toHaveBeenCalledWith(folderId);
+      
+      // Verify the folder itself was deleted
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        3, 'DELETE FROM folders WHERE id = ?'
+      );
+      expect(mockDeleteFolderStatement.run).toHaveBeenCalledWith(folderId);
+    });
+    
+    it('should return false when the folder does not exist', () => {
+      // Arrange
+      const folderId = 'non-existent-folder';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return null (folder not found)
+      const mockGetStatement = { get: jest.fn().mockReturnValue(null) };
+      mockDb.prepare.mockReturnValue(mockGetStatement);
+      
+      // Act
+      const result = dbService.deleteFolder(folderId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM folders WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(folderId);
+      // No delete operations should be performed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
+    });
+    
+    it('should return false when folder deletion fails', () => {
+      // Arrange
+      const folderId = 'folder-not-deleted';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return a folder
+      const mockFolder = { 
+        id: folderId, 
+        title: 'Folder Not Deleted', 
+        parent_id: 'parent-folder-id',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getFolderById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockFolder) };
+      // Second prepare call is for deleting notes in the folder
+      const mockDeleteNotesStatement = { run: jest.fn().mockReturnValue({ changes: 2 }) };
+      // Third prepare call is for deleting the folder, but it fails
+      const mockDeleteFolderStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockDeleteNotesStatement)
+        .mockReturnValueOnce(mockDeleteFolderStatement);
+      
+      // Act
+      const result = dbService.deleteFolder(folderId);
+      
+      // Assert
+      expect(result).toBe(false);
+      // Notes should be deleted, but operation should fail because folder deletion failed
+      expect(mockDeleteNotesStatement.run).toHaveBeenCalledWith(folderId);
+      expect(mockDeleteFolderStatement.run).toHaveBeenCalledWith(folderId);
+    });
+    
+    it('should return false when an error occurs during deletion', () => {
+      // Arrange
+      const folderId = 'error-folder';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return a folder
+      const mockFolder = { 
+        id: folderId, 
+        title: 'Error Folder', 
+        parent_id: 'parent-folder-id',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getFolderById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockFolder) };
+      
+      // Second prepare call throws an error
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockImplementationOnce(() => {
+          throw new Error('Database error during deletion');
+        });
+      
+      // Act
+      const result = dbService.deleteFolder(folderId);
+      
+      // Assert
+      expect(result).toBe(false);
+    });
+    
+    it('should delete child folders recursively', () => {
+      // Arrange
+      const folderId = 'parent-folder';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return a folder
+      const mockFolder = { 
+        id: folderId, 
+        title: 'Parent Folder', 
+        parent_id: '',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // Mock to find child folders
+      const mockChildFolders = [
+        { id: 'child-folder-1' },
+        { id: 'child-folder-2' }
+      ];
+      
+      // First prepare call is for getFolderById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockFolder) };
+      // Second prepare call is for finding child folders
+      const mockFindChildrenStatement = { all: jest.fn().mockReturnValue(mockChildFolders) };
+      // Third and subsequent calls for deleting notes and folders
+      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockFindChildrenStatement)
+        .mockReturnValue(mockDeleteStatement);
+      
+      // Act
+      const result = dbService.deleteFolder(folderId, true); // true for recursive deletion
+      
+      // Assert
+      expect(result).toBe(true);
+      
+      // Verify child folders were found
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, 'SELECT id FROM folders WHERE parent_id = ?'
+      );
+      expect(mockFindChildrenStatement.all).toHaveBeenCalledWith(folderId);
+      
+      // Verify notes deletion and folder deletion were called for each child folder
+      // and for the parent folder
+      expect(mockDeleteStatement.run).toHaveBeenCalledTimes(5); // 2 child folders (notes + folder) + parent folder
+    });
+  });
 });
