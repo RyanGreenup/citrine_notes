@@ -178,6 +178,32 @@ export class DatabaseService {
 
   // Delete ///////////////////////////////////////////////////////////////////
 
+  // Delete a note by ID
+  public deleteNote(id: string): boolean {
+    try {
+      // Check if the note exists
+      const existingNote = this.getNoteById(id);
+      if (!existingNote) {
+        console.error(`Cannot delete note: Note with ID ${id} not found`);
+        return false;
+      }
+      
+      // Delete the note from the database
+      const stmt = this.db.prepare('DELETE FROM notes WHERE id = ?');
+      const result = stmt.run(id);
+      
+      if (result.changes === 0) {
+        console.error(`No note deleted with ID ${id}`);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error(`Error deleting note with ID ${id}:`, error);
+      return false;
+    }
+  }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Folders /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////

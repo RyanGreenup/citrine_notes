@@ -372,4 +372,131 @@ describe('DatabaseService', () => {
       expect(result).toBeNull();
     });
   });
+  
+  describe('deleteNote', () => {
+    it('should delete a note when it exists', () => {
+      // Arrange
+      const noteId = 'note-to-delete';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = { 
+        id: noteId, 
+        title: 'Note to Delete', 
+        body: 'This note will be deleted',
+        parent_id: 'folder-1',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for the DELETE statement
+      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockDeleteStatement);
+      
+      // Act
+      const result = dbService.deleteNote(noteId);
+      
+      // Assert
+      expect(result).toBe(true);
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1, 'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(noteId);
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, 'DELETE FROM notes WHERE id = ?'
+      );
+      expect(mockDeleteStatement.run).toHaveBeenCalledWith(noteId);
+    });
+    
+    it('should return false when the note does not exist', () => {
+      // Arrange
+      const noteId = 'non-existent-note';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return null (note not found)
+      const mockGetStatement = { get: jest.fn().mockReturnValue(null) };
+      mockDb.prepare.mockReturnValue(mockGetStatement);
+      
+      // Act
+      const result = dbService.deleteNote(noteId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(noteId);
+      // The DELETE statement should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
+    });
+    
+    it('should return false when no rows are affected by the delete operation', () => {
+      // Arrange
+      const noteId = 'note-not-deleted';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = { 
+        id: noteId, 
+        title: 'Note Not Deleted', 
+        body: 'This note will not be deleted',
+        parent_id: 'folder-1',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for the DELETE statement, but no rows affected
+      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockDeleteStatement);
+      
+      // Act
+      const result = dbService.deleteNote(noteId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(mockDeleteStatement.run).toHaveBeenCalledWith(noteId);
+    });
+    
+    it('should return false when an error occurs during deletion', () => {
+      // Arrange
+      const noteId = 'error-note';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = { 
+        id: noteId, 
+        title: 'Error Note', 
+        body: 'This note will cause an error',
+        parent_id: 'folder-1',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      
+      // Second prepare call throws an error
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockImplementationOnce(() => {
+          throw new Error('Database error during deletion');
+        });
+      
+      // Act
+      const result = dbService.deleteNote(noteId);
+      
+      // Assert
+      expect(result).toBe(false);
+    });
+  });
 });
