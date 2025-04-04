@@ -294,6 +294,50 @@ export class DatabaseService {
     }
   }
 
+  // Move a folder to a different parent folder
+  public moveFolder(id: string, newParentId: string): Folder | null {
+    try {
+      const now = Date.now();
+
+      // Check if the folder exists
+      const existingFolder = this.getFolderById(id);
+      if (!existingFolder) {
+        console.error(`Cannot move folder: Folder with ID ${id} not found`);
+        return null;
+      }
+
+      // Prevent a folder from being its own parent
+      if (id === newParentId) {
+        console.error(`Cannot move folder: A folder cannot be its own parent`);
+        return null;
+      }
+
+      // Update the folder's parent_id in the database
+      const stmt = this.db.prepare(
+        'UPDATE folders SET parent_id = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
+      );
+
+      const result = stmt.run(newParentId, now, now, id);
+
+      if (result.changes === 0) {
+        console.error(`No changes made to folder with ID ${id}`);
+        return null;
+      }
+
+      // Return the updated folder
+      return {
+        id,
+        title: existingFolder.title,
+        parent_id: newParentId,
+        user_created_time: existingFolder.user_created_time,
+        user_updated_time: now
+      };
+    } catch (error) {
+      console.error(`Error moving folder with ID ${id}:`, error);
+      return null;
+    }
+  }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Folder-Notes ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
