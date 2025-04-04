@@ -137,6 +137,44 @@ export class DatabaseService {
 
   // Update ///////////////////////////////////////////////////////////////////
 
+  // Update an existing folder
+  public updateFolder(id: string, title: string): Folder | null {
+    try {
+      const now = Date.now();
+      
+      // Check if the folder exists
+      const existingFolder = this.getFolderById(id);
+      if (!existingFolder) {
+        console.error(`Cannot update folder: Folder with ID ${id} not found`);
+        return null;
+      }
+      
+      // Update the folder in the database
+      const stmt = this.db.prepare(
+        'UPDATE folders SET title = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
+      );
+      
+      const result = stmt.run(title, now, now, id);
+      
+      if (result.changes === 0) {
+        console.error(`No changes made to folder with ID ${id}`);
+        return null;
+      }
+      
+      // Return the updated folder
+      return {
+        id,
+        title,
+        parent_id: existingFolder.parent_id,
+        user_created_time: existingFolder.user_created_time,
+        user_updated_time: now
+      };
+    } catch (error) {
+      console.error(`Error updating folder with ID ${id}:`, error);
+      return null;
+    }
+  }
+
   // Update an existing note
   public updateNote(id: string, title: string, body: string): Note | null {
     try {
@@ -234,6 +272,19 @@ export class DatabaseService {
       };
     } catch (error) {
       console.error('Error creating new folder:', error);
+      return null;
+    }
+  }
+
+  // Get a single folder by ID
+  public getFolderById(id: string): Folder | null {
+    try {
+      const stmt = this.db.prepare(
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM folders WHERE id = ?'
+      );
+      return stmt.get(id) as Folder || null;
+    } catch (error) {
+      console.error(`Error fetching folder with ID ${id}:`, error);
       return null;
     }
   }

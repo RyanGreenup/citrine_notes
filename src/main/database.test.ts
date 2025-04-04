@@ -499,4 +499,145 @@ describe('DatabaseService', () => {
       expect(result).toBe(false);
     });
   });
+
+  describe('updateFolder', () => {
+    it('should update a folder title when the folder exists', () => {
+      // Arrange
+      const folderId = 'folder-to-update';
+      const newTitle = 'Updated Folder Title';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return a folder
+      const mockFolder = { 
+        id: folderId, 
+        title: 'Original Folder Title', 
+        parent_id: 'parent-folder-id',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getFolderById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockFolder) };
+      // Second prepare call is for the UPDATE statement
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockUpdateStatement);
+      
+      // Act
+      const result = dbService.updateFolder(folderId, newTitle);
+      
+      // Assert
+      expect(result).not.toBeNull();
+      expect(result).toEqual({
+        id: folderId,
+        title: newTitle,
+        parent_id: 'parent-folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      });
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM folders WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(folderId);
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, 'UPDATE folders SET title = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
+      );
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(
+        newTitle, 1000000, 1000000, folderId
+      );
+    });
+    
+    it('should return null when the folder does not exist', () => {
+      // Arrange
+      const folderId = 'non-existent-folder';
+      const newTitle = 'New Title';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return null (folder not found)
+      const mockGetStatement = { get: jest.fn().mockReturnValue(null) };
+      mockDb.prepare.mockReturnValue(mockGetStatement);
+      
+      // Act
+      const result = dbService.updateFolder(folderId, newTitle);
+      
+      // Assert
+      expect(result).toBeNull();
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM folders WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(folderId);
+      // The UPDATE statement should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
+    });
+    
+    it('should return null when no rows are affected by the update operation', () => {
+      // Arrange
+      const folderId = 'folder-not-updated';
+      const newTitle = 'New Title';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return a folder
+      const mockFolder = { 
+        id: folderId, 
+        title: 'Original Title', 
+        parent_id: 'parent-folder-id',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getFolderById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockFolder) };
+      // Second prepare call is for the UPDATE statement, but no rows affected
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockUpdateStatement);
+      
+      // Act
+      const result = dbService.updateFolder(folderId, newTitle);
+      
+      // Assert
+      expect(result).toBeNull();
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(
+        newTitle, 1000000, 1000000, folderId
+      );
+    });
+    
+    it('should return null when an error occurs during update', () => {
+      // Arrange
+      const folderId = 'error-folder';
+      const newTitle = 'Error Title';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return a folder
+      const mockFolder = { 
+        id: folderId, 
+        title: 'Original Title', 
+        parent_id: 'parent-folder-id',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getFolderById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockFolder) };
+      
+      // Second prepare call throws an error
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockImplementationOnce(() => {
+          throw new Error('Database error during update');
+        });
+      
+      // Act
+      const result = dbService.updateFolder(folderId, newTitle);
+      
+      // Assert
+      expect(result).toBeNull();
+    });
+  });
 });
