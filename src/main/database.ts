@@ -338,6 +338,48 @@ export class DatabaseService {
     }
   }
 
+  // Delete a folder and all its notes
+  public deleteFolder(id: string, recursive: boolean = false): boolean {
+    try {
+      // Check if the folder exists
+      const existingFolder = this.getFolderById(id);
+      if (!existingFolder) {
+        console.error(`Cannot delete folder: Folder with ID ${id} not found`);
+        return false;
+      }
+
+      // If recursive is true, delete all child folders first
+      if (recursive) {
+        // Find all child folders
+        const stmt = this.db.prepare('SELECT id FROM folders WHERE parent_id = ?');
+        const childFolders = stmt.all(id);
+        
+        // Recursively delete each child folder
+        for (const childFolder of childFolders) {
+          this.deleteFolder(childFolder.id, true);
+        }
+      }
+      
+      // Delete all notes with this folder as parent
+      const deleteNotesStmt = this.db.prepare('DELETE FROM notes WHERE parent_id = ?');
+      deleteNotesStmt.run(id);
+      
+      // Delete the folder itself
+      const deleteFolderStmt = this.db.prepare('DELETE FROM folders WHERE id = ?');
+      const result = deleteFolderStmt.run(id);
+      
+      if (result.changes === 0) {
+        console.error(`No folder deleted with ID ${id}`);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error(`Error deleting folder with ID ${id}:`, error);
+      return false;
+    }
+  }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Folder-Notes ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
