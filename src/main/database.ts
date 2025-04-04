@@ -356,6 +356,15 @@ export class DatabaseService {
         
         // Recursively delete each child folder
         for (const childFolder of childFolders) {
+          // Delete notes in child folder
+          const deleteChildNotesStmt = this.db.prepare('DELETE FROM notes WHERE parent_id = ?');
+          deleteChildNotesStmt.run(childFolder.id);
+          
+          // Delete the child folder itself
+          const deleteChildFolderStmt = this.db.prepare('DELETE FROM folders WHERE id = ?');
+          deleteChildFolderStmt.run(childFolder.id);
+          
+          // Also check for nested child folders
           this.deleteFolder(childFolder.id, true);
         }
       }
