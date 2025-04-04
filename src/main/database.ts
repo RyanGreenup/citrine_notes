@@ -156,6 +156,7 @@ export class DatabaseService {
         id,
         title,
         body,
+        parent_id: existingNote.parent_id,
         user_created_time: existingNote.user_created_time,
         user_updated_time: now
       };
