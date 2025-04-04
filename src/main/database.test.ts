@@ -640,4 +640,207 @@ describe('DatabaseService', () => {
       expect(result).toBeNull();
     });
   });
+
+  describe('moveFolder', () => {
+    it('should change the parent_id of a folder when the folder exists', () => {
+      // Arrange
+      const folderId = 'folder-to-move';
+      const newParentId = 'new-parent-folder';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return a folder
+      const mockFolder = { 
+        id: folderId, 
+        title: 'Folder to Move', 
+        parent_id: 'old-parent-folder',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getFolderById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockFolder) };
+      // Second prepare call is for the UPDATE statement
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockUpdateStatement);
+      
+      // Act
+      const result = dbService.moveFolder(folderId, newParentId);
+      
+      // Assert
+      expect(result).not.toBeNull();
+      expect(result).toEqual({
+        id: folderId,
+        title: 'Folder to Move',
+        parent_id: newParentId,
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      });
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM folders WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(folderId);
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, 'UPDATE folders SET parent_id = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
+      );
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(
+        newParentId, 1000000, 1000000, folderId
+      );
+    });
+    
+    it('should allow moving a folder to the root level by passing empty parent_id', () => {
+      // Arrange
+      const folderId = 'folder-to-root';
+      const newParentId = ''; // Empty string for root level
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return a folder
+      const mockFolder = { 
+        id: folderId, 
+        title: 'Folder to Root', 
+        parent_id: 'some-parent-folder',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getFolderById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockFolder) };
+      // Second prepare call is for the UPDATE statement
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockUpdateStatement);
+      
+      // Act
+      const result = dbService.moveFolder(folderId, newParentId);
+      
+      // Assert
+      expect(result).not.toBeNull();
+      expect(result.parent_id).toBe('');
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(
+        '', 1000000, 1000000, folderId
+      );
+    });
+    
+    it('should return null when the folder does not exist', () => {
+      // Arrange
+      const folderId = 'non-existent-folder';
+      const newParentId = 'some-parent';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return null (folder not found)
+      const mockGetStatement = { get: jest.fn().mockReturnValue(null) };
+      mockDb.prepare.mockReturnValue(mockGetStatement);
+      
+      // Act
+      const result = dbService.moveFolder(folderId, newParentId);
+      
+      // Assert
+      expect(result).toBeNull();
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM folders WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(folderId);
+      // The UPDATE statement should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
+    });
+    
+    it('should return null when no rows are affected by the move operation', () => {
+      // Arrange
+      const folderId = 'folder-not-moved';
+      const newParentId = 'new-parent';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return a folder
+      const mockFolder = { 
+        id: folderId, 
+        title: 'Folder Not Moved', 
+        parent_id: 'old-parent',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getFolderById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockFolder) };
+      // Second prepare call is for the UPDATE statement, but no rows affected
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockUpdateStatement);
+      
+      // Act
+      const result = dbService.moveFolder(folderId, newParentId);
+      
+      // Assert
+      expect(result).toBeNull();
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(
+        newParentId, 1000000, 1000000, folderId
+      );
+    });
+    
+    it('should return null when an error occurs during the move operation', () => {
+      // Arrange
+      const folderId = 'error-folder';
+      const newParentId = 'error-parent';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return a folder
+      const mockFolder = { 
+        id: folderId, 
+        title: 'Error Folder', 
+        parent_id: 'old-parent',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getFolderById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockFolder) };
+      
+      // Second prepare call throws an error
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockImplementationOnce(() => {
+          throw new Error('Database error during move operation');
+        });
+      
+      // Act
+      const result = dbService.moveFolder(folderId, newParentId);
+      
+      // Assert
+      expect(result).toBeNull();
+    });
+    
+    it('should prevent moving a folder to be its own parent', () => {
+      // Arrange
+      const folderId = 'self-parent-folder';
+      const newParentId = folderId; // Same as folder ID
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getFolderById to return a folder
+      const mockFolder = { 
+        id: folderId, 
+        title: 'Self Parent Folder', 
+        parent_id: 'old-parent',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockFolder) };
+      mockDb.prepare.mockReturnValue(mockGetStatement);
+      
+      // Act
+      const result = dbService.moveFolder(folderId, newParentId);
+      
+      // Assert
+      expect(result).toBeNull();
+      // The UPDATE statement should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
+    });
+  });
 });
