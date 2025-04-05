@@ -2381,6 +2381,184 @@ describe('DatabaseService', () => {
     });
   });
 
+  describe('buildTagTree', () => {
+    it('should build a tree structure from flat list of tags', () => {
+      // Arrange
+      // Mock tags data
+      const mockTags = [
+        { id: 'tag1', title: 'Root Tag 1', parent_id: '' },
+        { id: 'tag2', title: 'Root Tag 2', parent_id: '' },
+        { id: 'subtag1', title: 'Subtag 1', parent_id: 'tag1' },
+        { id: 'subtag2', title: 'Subtag 2', parent_id: 'tag1' },
+        { id: 'subtag3', title: 'Subtag 3', parent_id: 'tag2' }
+      ];
+
+      // Expected tree structure
+      const expectedTree = {
+        id: 'ROOT',
+        name: 'Tags',
+        children: [
+          {
+            id: 'tag1',
+            name: 'Root Tag 1',
+            children: [
+              {
+                id: 'subtag1',
+                name: 'Subtag 1'
+              },
+              {
+                id: 'subtag2',
+                name: 'Subtag 2'
+              }
+            ]
+          },
+          {
+            id: 'tag2',
+            name: 'Root Tag 2',
+            children: [
+              {
+                id: 'subtag3',
+                name: 'Subtag 3'
+              }
+            ]
+          }
+        ]
+      };
+
+      // Mock database methods to return our test data
+      const mockDb = require('better-sqlite3')();
+      const mockTagsStatement = { all: jest.fn().mockReturnValue(mockTags) };
+      mockDb.prepare.mockReturnValue(mockTagsStatement);
+
+      // Act
+      const tree = dbService.buildTagTree();
+
+      // Assert
+      expect(tree).toEqual(expectedTree);
+
+      // Verify the database was queried for tags
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags'
+      );
+      expect(mockTagsStatement.all).toHaveBeenCalled();
+    });
+
+    it('should handle empty database with no tags', () => {
+      // Arrange
+      const mockTags: any[] = [];
+
+      // Expected tree structure with just the root
+      const expectedTree = {
+        id: 'ROOT',
+        name: 'Tags',
+        children: []
+      };
+
+      // Mock database methods to return empty arrays
+      const mockDb = require('better-sqlite3')();
+      const mockTagsStatement = { all: jest.fn().mockReturnValue(mockTags) };
+      mockDb.prepare.mockReturnValue(mockTagsStatement);
+
+      // Act
+      const tree = dbService.buildTagTree();
+
+      // Assert
+      expect(tree).toEqual(expectedTree);
+    });
+
+    it('should handle circular references in tag structure', () => {
+      // Arrange - create a circular reference in tags
+      const mockTags = [
+        { id: 'tag1', title: 'Tag 1', parent_id: 'tag2' },
+        { id: 'tag2', title: 'Tag 2', parent_id: 'tag1' } // Circular reference
+      ];
+
+      // Expected tree - both tags should be at root level to break the circular reference
+      const expectedTree = {
+        id: 'ROOT',
+        name: 'Tags',
+        children: [
+          {
+            id: 'tag1',
+            name: 'Tag 1'
+          },
+          {
+            id: 'tag2',
+            name: 'Tag 2'
+          }
+        ]
+      };
+
+      // Mock database methods
+      const mockDb = require('better-sqlite3')();
+      const mockTagsStatement = { all: jest.fn().mockReturnValue(mockTags) };
+      mockDb.prepare.mockReturnValue(mockTagsStatement);
+
+      // Act
+      const tree = dbService.buildTagTree();
+
+      // Assert
+      expect(tree).toEqual(expectedTree);
+    });
+
+    it('should handle tags with non-existent parent tags', () => {
+      // Arrange
+      const mockTags = [
+        { id: 'tag1', title: 'Tag 1', parent_id: '' },
+        { id: 'tag2', title: 'Tag 2', parent_id: 'non-existent-tag' }
+      ];
+
+      // Expected tree - tag with non-existent parent should be at root level
+      const expectedTree = {
+        id: 'ROOT',
+        name: 'Tags',
+        children: [
+          {
+            id: 'tag1',
+            name: 'Tag 1'
+          },
+          {
+            id: 'tag2',
+            name: 'Tag 2'
+          }
+        ]
+      };
+
+      // Mock database methods
+      const mockDb = require('better-sqlite3')();
+      const mockTagsStatement = { all: jest.fn().mockReturnValue(mockTags) };
+      mockDb.prepare.mockReturnValue(mockTagsStatement);
+
+      // Act
+      const tree = dbService.buildTagTree();
+
+      // Assert
+      expect(tree).toEqual(expectedTree);
+    });
+
+    it('should return a default tree when an error occurs', () => {
+      // Arrange
+      const mockDb = require('better-sqlite3')();
+      mockDb.prepare.mockImplementation(() => {
+        throw new Error('Database error');
+      });
+
+      // Expected default tree
+      const expectedTree = {
+        id: 'ROOT',
+        name: 'Tags',
+        children: []
+      };
+
+      // Act
+      const tree = dbService.buildTagTree();
+
+      // Assert
+      expect(tree).toEqual(expectedTree);
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
   describe('createTag', () => {
     it('should create a new tag with the provided title', () => {
       // Arrange
