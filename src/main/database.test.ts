@@ -1047,6 +1047,222 @@ describe('DatabaseService', () => {
     });
   });
 
+  describe('buildNoteTree', () => {
+    it('should build a tree structure from flat lists of notes and folders', () => {
+      // Arrange
+      // Mock folders data
+      const mockFolders = [
+        { id: 'folder1', title: 'Root Folder 1', parent_id: '' },
+        { id: 'folder2', title: 'Root Folder 2', parent_id: '' },
+        { id: 'subfolder1', title: 'Subfolder 1', parent_id: 'folder1' },
+        { id: 'subfolder2', title: 'Subfolder 2', parent_id: 'folder1' }
+      ];
+      
+      // Mock notes data
+      const mockNotes = [
+        { id: 'note1', title: 'Root Note 1', parent_id: '' },
+        { id: 'note2', title: 'Folder Note 1', parent_id: 'folder1' },
+        { id: 'note3', title: 'Subfolder Note 1', parent_id: 'subfolder1' },
+        { id: 'note4', title: 'Folder Note 2', parent_id: 'folder2' }
+      ];
+      
+      // Expected tree structure
+      const expectedTree = {
+        id: 'ROOT',
+        name: '',
+        children: [
+          {
+            id: 'folder1',
+            name: 'Root Folder 1',
+            children: [
+              {
+                id: 'subfolder1',
+                name: 'Subfolder 1',
+                children: [
+                  {
+                    id: 'note3',
+                    name: 'Subfolder Note 1'
+                  }
+                ]
+              },
+              {
+                id: 'subfolder2',
+                name: 'Subfolder 2'
+              },
+              {
+                id: 'note2',
+                name: 'Folder Note 1'
+              }
+            ]
+          },
+          {
+            id: 'folder2',
+            name: 'Root Folder 2',
+            children: [
+              {
+                id: 'note4',
+                name: 'Folder Note 2'
+              }
+            ]
+          },
+          {
+            id: 'note1',
+            name: 'Root Note 1'
+          }
+        ]
+      };
+      
+      // Mock database methods to return our test data
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock for getAllFolders (we'll need to implement this)
+      const mockFoldersStatement = { all: jest.fn().mockReturnValue(mockFolders) };
+      
+      // Mock for getAllNotes
+      const mockNotesStatement = { all: jest.fn().mockReturnValue(mockNotes) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockFoldersStatement)
+        .mockReturnValueOnce(mockNotesStatement);
+      
+      // Act
+      const tree = dbService.buildNoteTree();
+      
+      // Assert
+      expect(tree).toEqual(expectedTree);
+      
+      // Verify the database was queried for folders and notes
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1, 'SELECT id, title, parent_id FROM folders'
+      );
+      expect(mockFoldersStatement.all).toHaveBeenCalled();
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, 'SELECT id, title, parent_id FROM notes'
+      );
+      expect(mockNotesStatement.all).toHaveBeenCalled();
+    });
+    
+    it('should handle empty database with no notes or folders', () => {
+      // Arrange
+      const mockFolders: any[] = [];
+      const mockNotes: any[] = [];
+      
+      // Expected tree structure with just the root
+      const expectedTree = {
+        id: 'ROOT',
+        name: '',
+        children: []
+      };
+      
+      // Mock database methods to return empty arrays
+      const mockDb = require('better-sqlite3')();
+      const mockFoldersStatement = { all: jest.fn().mockReturnValue(mockFolders) };
+      const mockNotesStatement = { all: jest.fn().mockReturnValue(mockNotes) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockFoldersStatement)
+        .mockReturnValueOnce(mockNotesStatement);
+      
+      // Act
+      const tree = dbService.buildNoteTree();
+      
+      // Assert
+      expect(tree).toEqual(expectedTree);
+    });
+    
+    it('should handle circular references in folder structure', () => {
+      // Arrange - create a circular reference in folders
+      const mockFolders = [
+        { id: 'folder1', title: 'Folder 1', parent_id: 'folder2' },
+        { id: 'folder2', title: 'Folder 2', parent_id: 'folder1' } // Circular reference
+      ];
+      
+      const mockNotes = [
+        { id: 'note1', title: 'Note 1', parent_id: 'folder1' }
+      ];
+      
+      // Expected tree - both folders should be at root level to break the circular reference
+      const expectedTree = {
+        id: 'ROOT',
+        name: '',
+        children: [
+          {
+            id: 'folder1',
+            name: 'Folder 1',
+            children: [
+              {
+                id: 'note1',
+                name: 'Note 1'
+              }
+            ]
+          },
+          {
+            id: 'folder2',
+            name: 'Folder 2'
+          }
+        ]
+      };
+      
+      // Mock database methods
+      const mockDb = require('better-sqlite3')();
+      const mockFoldersStatement = { all: jest.fn().mockReturnValue(mockFolders) };
+      const mockNotesStatement = { all: jest.fn().mockReturnValue(mockNotes) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockFoldersStatement)
+        .mockReturnValueOnce(mockNotesStatement);
+      
+      // Act
+      const tree = dbService.buildNoteTree();
+      
+      // Assert
+      expect(tree).toEqual(expectedTree);
+    });
+    
+    it('should handle notes with non-existent parent folders', () => {
+      // Arrange
+      const mockFolders = [
+        { id: 'folder1', title: 'Folder 1', parent_id: '' }
+      ];
+      
+      const mockNotes = [
+        { id: 'note1', title: 'Note 1', parent_id: 'non-existent-folder' }
+      ];
+      
+      // Expected tree - note with non-existent parent should be at root level
+      const expectedTree = {
+        id: 'ROOT',
+        name: '',
+        children: [
+          {
+            id: 'folder1',
+            name: 'Folder 1'
+          },
+          {
+            id: 'note1',
+            name: 'Note 1'
+          }
+        ]
+      };
+      
+      // Mock database methods
+      const mockDb = require('better-sqlite3')();
+      const mockFoldersStatement = { all: jest.fn().mockReturnValue(mockFolders) };
+      const mockNotesStatement = { all: jest.fn().mockReturnValue(mockNotes) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockFoldersStatement)
+        .mockReturnValueOnce(mockNotesStatement);
+      
+      // Act
+      const tree = dbService.buildNoteTree();
+      
+      // Assert
+      expect(tree).toEqual(expectedTree);
+    });
+  });
+
   describe('deleteFolder', () => {
     it('should delete a folder and all its notes when the folder exists', () => {
       // Arrange
