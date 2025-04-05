@@ -103,7 +103,16 @@ app.whenReady().then(() => {
     ipcMain.handle('db:notes:updateNoteBody', (_event, id: string, body: string): Note | null => {
       return databaseService!.updateNoteBody(id, body)
     })
+    ipcMain.handle(
+      'db:notes:updateNote',
+      (_event, id: string, title: string, body: string): Note | null => {
+        return databaseService!.updateNote(id, title, body)
+      }
+    )
     // Delete _________________________________________________________________
+    ipcMain.handle('db:notes:delete', (_event, id: string): boolean => {
+      return databaseService.deleteNote(id)
+    })
     // Tree ___________________________________________________________________
     // ........................................................................
 
