@@ -1263,6 +1263,63 @@ describe('DatabaseService', () => {
     });
   });
 
+  describe('getTagById', () => {
+    it('should return null when tag with given ID does not exist', () => {
+      // Arrange
+      const mockDb = require('better-sqlite3')();
+      const mockStatement = { get: jest.fn().mockReturnValue(null) };
+      mockDb.prepare.mockReturnValue(mockStatement);
+      
+      // Act
+      const tag = dbService.getTagById('non-existent-id');
+      
+      // Assert
+      expect(tag).toBeNull();
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      );
+      expect(mockStatement.get).toHaveBeenCalledWith('non-existent-id');
+    });
+    
+    it('should return the tag with the given ID', () => {
+      // Arrange
+      const mockTag = {
+        id: 'specific-tag-id',
+        title: 'Test Tag',
+        parent_id: 'parent-tag-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      const mockDb = require('better-sqlite3')();
+      const mockStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      mockDb.prepare.mockReturnValue(mockStatement);
+      
+      // Act
+      const tag = dbService.getTagById('specific-tag-id');
+      
+      // Assert
+      expect(tag).not.toBeNull();
+      expect(tag).toEqual(mockTag);
+      expect(mockStatement.get).toHaveBeenCalledWith('specific-tag-id');
+    });
+    
+    it('should return null when an error occurs', () => {
+      // Arrange - create a scenario that will cause an error
+      const mockDb = require('better-sqlite3')();
+      mockDb.prepare.mockImplementation(() => {
+        throw new Error('Database error');
+      });
+      
+      // Act
+      const tag = dbService.getTagById('any-id');
+      
+      // Assert
+      expect(tag).toBeNull();
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
   describe('createTag', () => {
     it('should create a new tag with the provided title', () => {
       // Arrange
