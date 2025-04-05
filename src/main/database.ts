@@ -707,6 +707,22 @@ export class DatabaseService {
   // Read   ///////////////////////////////////////////////////////////////////
  
   // Get a Tag By ID ..........................................................
+  /**
+   * Gets a tag by its ID
+   * @param id The ID of the tag to retrieve
+   * @returns The tag or null if not found
+   */
+  public getTagById(id: string): Tag | null {
+    try {
+      const stmt = this.db.prepare(
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      );
+      return (stmt.get(id) as Tag) || null;
+    } catch (error) {
+      console.error(`Error fetching tag with ID ${id}:`, error);
+      return null;
+    }
+  }
   
   // Get all Tags .............................................................
   
