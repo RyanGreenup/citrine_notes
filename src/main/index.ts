@@ -4,6 +4,8 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { DatabaseService, Folder, Note, Tag, Resource } from './database'
 import path from 'path'
+import fs from 'fs'
+import os from 'os'
 
 // Get database path from environment variable
 let dbPath: string | null = process.env.DB_PATH || null
@@ -74,6 +76,41 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+  
+  // Handle file selection for resource upload
+  ipcMain.handle('dialog:openFile', async () => {
+    const { dialog } = require('electron')
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    })
+    
+    if (result.canceled) {
+      return null
+    }
+    
+    const filePath = result.filePaths[0]
+    
+    try {
+      const stats = await fs.promises.stat(filePath)
+      const fileExtension = path.extname(filePath).replace('.', '')
+      const fileName = path.basename(filePath)
+      const mimeType = getMimeType(fileExtension)
+      
+      return {
+        path: filePath,
+        name: fileName,
+        extension: fileExtension,
+        size: stats.size,
+        mime: mimeType
+      }
+    } catch (error) {
+      console.error('Error reading file:', error)
+      return null
+    }
+  })
 
   // Get database status
   ipcMain.handle('db:getStatus', (): { connected: boolean; path: string | null } => {
@@ -231,18 +268,52 @@ app.whenReady().then(() => {
 
     // Resources //////////////////////////////////////////////////////////////
     // Create _________________________________________________________________
-    // Improve this function to copy it to ~/.config/joplin-desktop/resources/{id}.{ext} AI!
     ipcMain.handle(
       'db:resources:create',
-      (
+      async (
         _event,
         title: string,
         mime: string,
         filename: string,
         fileExtension: string,
-        size: number
+        size: number,
+        sourcePath: string
       ) => {
-        return databaseService!.createResource(title, mime, filename, fileExtension, size)
+        try {
+          // Create the resource in the database
+          const resource = databaseService!.createResource(title, mime, filename, fileExtension, size)
+          
+          if (!resource) {
+            console.error('Failed to create resource in database')
+            return null
+          }
+          
+          // Determine Joplin resources directory
+          const resourcesDir = path.join(
+            os.homedir(),
+            '.config',
+            'joplin-desktop',
+            'resources'
+          )
+          
+          // Create the resources directory if it doesn't exist
+          if (!fs.existsSync(resourcesDir)) {
+            fs.mkdirSync(resourcesDir, { recursive: true })
+          }
+          
+          // Determine destination path
+          const destPath = path.join(resourcesDir, `${resource.id}.${fileExtension}`)
+          
+          // Copy the file to the resources directory
+          await fs.promises.copyFile(sourcePath, destPath)
+          
+          console.log(`Resource copied to: ${destPath}`)
+          
+          return resource
+        } catch (error) {
+          console.error('Error creating resource:', error)
+          return null
+        }
       }
     )
     // Read ___________________________________________________________________
@@ -305,3 +376,36 @@ app.on('will-quit', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+// Helper function to determine MIME type from file extension
+function getMimeType(extension: string): string {
+  const mimeTypes: Record<string, string> = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'webp': 'image/webp',
+    'svg': 'image/svg+xml',
+    'pdf': 'application/pdf',
+    'doc': 'application/msword',
+    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'xls': 'application/vnd.ms-excel',
+    'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'ppt': 'application/vnd.ms-powerpoint',
+    'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'txt': 'text/plain',
+    'html': 'text/html',
+    'css': 'text/css',
+    'js': 'text/javascript',
+    'json': 'application/json',
+    'xml': 'application/xml',
+    'zip': 'application/zip',
+    'mp3': 'audio/mpeg',
+    'mp4': 'video/mp4',
+    'wav': 'audio/wav',
+    'ogg': 'audio/ogg',
+    'webm': 'video/webm'
+  }
+  
+  return mimeTypes[extension.toLowerCase()] || 'application/octet-stream'
+}
