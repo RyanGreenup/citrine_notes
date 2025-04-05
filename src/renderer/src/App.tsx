@@ -8,6 +8,7 @@ const DummyContent: Component = () => {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
   return (
+
     <div class="p-4">
       <h1 class="text-3xl font-bold underline mb-4">Notes App</h1>
       <div class="flex items-center mb-6">
