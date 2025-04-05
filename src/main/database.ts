@@ -393,6 +393,19 @@ export class DatabaseService {
 // Folder-Notes ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+  // Get all notes in a specific folder
+  public getNotesByFolderId(folderId: string): Note[] {
+    try {
+      const stmt = this.db.prepare(
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE parent_id = ?'
+      );
+      return stmt.all(folderId) as Note[];
+    } catch (error) {
+      console.error(`Error fetching notes for folder ID ${folderId}:`, error);
+      return [];
+    }
+  }
+
   // Close the database connection
   public close(): void {
     try {
