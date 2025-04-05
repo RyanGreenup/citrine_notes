@@ -6,23 +6,23 @@ import { DatabaseService, Note } from './database'
 import path from 'path'
 
 // Get database path from environment variable
-let dbPath: string | null = process.env.DB_PATH || null;
+let dbPath: string | null = process.env.DB_PATH || null
 
 // Initialize database service if path is provided
-let databaseService: DatabaseService | null = null;
+let databaseService: DatabaseService | null = null
 if (dbPath) {
   try {
-    databaseService = DatabaseService.getInstance(path.resolve(dbPath));
+    databaseService = DatabaseService.getInstance(path.resolve(dbPath))
   } catch (error) {
-    console.error('Failed to initialize database:', error);
+    console.error('Failed to initialize database:', error)
     // Show error dialog when app is ready
     app.whenReady().then(() => {
-      const { dialog } = require('electron');
+      const { dialog } = require('electron')
       dialog.showErrorBox(
         'Database Error',
         `Failed to connect to the database. You may need to rebuild the better-sqlite3 module.\n\nError: ${error.message}`
-      );
-    });
+      )
+    })
   }
 }
 
@@ -75,35 +75,73 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
+  // Get database status
+  ipcMain.handle('db:getStatus', (): { connected: boolean; path: string | null } => {
+    return {
+      connected: !!databaseService,
+      path: dbPath
+    }
+  })
+
   // Database IPC handlers
   if (databaseService) {
-    // Get all notes
-    ipcMain.handle('db:getAllNotes', (): Note[] => {
-      return databaseService!.getAllNotes();
-    });
+    // Notes //////////////////////////////////////////////////////////////////
+    // Create _________________________________________________________________
+    // Read ___________________________________________________________________
+    // Get All Notes ..........................................................
+    ipcMain.handle('db:notes:getAllNotes', (): Note[] => {
+      return databaseService!.getAllNotes()
+    })
+    // Get Note by ID .........................................................
+    // Expose the getNoteById method here AI!
+    // Update _________________________________________________________________
+    // Delete _________________________________________________________________
+    // Tree ___________________________________________________________________
+    // ........................................................................
+
+    // Folders ////////////////////////////////////////////////////////////////
+    // Create _________________________________________________________________
+    // Read ___________________________________________________________________
+    // Update _________________________________________________________________
+    // Delete _________________________________________________________________
+    // ........................................................................
+
+    // Folder-Notes ///////////////////////////////////////////////////////////
+    // Create _________________________________________________________________
+    // Read ___________________________________________________________________
+    // Update _________________________________________________________________
+    // Delete _________________________________________________________________
+    // ........................................................................
+
+    // Tags ///////////////////////////////////////////////////////////////////
+    // Create _________________________________________________________________
+    // Read ___________________________________________________________________
+    // Update _________________________________________________________________
+    // Delete _________________________________________________________________
+    // Tag Tree _______________________________________________________________
+    // ........................................................................
+
+    // Note-Tags //////////////////////////////////////////////////////////////
+    // Create _________________________________________________________________
+    // Read ___________________________________________________________________
+    // Update _________________________________________________________________
+    // Delete _________________________________________________________________
+    // ........................................................................
 
     // Get note by ID
     ipcMain.handle('db:getNoteById', (_, id: string): Note | null => {
-      return databaseService!.getNoteById(id);
-    });
+      return databaseService!.getNoteById(id)
+    })
 
-    // Get database status
-    ipcMain.handle('db:getStatus', (): { connected: boolean; path: string | null } => {
-      return { 
-        connected: !!databaseService,
-        path: dbPath
-      };
-    });
-    
     // Create a new note
     ipcMain.handle('db:createNote', (_, title: string, body: string): Note | null => {
-      return databaseService!.createNote(title, body);
-    });
-    
+      return databaseService!.createNote(title, body)
+    })
+
     // Update an existing note
     ipcMain.handle('db:updateNote', (_, id: string, title: string, body: string): Note | null => {
-      return databaseService!.updateNote(id, title, body);
-    });
+      return databaseService!.updateNote(id, title, body)
+    })
   }
 
   createWindow()
@@ -127,7 +165,7 @@ app.on('window-all-closed', () => {
 // Close database connection when app is about to quit
 app.on('will-quit', () => {
   if (databaseService) {
-    databaseService.close();
+    databaseService.close()
   }
 })
 
