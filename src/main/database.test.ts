@@ -1392,6 +1392,144 @@ describe('DatabaseService', () => {
     });
   });
 
+  describe('updateTag', () => {
+    it('should update a tag title when the tag exists', () => {
+      // Arrange
+      const tagId = 'tag-to-update';
+      const newTitle = 'Updated Tag Title';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getTagById to return a tag
+      const mockTag = {
+        id: tagId,
+        title: 'Original Tag Title',
+        parent_id: 'parent-tag-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getTagById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      // Second prepare call is for the UPDATE statement
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockUpdateStatement);
+      
+      // Act
+      const result = dbService.updateTag(tagId, newTitle);
+      
+      // Assert
+      expect(result).not.toBeNull();
+      expect(result).toEqual({
+        id: tagId,
+        title: newTitle,
+        parent_id: 'parent-tag-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      });
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId);
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, 'UPDATE tags SET title = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
+      );
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newTitle, 1000000, 1000000, tagId);
+    });
+    
+    it('should return null when the tag does not exist', () => {
+      // Arrange
+      const tagId = 'non-existent-tag';
+      const newTitle = 'New Title';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getTagById to return null (tag not found)
+      const mockGetStatement = { get: jest.fn().mockReturnValue(null) };
+      mockDb.prepare.mockReturnValue(mockGetStatement);
+      
+      // Act
+      const result = dbService.updateTag(tagId, newTitle);
+      
+      // Assert
+      expect(result).toBeNull();
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId);
+      // The UPDATE statement should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
+    });
+    
+    it('should return null when no rows are affected by the update operation', () => {
+      // Arrange
+      const tagId = 'tag-not-updated';
+      const newTitle = 'New Title';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getTagById to return a tag
+      const mockTag = {
+        id: tagId,
+        title: 'Original Title',
+        parent_id: 'parent-tag-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getTagById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      // Second prepare call is for the UPDATE statement, but no rows affected
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockUpdateStatement);
+      
+      // Act
+      const result = dbService.updateTag(tagId, newTitle);
+      
+      // Assert
+      expect(result).toBeNull();
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newTitle, 1000000, 1000000, tagId);
+    });
+    
+    it('should return null when an error occurs during update', () => {
+      // Arrange
+      const tagId = 'error-tag';
+      const newTitle = 'Error Title';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getTagById to return a tag
+      const mockTag = {
+        id: tagId,
+        title: 'Original Title',
+        parent_id: 'parent-tag-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getTagById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      
+      // Second prepare call throws an error
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockImplementationOnce(() => {
+          throw new Error('Database error during update');
+        });
+      
+      // Act
+      const result = dbService.updateTag(tagId, newTitle);
+      
+      // Assert
+      expect(result).toBeNull();
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
   describe('createTag', () => {
     it('should create a new tag with the provided title', () => {
       // Arrange
