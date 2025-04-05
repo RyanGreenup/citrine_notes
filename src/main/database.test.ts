@@ -1851,6 +1851,155 @@ describe('DatabaseService', () => {
     });
   });
 
+  describe('getTagsByNoteId', () => {
+    it('should return all tags assigned to a specific note', () => {
+      // Arrange
+      const noteId = 'note-with-tags';
+      const mockTags = [
+        {
+          id: 'tag-1',
+          title: 'Tag 1',
+          parent_id: '',
+          user_created_time: 1000000,
+          user_updated_time: 1000000
+        },
+        {
+          id: 'tag-2',
+          title: 'Tag 2',
+          parent_id: '',
+          user_created_time: 1000000,
+          user_updated_time: 1000000
+        }
+      ];
+      
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Test Note',
+        body: 'Test Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for the JOIN query
+      const mockJoinStatement = { all: jest.fn().mockReturnValue(mockTags) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetNoteStatement)
+        .mockReturnValueOnce(mockJoinStatement);
+      
+      // Act
+      const tags = dbService.getTagsByNoteId(noteId);
+      
+      // Assert
+      expect(tags).toEqual(mockTags);
+      expect(tags.length).toBe(2);
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1, 'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      );
+      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId);
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, `
+        SELECT t.id, t.title, t.parent_id, t.user_created_time, t.user_updated_time 
+        FROM tags t
+        JOIN note_tags nt ON t.id = nt.tag_id
+        WHERE nt.note_id = ?
+      `
+      );
+      expect(mockJoinStatement.all).toHaveBeenCalledWith(noteId);
+    });
+    
+    it('should return an empty array when the note has no tags', () => {
+      // Arrange
+      const noteId = 'note-without-tags';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Test Note',
+        body: 'Test Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for the JOIN query
+      const mockJoinStatement = { all: jest.fn().mockReturnValue([]) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetNoteStatement)
+        .mockReturnValueOnce(mockJoinStatement);
+      
+      // Act
+      const tags = dbService.getTagsByNoteId(noteId);
+      
+      // Assert
+      expect(tags).toEqual([]);
+      expect(tags.length).toBe(0);
+    });
+    
+    it('should return an empty array when the note does not exist', () => {
+      // Arrange
+      const noteId = 'non-existent-note';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return null (note not found)
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(null) };
+      mockDb.prepare.mockReturnValue(mockGetNoteStatement);
+      
+      // Act
+      const tags = dbService.getTagsByNoteId(noteId);
+      
+      // Assert
+      expect(tags).toEqual([]);
+      expect(tags.length).toBe(0);
+      // The JOIN query should not be executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
+    });
+    
+    it('should return an empty array when an error occurs', () => {
+      // Arrange
+      const noteId = 'error-note';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Test Note',
+        body: 'Test Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      
+      // Second prepare call throws an error
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetNoteStatement)
+        .mockImplementationOnce(() => {
+          throw new Error('Database error');
+        });
+      
+      // Act
+      const tags = dbService.getTagsByNoteId(noteId);
+      
+      // Assert
+      expect(tags).toEqual([]);
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
   describe('assignTagToNote', () => {
     it('should assign a tag to a note', () => {
       // Arrange
