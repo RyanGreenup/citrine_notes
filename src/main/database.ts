@@ -554,27 +554,46 @@ export class DatabaseService {
         return folderNode;
       };
 
-      // First pass: process all folders to detect and break circular references
+      // First pass: detect circular references
+      const circularFolders = new Set<string>();
+      
       folders.forEach((folder: any) => {
-        processFolder(folder.id);
+        // Check for circular references
+        const visited = new Set<string>();
+        let currentId = folder.id;
+        
+        while (currentId) {
+          if (visited.has(currentId)) {
+            // Found a circular reference
+            circularFolders.add(folder.id);
+            break;
+          }
+          
+          visited.add(currentId);
+          const parentId = folderMap[currentId]?.parent_id;
+          if (!parentId || !folderMap[parentId]) break;
+          currentId = parentId;
+        }
       });
-
+      
       // Second pass: build the actual tree structure
       folders.forEach((folder: any) => {
+        // Skip if this folder is part of a circular reference
+        // It will be added to the root level
         const folderNode: TreeNode = {
           id: folder.id,
           name: folder.title
         };
-
-        // If this folder has a valid parent, add it as a child
-        if (folder.parent_id && folderMap[folder.parent_id]) {
+        
+        // If this folder has a valid parent and is not part of a circular reference
+        if (folder.parent_id && folderMap[folder.parent_id] && !circularFolders.has(folder.id)) {
           // Add this folder as a child of its parent
           if (!folderMap[folder.parent_id].children) {
             folderMap[folder.parent_id].children = [];
           }
           folderMap[folder.parent_id].children.push(folderNode);
         } else {
-          // This is a root-level folder
+          // This is a root-level folder or part of a circular reference
           root.children!.push(folderNode);
         }
       });
@@ -594,7 +613,7 @@ export class DatabaseService {
           }
           folderMap[note.parent_id].children.push(noteNode);
         } else {
-          // This is a root-level note
+          // This is a root-level note or has a non-existent parent
           root.children!.push(noteNode);
         }
       });
