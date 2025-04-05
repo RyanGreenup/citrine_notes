@@ -21,9 +21,9 @@ const App: Component = () => {
         </div>
       </div>
 
-      <NoteList />
-      
       <ResourceUploader />
+      <NoteList />
+
 
       <p class="tip mt-6">
         Please try pressing <code>F12</code> to open the devTool
