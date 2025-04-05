@@ -1851,6 +1851,175 @@ describe('DatabaseService', () => {
     });
   });
 
+  describe('assignTagToNote', () => {
+    it('should assign a tag to a note', () => {
+      // Arrange
+      const noteId = 'note-id';
+      const tagId = 'tag-id';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Test Note',
+        body: 'Test Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // Mock getTagById to return a tag
+      const mockTag = {
+        id: tagId,
+        title: 'Test Tag',
+        parent_id: '',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for getTagById
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      // Third prepare call is for the INSERT statement
+      const mockInsertStatement = { run: jest.fn() };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetNoteStatement)
+        .mockReturnValueOnce(mockGetTagStatement)
+        .mockReturnValueOnce(mockInsertStatement);
+      
+      // Act
+      const result = dbService.assignTagToNote(noteId, tagId);
+      
+      // Assert
+      expect(result).toBe(true);
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1, 'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      );
+      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId);
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      );
+      expect(mockGetTagStatement.get).toHaveBeenCalledWith(tagId);
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        3, 'INSERT INTO note_tags (note_id, tag_id, created_time, updated_time, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?, ?)'
+      );
+      expect(mockInsertStatement.run).toHaveBeenCalledWith(
+        noteId, tagId, 1000000, 1000000, 1000000, 1000000
+      );
+    });
+    
+    it('should return false when the note does not exist', () => {
+      // Arrange
+      const noteId = 'non-existent-note';
+      const tagId = 'tag-id';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return null (note not found)
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(null) };
+      mockDb.prepare.mockReturnValue(mockGetNoteStatement);
+      
+      // Act
+      const result = dbService.assignTagToNote(noteId, tagId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      );
+      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId);
+      // The other statements should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
+    });
+    
+    it('should return false when the tag does not exist', () => {
+      // Arrange
+      const noteId = 'note-id';
+      const tagId = 'non-existent-tag';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Test Note',
+        body: 'Test Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for getTagById to return null (tag not found)
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(null) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetNoteStatement)
+        .mockReturnValueOnce(mockGetTagStatement);
+      
+      // Act
+      const result = dbService.assignTagToNote(noteId, tagId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      );
+      expect(mockGetTagStatement.get).toHaveBeenCalledWith(tagId);
+      // The INSERT statement should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(2);
+    });
+    
+    it('should return false when an error occurs during tag assignment', () => {
+      // Arrange
+      const noteId = 'note-id';
+      const tagId = 'tag-id';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Test Note',
+        body: 'Test Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // Mock getTagById to return a tag
+      const mockTag = {
+        id: tagId,
+        title: 'Test Tag',
+        parent_id: '',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for getTagById
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      
+      // Third prepare call throws an error
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetNoteStatement)
+        .mockReturnValueOnce(mockGetTagStatement)
+        .mockImplementationOnce(() => {
+          throw new Error('Database error during tag assignment');
+        });
+      
+      // Act
+      const result = dbService.assignTagToNote(noteId, tagId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
   describe('createTag', () => {
     it('should create a new tag with the provided title', () => {
       // Arrange
