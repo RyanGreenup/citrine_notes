@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { DatabaseService, Note } from './database'
+import { DatabaseService, Folder, Note, Tag } from './database'
 import path from 'path'
 
 // Get database path from environment variable
@@ -87,6 +87,12 @@ app.whenReady().then(() => {
   if (databaseService) {
     // Notes //////////////////////////////////////////////////////////////////
     // Create _________________________________________________________________
+    ipcMain.handle(
+      'db:notes:create',
+      (_event, title: string, body: string, folderId: string = ''): Note | null => {
+        return databaseService!.createNote(title, body, folderId)
+      }
+    )
     // Read ___________________________________________________________________
     // Get All Notes ..........................................................
     ipcMain.handle('db:notes:getAllNotes', (_event): Note[] => {
@@ -114,51 +120,114 @@ app.whenReady().then(() => {
       return databaseService.deleteNote(id)
     })
     // Tree ___________________________________________________________________
-    // ........................................................................
+    ipcMain.handle('db:notes:tree', (_event): any => {
+      return databaseService.buildNoteTree()
+    })
 
     // Folders ////////////////////////////////////////////////////////////////
     // Create _________________________________________________________________
+    ipcMain.handle(
+      'db:folders:createFolder',
+      (_event, title: string, parentId: string = ''): Folder | null => {
+        return databaseService.createFolder(title, parentId)
+      }
+    )
     // Read ___________________________________________________________________
+    ipcMain.handle('db:folders:getFolderById', (_event, id: string): Folder | null => {
+      return databaseService!.getFolderById(id)
+    })
     // Update _________________________________________________________________
+    ipcMain.handle(
+      'db:folders:updateFolder',
+      (_event, id: string, title: string): Folder | null => {
+        return databaseService!.updateFolder(id, title)
+      }
+    )
+
+    ipcMain.handle(
+      'db:folders:moveFolder',
+      (_event, id: string, newParentId: string): Folder | null => {
+        return databaseService!.moveFolder(id, newParentId)
+      }
+    )
+
     // Delete _________________________________________________________________
-    // ........................................................................
+    ipcMain.handle(
+      'db:folders:deleteFolder',
+      (_event, id: string, recursive: boolean = false): boolean => {
+        return databaseService!.deleteFolder(id, recursive)
+      }
+    )
 
     // Folder-Notes ///////////////////////////////////////////////////////////
     // Create _________________________________________________________________
+    // NONE
     // Read ___________________________________________________________________
+    ipcMain.handle('db:note_folders:getNotesByFolderId', (_event, folderId: string): Note[] => {
+      return databaseService!.getNotesByFolderId(folderId)
+    })
     // Update _________________________________________________________________
+
+    ipcMain.handle(
+      'db:folders:moveNote',
+      (_event, noteId: string, newFolderId: string): Note | null => {
+        return databaseService!.moveNote(noteId, newFolderId)
+      }
+    )
     // Delete _________________________________________________________________
+    // NONE
     // ........................................................................
 
     // Tags ///////////////////////////////////////////////////////////////////
     // Create _________________________________________________________________
+    ipcMain.handle('db:tags:create', (_event, title: string, parentId: string = ''): Tag | null => {
+      return databaseService!.createTag(title, parentId)
+    })
+    ipcMain.handle('db:tags:getById', (_event, id: string): Tag | null => {
+      return databaseService!.getTagById(id)
+    })
     // Read ___________________________________________________________________
+    // NONE
+    ipcMain.handle('db:tags:update', (_event, id: string, title: string): Tag | null => {
+      return databaseService!.updateTag(id, title)
+    })
     // Update _________________________________________________________________
+    ipcMain.handle('db:tags:move', (_event, id: string, newParentId: string): Tag | null => {
+      return databaseService!.moveTag(id, newParentId)
+    })
+
     // Delete _________________________________________________________________
+    ipcMain.handle('db:tags:delete', (_event, id: string): boolean => {
+      return databaseService.deleteTag(id)
+    })
+    // Tree
+    ipcMain.handle('db:tags:buildTree', (_event): any => {
+      return databaseService!.buildTagTree()
+    })
     // Tag Tree _______________________________________________________________
     // ........................................................................
 
     // Note-Tags //////////////////////////////////////////////////////////////
     // Create _________________________________________________________________
+    ipcMain.handle('db:notes:assignTag', (_event, noteId: string, tagId: string): boolean => {
+      return databaseService!.assignTagToNote(noteId, tagId)
+    })
     // Read ___________________________________________________________________
+
+    ipcMain.handle('db:tags:getByNoteId', (_event, noteId: string): Tag[] => {
+      return databaseService!.getTagsByNoteId(noteId)
+    })
+
+    ipcMain.handle('db:tags:getNotes', (_event, tagId: string): Note[] => {
+      return databaseService!.getNotesByTagId(tagId)
+    })
     // Update _________________________________________________________________
+    // NONE
     // Delete _________________________________________________________________
+    ipcMain.handle('db:notes:removeTag', (_event, noteId: string, tagId: string): boolean => {
+      return databaseService.removeTagFromNote(noteId, tagId)
+    })
     // ........................................................................
-
-    // Get note by ID
-    ipcMain.handle('db:getNoteById', (_, id: string): Note | null => {
-      return databaseService!.getNoteById(id)
-    })
-
-    // Create a new note
-    ipcMain.handle('db:createNote', (_, title: string, body: string): Note | null => {
-      return databaseService!.createNote(title, body)
-    })
-
-    // Update an existing note
-    ipcMain.handle('db:updateNote', (_, id: string, title: string, body: string): Note | null => {
-      return databaseService!.updateNote(id, title, body)
-    })
   }
 
   createWindow()
