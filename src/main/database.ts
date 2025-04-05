@@ -873,6 +873,44 @@ export class DatabaseService {
   /////////////////////////////////////////////////////////////////////////////
 
   // Create ///////////////////////////////////////////////////////////////////
+  /**
+   * Assigns a tag to a note
+   * @param noteId The ID of the note
+   * @param tagId The ID of the tag
+   * @returns True if the tag was successfully assigned to the note, false otherwise
+   */
+  public assignTagToNote(noteId: string, tagId: string): boolean {
+    try {
+      // Check if the note exists
+      const note = this.getNoteById(noteId);
+      if (!note) {
+        console.error(`Cannot assign tag: Note with ID ${noteId} not found`);
+        return false;
+      }
+
+      // Check if the tag exists
+      const tag = this.getTagById(tagId);
+      if (!tag) {
+        console.error(`Cannot assign tag: Tag with ID ${tagId} not found`);
+        return false;
+      }
+
+      const now = Date.now();
+
+      // Insert the relationship into the note_tags table
+      const stmt = this.db.prepare(
+        'INSERT INTO note_tags (note_id, tag_id, created_time, updated_time, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?, ?)'
+      );
+
+      stmt.run(noteId, tagId, now, now, now, now);
+
+      return true;
+    } catch (error) {
+      console.error(`Error assigning tag ${tagId} to note ${noteId}:`, error);
+      return false;
+    }
+  }
+
   // Read   ///////////////////////////////////////////////////////////////////
   // List Tags of Note ........................................................
   // List Notes of a Tag ......................................................
