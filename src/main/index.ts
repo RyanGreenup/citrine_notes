@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { DatabaseService, Folder, Note, Tag } from './database'
+import { DatabaseService, Folder, Note, Tag, Resource } from './database'
 import path from 'path'
 
 // Get database path from environment variable
@@ -226,6 +226,53 @@ app.whenReady().then(() => {
     // Delete _________________________________________________________________
     ipcMain.handle('db:notes:removeTag', (_event, noteId: string, tagId: string): boolean => {
       return databaseService.removeTagFromNote(noteId, tagId)
+    })
+    // ........................................................................
+
+    // Resources //////////////////////////////////////////////////////////////
+    // Create _________________________________________________________________
+    ipcMain.handle(
+      'db:resources:create',
+      (
+        _event,
+        title: string,
+        mime: string,
+        filename: string,
+        fileExtension: string,
+        size: number
+      ) => {
+        return databaseService!.createResource(title, mime, filename, fileExtension, size)
+      }
+    )
+    // Read ___________________________________________________________________
+    ipcMain.handle('db:resources:getById', (_event, id: string) => {
+      return databaseService!.getResourceById(id)
+    })
+
+    ipcMain.handle('db:resources:getAll', () => {
+      return databaseService!.getAllResources()
+    })
+
+    ipcMain.handle('db:resources:getByMimeType', (_event, mimeType: string) => {
+      return databaseService!.getResourcesByMimeType(mimeType)
+    })
+    // Update _________________________________________________________________
+    ipcMain.handle(
+      'db:resources:update',
+      (_event, id: string, title: string, filename: string) => {
+        return databaseService!.updateResource(id, title, filename)
+      }
+    )
+
+    ipcMain.handle(
+      'db:resources:updateOcr',
+      (_event, id: string, ocrText: string, ocrStatus: number, ocrError: string = '') => {
+        return databaseService!.updateResourceOcr(id, ocrText, ocrStatus, ocrError)
+      }
+    )
+    // Delete _________________________________________________________________
+    ipcMain.handle('db:resources:delete', (_event, id: string) => {
+      return databaseService!.deleteResource(id)
     })
     // ........................................................................
   }
