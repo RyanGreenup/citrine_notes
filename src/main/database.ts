@@ -741,6 +741,130 @@ export class DatabaseService {
     }
   }
 
+  /**
+   * Builds a hierarchical tree structure of tags
+   * @returns A tree structure with a root node containing all tags
+   */
+  public buildTagTree(): any {
+    try {
+      // Define interfaces for tree nodes
+      interface TreeNode {
+        id: string
+        name: string
+        children?: TreeNode[]
+      }
+
+      interface TagMap {
+        [id: string]: {
+          id: string
+          title: string
+          parent_id: string
+          children: TreeNode[]
+        }
+      }
+
+      // Fetch all tags from the database
+      const tags = this.getAllTags();
+
+      // Create a map of tags for easy lookup
+      const tagMap: TagMap = {}
+      tags.forEach((tag) => {
+        tagMap[tag.id] = {
+          id: tag.id,
+          title: tag.title,
+          parent_id: tag.parent_id,
+          children: []
+        }
+      })
+
+      // Create the root node
+      const root: TreeNode = {
+        id: 'ROOT',
+        name: 'Tags',
+        children: []
+      }
+
+      // First pass: detect circular references
+      const circularTags = new Set<string>()
+
+      tags.forEach((tag) => {
+        // Check for circular references
+        const visited = new Set<string>()
+        let currentId = tag.id
+
+        while (currentId) {
+          if (visited.has(currentId)) {
+            // Found a circular reference
+            circularTags.add(tag.id)
+            break
+          }
+
+          visited.add(currentId)
+          const parentId = tagMap[currentId]?.parent_id
+          if (!parentId || !tagMap[parentId]) break
+          currentId = parentId
+        }
+      })
+
+      // Second pass: build the actual tree structure
+      tags.forEach((tag) => {
+        const tagNode: TreeNode = {
+          id: tag.id,
+          name: tag.title
+        }
+
+        // If this tag has a valid parent and is not part of a circular reference
+        if (tag.parent_id && tagMap[tag.parent_id] && !circularTags.has(tag.id)) {
+          // Add this tag as a child of its parent
+          if (!tagMap[tag.parent_id].children) {
+            tagMap[tag.parent_id].children = []
+          }
+          tagMap[tag.parent_id].children.push(tagNode)
+        } else {
+          // This is a root-level tag or part of a circular reference
+          root.children!.push(tagNode)
+        }
+      })
+
+      // Add children arrays to tag nodes that need them
+      tags.forEach((tag) => {
+        const tagNode = tagMap[tag.id]
+        if (tagNode && tagNode.children && tagNode.children.length > 0) {
+          // Find this tag in the tree and add its children
+          const addChildrenToNode = (node: TreeNode): boolean => {
+            if (node.id === tag.id) {
+              node.children = tagNode.children
+              return true
+            }
+
+            if (node.children) {
+              for (const child of node.children) {
+                if (addChildrenToNode(child)) {
+                  return true
+                }
+              }
+            }
+
+            return false
+          }
+
+          // Start from root to find and update the tag
+          addChildrenToNode(root)
+        }
+      })
+
+      return root
+    } catch (error) {
+      console.error('Error building tag tree:', error)
+      // Return an empty root node in case of error
+      return {
+        id: 'ROOT',
+        name: 'Tags',
+        children: []
+      }
+    }
+  }
+
   // Update ///////////////////////////////////////////////////////////////////
   
   // Title  .........................................................................
