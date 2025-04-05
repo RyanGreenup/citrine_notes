@@ -139,52 +139,52 @@ describe('DatabaseService', () => {
   describe('getNoteBodyById', () => {
     it('should return the body of a note when the note exists', () => {
       // Arrange
-      const noteId = 'note-with-body';
-      const mockNoteBody = 'This is the body of the note';
-      const mockDb = require('better-sqlite3')();
-      const mockStatement = { get: jest.fn().mockReturnValue({ body: mockNoteBody }) };
-      mockDb.prepare.mockReturnValue(mockStatement);
-      
+      const noteId = 'note-with-body'
+      const mockNoteBody = 'This is the body of the note'
+      const mockDb = require('better-sqlite3')()
+      const mockStatement = { get: jest.fn().mockReturnValue({ body: mockNoteBody }) }
+      mockDb.prepare.mockReturnValue(mockStatement)
+
       // Act
-      const body = dbService.getNoteBodyById(noteId);
-      
+      const body = dbService.getNoteBodyById(noteId)
+
       // Assert
-      expect(body).toBe(mockNoteBody);
-      expect(mockDb.prepare).toHaveBeenCalledWith('SELECT body FROM notes WHERE id = ?');
-      expect(mockStatement.get).toHaveBeenCalledWith(noteId);
-    });
-    
+      expect(body).toBe(mockNoteBody)
+      expect(mockDb.prepare).toHaveBeenCalledWith('SELECT body FROM notes WHERE id = ?')
+      expect(mockStatement.get).toHaveBeenCalledWith(noteId)
+    })
+
     it('should return null when note with given ID does not exist', () => {
       // Arrange
-      const noteId = 'non-existent-note';
-      const mockDb = require('better-sqlite3')();
-      const mockStatement = { get: jest.fn().mockReturnValue(null) };
-      mockDb.prepare.mockReturnValue(mockStatement);
-      
+      const noteId = 'non-existent-note'
+      const mockDb = require('better-sqlite3')()
+      const mockStatement = { get: jest.fn().mockReturnValue(null) }
+      mockDb.prepare.mockReturnValue(mockStatement)
+
       // Act
-      const body = dbService.getNoteBodyById(noteId);
-      
+      const body = dbService.getNoteBodyById(noteId)
+
       // Assert
-      expect(body).toBeNull();
-      expect(mockStatement.get).toHaveBeenCalledWith(noteId);
-    });
-    
+      expect(body).toBeNull()
+      expect(mockStatement.get).toHaveBeenCalledWith(noteId)
+    })
+
     it('should return null when an error occurs', () => {
       // Arrange
-      const noteId = 'error-note';
-      const mockDb = require('better-sqlite3')();
+      const noteId = 'error-note'
+      const mockDb = require('better-sqlite3')()
       mockDb.prepare.mockImplementation(() => {
-        throw new Error('Database error');
-      });
-      
+        throw new Error('Database error')
+      })
+
       // Act
-      const body = dbService.getNoteBodyById(noteId);
-      
+      const body = dbService.getNoteBodyById(noteId)
+
       // Assert
-      expect(body).toBeNull();
-      expect(console.error).toHaveBeenCalled();
-    });
-  });
+      expect(body).toBeNull()
+      expect(console.error).toHaveBeenCalled()
+    })
+  })
 
   describe('getNoteById', () => {
     it('should return null when note with given ID does not exist', () => {

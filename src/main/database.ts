@@ -147,13 +147,10 @@ export class DatabaseService {
     }
   }
 
-
   // Get the body of a note based on its id
   public getNoteBodyById(id: string): string | null {
     try {
-      const stmt = this.db.prepare(
-        `SELECT body FROM notes WHERE id = ?`
-      )
+      const stmt = this.db.prepare('SELECT body FROM notes WHERE id = ?')
       const result = stmt.get(id)
       return result ? result.body : null
     } catch (error) {
