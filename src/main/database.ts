@@ -30,6 +30,15 @@ export interface Folder {
   user_updated_time: number
 }
 
+// Define the Tag interface to match the database schema
+export interface Tag {
+  id: string
+  title: string
+  parent_id: string
+  user_created_time: number
+  user_updated_time: number
+}
+
 // Database service class
 export class DatabaseService {
   private db: any
@@ -662,6 +671,39 @@ export class DatabaseService {
   /////////////////////////////////////////////////////////////////////////////
 
   // Create ///////////////////////////////////////////////////////////////////
+  /**
+   * Creates a new tag in the database
+   * @param title The title of the tag
+   * @param parentId Optional parent tag ID
+   * @returns The newly created tag or null if creation failed
+   */
+  public createTag(title: string, parentId: string = ''): Tag | null {
+    try {
+      // Generate a new UUID for the tag
+      const id = require('crypto').randomUUID();
+      const now = Date.now();
+
+      // Insert the new tag into the database
+      const stmt = this.db.prepare(
+        'INSERT INTO tags (id, title, parent_id, created_time, updated_time, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      );
+
+      stmt.run(id, title, parentId, now, now, now, now);
+
+      // Return the newly created tag
+      return {
+        id,
+        title,
+        parent_id: parentId,
+        user_created_time: now,
+        user_updated_time: now
+      };
+    } catch (error) {
+      console.error('Error creating new tag:', error);
+      return null;
+    }
+  }
+
   // Read   ///////////////////////////////////////////////////////////////////
   // Update ///////////////////////////////////////////////////////////////////
   // Delete ///////////////////////////////////////////////////////////////////

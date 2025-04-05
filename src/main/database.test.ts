@@ -1263,6 +1263,92 @@ describe('DatabaseService', () => {
     });
   });
 
+  describe('createTag', () => {
+    it('should create a new tag with the provided title', () => {
+      // Arrange
+      const title = 'Test Tag';
+      const mockDb = require('better-sqlite3')();
+      const mockStatement = { run: jest.fn() };
+      mockDb.prepare.mockReturnValue(mockStatement);
+      
+      // Act
+      const result = dbService.createTag(title);
+      
+      // Assert
+      expect(result).not.toBeNull();
+      expect(result).toEqual({
+        id: 'test-uuid-123',
+        title: 'Test Tag',
+        parent_id: '',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      });
+      
+      // Verify the SQL statement was prepared correctly
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'INSERT INTO tags (id, title, parent_id, created_time, updated_time, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      );
+      
+      // Verify the run method was called with the correct parameters
+      expect(mockStatement.run).toHaveBeenCalledWith(
+        'test-uuid-123', 
+        'Test Tag',
+        '',
+        1000000,
+        1000000,
+        1000000,
+        1000000
+      );
+    });
+    
+    it('should create a tag with a parent tag ID when provided', () => {
+      // Arrange
+      const title = 'Child Tag';
+      const parentId = 'parent-tag-id';
+      const mockDb = require('better-sqlite3')();
+      const mockStatement = { run: jest.fn() };
+      mockDb.prepare.mockReturnValue(mockStatement);
+      
+      // Act
+      const result = dbService.createTag(title, parentId);
+      
+      // Assert
+      expect(result).not.toBeNull();
+      expect(result).toEqual({
+        id: 'test-uuid-123',
+        title: 'Child Tag',
+        parent_id: 'parent-tag-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      });
+      
+      // Verify the run method was called with the parent ID
+      expect(mockStatement.run).toHaveBeenCalledWith(
+        'test-uuid-123', 
+        'Child Tag',
+        'parent-tag-id',
+        1000000,
+        1000000,
+        1000000,
+        1000000
+      );
+    });
+    
+    it('should return null when an error occurs during tag creation', () => {
+      // Arrange - create a scenario that will cause an error
+      const mockDb = require('better-sqlite3')();
+      mockDb.prepare.mockImplementation(() => {
+        throw new Error('Database error');
+      });
+      
+      // Act
+      const result = dbService.createTag('Error Tag');
+      
+      // Assert
+      expect(result).toBeNull();
+    });
+  });
+
   describe('deleteFolder', () => {
     it('should delete a folder and all its notes when the folder exists', () => {
       // Arrange
