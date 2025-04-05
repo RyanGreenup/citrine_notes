@@ -733,15 +733,146 @@ export class DatabaseService {
     try {
       const stmt = this.db.prepare(
         'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags'
-      );
-      return stmt.all() as Tag[];
+      )
+      return stmt.all() as Tag[]
     } catch (error) {
-      console.error('Error fetching all tags:', error);
-      return [];
+      console.error('Error fetching all tags:', error)
+      return []
     }
   }
 
+  /*  // Update ///////////////////////////////////////////////////////////////////
+
+  // Title  .........................................................................
   /**
+   * Updates the title of a tag
+   * @param id The ID of the tag to update
+   * @param title The new title for the tag
+   * @returns The updated tag or null if update failed
+   */
+  public updateTag(id: string, title: string): Tag | null {
+    try {
+      const now = Date.now()
+
+      // Check if the tag exists
+      const existingTag = this.getTagById(id)
+      if (!existingTag) {
+        console.error(`Cannot update tag: Tag with ID ${id} not found`)
+        return null
+      }
+
+      // Update the tag in the database
+      const stmt = this.db.prepare(
+        'UPDATE tags SET title = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
+      )
+
+      const result = stmt.run(title, now, now, id)
+
+      if (result.changes === 0) {
+        console.error(`No changes made to tag with ID ${id}`)
+        return null
+      }
+
+      // Return the updated tag
+      return {
+        id,
+        title,
+        parent_id: existingTag.parent_id,
+        user_created_time: existingTag.user_created_time,
+        user_updated_time: now
+      }
+    } catch (error) {
+      console.error(`Error updating tag with ID ${id}:`, error)
+      return null
+    }
+  }
+
+  // Parent .........................................................................
+  /**
+   * Moves a tag to a new parent tag
+   * @param id The ID of the tag to move
+   * @param newParentId The ID of the new parent tag, or empty string for root level
+   * @returns The updated tag or null if the move failed
+   */
+  public moveTag(id: string, newParentId: string): Tag | null {
+    try {
+      const now = Date.now()
+
+      // Check if the tag exists
+      const existingTag = this.getTagById(id)
+      if (!existingTag) {
+        console.error(`Cannot move tag: Tag with ID ${id} not found`)
+        return null
+      }
+
+      // Prevent a tag from being its own parent
+      if (id === newParentId) {
+        console.error(`Cannot move tag: A tag cannot be its own parent`)
+        return null
+      }
+
+      // Update the tag's parent_id in the database
+      const stmt = this.db.prepare(
+        'UPDATE tags SET parent_id = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
+      )
+
+      const result = stmt.run(newParentId, now, now, id)
+
+      if (result.changes === 0) {
+        console.error(`No changes made to tag with ID ${id}`)
+        return null
+      }
+
+      // Return the updated tag
+      return {
+        id,
+        title: existingTag.title,
+        parent_id: newParentId,
+        user_created_time: existingTag.user_created_time,
+        user_updated_time: now
+      }
+    } catch (error) {
+      console.error(`Error moving tag with ID ${id}:`, error)
+      return null
+    }
+  }
+
+  // Delete ///////////////////////////////////////////////////////////////////
+  /**
+   * Deletes a tag from the database
+   * @param id The ID of the tag to delete
+   * @returns True if the tag was deleted successfully, false otherwise
+   */
+  public deleteTag(id: string): boolean {
+    try {
+      // Check if the tag exists
+      const existingTag = this.getTagById(id)
+      if (!existingTag) {
+        console.error(`Cannot delete tag: Tag with ID ${id} not found`)
+        return false
+      }
+
+      // Delete the tag from the database
+      const stmt = this.db.prepare('DELETE FROM tags WHERE id = ?')
+      const result = stmt.run(id)
+
+      if (result.changes === 0) {
+        console.error(`No tag deleted with ID ${id}`)
+        return false
+      }
+
+      return true
+    } catch (error) {
+      console.error(`Error deleting tag with ID ${id}:`, error)
+      return false
+    }
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Tag Tree /////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+
+  /*
    * Builds a hierarchical tree structure of tags
    * @returns A tree structure with a root node containing all tags
    */
@@ -764,7 +895,7 @@ export class DatabaseService {
       }
 
       // Fetch all tags from the database
-      const tags = this.getAllTags();
+      const tags = this.getAllTags()
 
       // Create a map of tags for easy lookup
       const tagMap: TagMap = {}
@@ -865,133 +996,6 @@ export class DatabaseService {
     }
   }
 
-  // Update ///////////////////////////////////////////////////////////////////
-  
-  // Title  .........................................................................
-  /**
-   * Updates the title of a tag
-   * @param id The ID of the tag to update
-   * @param title The new title for the tag
-   * @returns The updated tag or null if update failed
-   */
-  public updateTag(id: string, title: string): Tag | null {
-    try {
-      const now = Date.now();
-
-      // Check if the tag exists
-      const existingTag = this.getTagById(id);
-      if (!existingTag) {
-        console.error(`Cannot update tag: Tag with ID ${id} not found`);
-        return null;
-      }
-
-      // Update the tag in the database
-      const stmt = this.db.prepare(
-        'UPDATE tags SET title = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
-      );
-
-      const result = stmt.run(title, now, now, id);
-
-      if (result.changes === 0) {
-        console.error(`No changes made to tag with ID ${id}`);
-        return null;
-      }
-
-      // Return the updated tag
-      return {
-        id,
-        title,
-        parent_id: existingTag.parent_id,
-        user_created_time: existingTag.user_created_time,
-        user_updated_time: now
-      };
-    } catch (error) {
-      console.error(`Error updating tag with ID ${id}:`, error);
-      return null;
-    }
-  }
- 
-  // Parent .........................................................................
-  /**
-   * Moves a tag to a new parent tag
-   * @param id The ID of the tag to move
-   * @param newParentId The ID of the new parent tag, or empty string for root level
-   * @returns The updated tag or null if the move failed
-   */
-  public moveTag(id: string, newParentId: string): Tag | null {
-    try {
-      const now = Date.now();
-
-      // Check if the tag exists
-      const existingTag = this.getTagById(id);
-      if (!existingTag) {
-        console.error(`Cannot move tag: Tag with ID ${id} not found`);
-        return null;
-      }
-
-      // Prevent a tag from being its own parent
-      if (id === newParentId) {
-        console.error(`Cannot move tag: A tag cannot be its own parent`);
-        return null;
-      }
-
-      // Update the tag's parent_id in the database
-      const stmt = this.db.prepare(
-        'UPDATE tags SET parent_id = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
-      );
-
-      const result = stmt.run(newParentId, now, now, id);
-
-      if (result.changes === 0) {
-        console.error(`No changes made to tag with ID ${id}`);
-        return null;
-      }
-
-      // Return the updated tag
-      return {
-        id,
-        title: existingTag.title,
-        parent_id: newParentId,
-        user_created_time: existingTag.user_created_time,
-        user_updated_time: now
-      };
-    } catch (error) {
-      console.error(`Error moving tag with ID ${id}:`, error);
-      return null;
-    }
-  }
-  
-  // Delete ///////////////////////////////////////////////////////////////////
-  /**
-   * Deletes a tag from the database
-   * @param id The ID of the tag to delete
-   * @returns True if the tag was deleted successfully, false otherwise
-   */
-  public deleteTag(id: string): boolean {
-    try {
-      // Check if the tag exists
-      const existingTag = this.getTagById(id);
-      if (!existingTag) {
-        console.error(`Cannot delete tag: Tag with ID ${id} not found`);
-        return false;
-      }
-
-      // Delete the tag from the database
-      const stmt = this.db.prepare('DELETE FROM tags WHERE id = ?');
-      const result = stmt.run(id);
-
-      if (result.changes === 0) {
-        console.error(`No tag deleted with ID ${id}`);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error(`Error deleting tag with ID ${id}:`, error);
-      return false;
-    }
-  }
-
   /////////////////////////////////////////////////////////////////////////////
   // Note-Tags ////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////
@@ -1006,32 +1010,32 @@ export class DatabaseService {
   public assignTagToNote(noteId: string, tagId: string): boolean {
     try {
       // Check if the note exists
-      const note = this.getNoteById(noteId);
+      const note = this.getNoteById(noteId)
       if (!note) {
-        console.error(`Cannot assign tag: Note with ID ${noteId} not found`);
-        return false;
+        console.error(`Cannot assign tag: Note with ID ${noteId} not found`)
+        return false
       }
 
       // Check if the tag exists
-      const tag = this.getTagById(tagId);
+      const tag = this.getTagById(tagId)
       if (!tag) {
-        console.error(`Cannot assign tag: Tag with ID ${tagId} not found`);
-        return false;
+        console.error(`Cannot assign tag: Tag with ID ${tagId} not found`)
+        return false
       }
 
-      const now = Date.now();
+      const now = Date.now()
 
       // Insert the relationship into the note_tags table
       const stmt = this.db.prepare(
         'INSERT INTO note_tags (note_id, tag_id, created_time, updated_time, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?, ?)'
-      );
+      )
 
-      stmt.run(noteId, tagId, now, now, now, now);
+      stmt.run(noteId, tagId, now, now, now, now)
 
-      return true;
+      return true
     } catch (error) {
-      console.error(`Error assigning tag ${tagId} to note ${noteId}:`, error);
-      return false;
+      console.error(`Error assigning tag ${tagId} to note ${noteId}:`, error)
+      return false
     }
   }
 
@@ -1045,27 +1049,27 @@ export class DatabaseService {
   public getTagsByNoteId(noteId: string): Tag[] {
     try {
       // Check if the note exists
-      const note = this.getNoteById(noteId);
+      const note = this.getNoteById(noteId)
       if (!note) {
-        console.error(`Cannot get tags: Note with ID ${noteId} not found`);
-        return [];
+        console.error(`Cannot get tags: Note with ID ${noteId} not found`)
+        return []
       }
 
       // Get all tags assigned to this note
       const stmt = this.db.prepare(`
-        SELECT t.id, t.title, t.parent_id, t.user_created_time, t.user_updated_time 
+        SELECT t.id, t.title, t.parent_id, t.user_created_time, t.user_updated_time
         FROM tags t
         JOIN note_tags nt ON t.id = nt.tag_id
         WHERE nt.note_id = ?
-      `);
-      
-      return stmt.all(noteId) as Tag[];
+      `)
+
+      return stmt.all(noteId) as Tag[]
     } catch (error) {
-      console.error(`Error fetching tags for note with ID ${noteId}:`, error);
-      return [];
+      console.error(`Error fetching tags for note with ID ${noteId}:`, error)
+      return []
     }
   }
-  
+
   // List Notes of a Tag ......................................................
   /**
    * Gets all notes that have a specific tag
@@ -1075,29 +1079,31 @@ export class DatabaseService {
   public getNotesByTagId(tagId: string): Note[] {
     try {
       // Check if the tag exists
-      const tag = this.getTagById(tagId);
+      const tag = this.getTagById(tagId)
       if (!tag) {
-        console.error(`Cannot get notes: Tag with ID ${tagId} not found`);
-        return [];
+        console.error(`Cannot get notes: Tag with ID ${tagId} not found`)
+        return []
       }
 
       // Get all notes that have this tag
       const stmt = this.db.prepare(`
-        SELECT n.id, n.title, n.body, n.parent_id, n.user_created_time, n.user_updated_time 
+        SELECT n.id, n.title, n.body, n.parent_id, n.user_created_time, n.user_updated_time
         FROM notes n
         JOIN note_tags nt ON n.id = nt.note_id
         WHERE nt.tag_id = ?
-      `);
-      
-      return stmt.all(tagId) as Note[];
+      `)
+
+      return stmt.all(tagId) as Note[]
     } catch (error) {
-      console.error(`Error fetching notes for tag with ID ${tagId}:`, error);
-      return [];
+      console.error(`Error fetching notes for tag with ID ${tagId}:`, error)
+      return []
     }
   }
-  
+
   // Update ///////////////////////////////////////////////////////////////////
+
   // Not implemented, just use Create and delete accordingly
+
   // Delete ///////////////////////////////////////////////////////////////////
   /**
    * Removes a tag from a note
@@ -1108,35 +1114,33 @@ export class DatabaseService {
   public removeTagFromNote(noteId: string, tagId: string): boolean {
     try {
       // Check if the note exists
-      const note = this.getNoteById(noteId);
+      const note = this.getNoteById(noteId)
       if (!note) {
-        console.error(`Cannot remove tag: Note with ID ${noteId} not found`);
-        return false;
+        console.error(`Cannot remove tag: Note with ID ${noteId} not found`)
+        return false
       }
 
       // Check if the tag exists
-      const tag = this.getTagById(tagId);
+      const tag = this.getTagById(tagId)
       if (!tag) {
-        console.error(`Cannot remove tag: Tag with ID ${tagId} not found`);
-        return false;
+        console.error(`Cannot remove tag: Tag with ID ${tagId} not found`)
+        return false
       }
 
       // Delete the relationship from the note_tags table
-      const stmt = this.db.prepare(
-        'DELETE FROM note_tags WHERE note_id = ? AND tag_id = ?'
-      );
+      const stmt = this.db.prepare('DELETE FROM note_tags WHERE note_id = ? AND tag_id = ?')
 
-      const result = stmt.run(noteId, tagId);
+      const result = stmt.run(noteId, tagId)
 
       if (result.changes === 0) {
-        console.error(`No tag-note relationship found for note ${noteId} and tag ${tagId}`);
-        return false;
+        console.error(`No tag-note relationship found for note ${noteId} and tag ${tagId}`)
+        return false
       }
 
-      return true;
+      return true
     } catch (error) {
-      console.error(`Error removing tag ${tagId} from note ${noteId}:`, error);
-      return false;
+      console.error(`Error removing tag ${tagId} from note ${noteId}:`, error)
+      return false
     }
   }
 

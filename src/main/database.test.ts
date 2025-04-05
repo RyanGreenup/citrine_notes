@@ -1345,60 +1345,60 @@ describe('DatabaseService', () => {
           user_created_time: 1000000,
           user_updated_time: 1000000
         }
-      ];
-      
-      const mockDb = require('better-sqlite3')();
-      const mockStatement = { all: jest.fn().mockReturnValue(mockTags) };
-      mockDb.prepare.mockReturnValue(mockStatement);
-      
+      ]
+
+      const mockDb = require('better-sqlite3')()
+      const mockStatement = { all: jest.fn().mockReturnValue(mockTags) }
+      mockDb.prepare.mockReturnValue(mockStatement)
+
       // Act
-      const tags = dbService.getAllTags();
-      
+      const tags = dbService.getAllTags()
+
       // Assert
-      expect(tags).toEqual(mockTags);
-      expect(tags.length).toBe(3);
+      expect(tags).toEqual(mockTags)
+      expect(tags.length).toBe(3)
       expect(mockDb.prepare).toHaveBeenCalledWith(
         'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags'
-      );
-    });
-    
+      )
+    })
+
     it('should return an empty array when there are no tags', () => {
       // Arrange
-      const mockDb = require('better-sqlite3')();
-      const mockStatement = { all: jest.fn().mockReturnValue([]) };
-      mockDb.prepare.mockReturnValue(mockStatement);
-      
+      const mockDb = require('better-sqlite3')()
+      const mockStatement = { all: jest.fn().mockReturnValue([]) }
+      mockDb.prepare.mockReturnValue(mockStatement)
+
       // Act
-      const tags = dbService.getAllTags();
-      
+      const tags = dbService.getAllTags()
+
       // Assert
-      expect(tags).toEqual([]);
-      expect(tags.length).toBe(0);
-    });
-    
+      expect(tags).toEqual([])
+      expect(tags.length).toBe(0)
+    })
+
     it('should return an empty array when an error occurs', () => {
       // Arrange
-      const mockDb = require('better-sqlite3')();
+      const mockDb = require('better-sqlite3')()
       mockDb.prepare.mockImplementation(() => {
-        throw new Error('Database error');
-      });
-      
+        throw new Error('Database error')
+      })
+
       // Act
-      const tags = dbService.getAllTags();
-      
+      const tags = dbService.getAllTags()
+
       // Assert
-      expect(tags).toEqual([]);
-      expect(console.error).toHaveBeenCalled();
-    });
-  });
+      expect(tags).toEqual([])
+      expect(console.error).toHaveBeenCalled()
+    })
+  })
 
   describe('updateTag', () => {
     it('should update a tag title when the tag exists', () => {
       // Arrange
-      const tagId = 'tag-to-update';
-      const newTitle = 'Updated Tag Title';
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'tag-to-update'
+      const newTitle = 'Updated Tag Title'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -1406,70 +1406,70 @@ describe('DatabaseService', () => {
         parent_id: 'parent-tag-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getTagById
-      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) }
       // Second prepare call is for the UPDATE statement
-      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
-      
-      mockDb.prepare
-        .mockReturnValueOnce(mockGetStatement)
-        .mockReturnValueOnce(mockUpdateStatement);
-      
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) }
+
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockReturnValueOnce(mockUpdateStatement)
+
       // Act
-      const result = dbService.updateTag(tagId, newTitle);
-      
+      const result = dbService.updateTag(tagId, newTitle)
+
       // Assert
-      expect(result).not.toBeNull();
+      expect(result).not.toBeNull()
       expect(result).toEqual({
         id: tagId,
         title: newTitle,
         parent_id: 'parent-tag-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      });
-      
+      })
+
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        1, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
-      );
-      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId);
-      
+        1,
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      )
+      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId)
+
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        2, 'UPDATE tags SET title = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
-      );
-      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newTitle, 1000000, 1000000, tagId);
-    });
-    
+        2,
+        'UPDATE tags SET title = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
+      )
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newTitle, 1000000, 1000000, tagId)
+    })
+
     it('should return null when the tag does not exist', () => {
       // Arrange
-      const tagId = 'non-existent-tag';
-      const newTitle = 'New Title';
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'non-existent-tag'
+      const newTitle = 'New Title'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return null (tag not found)
-      const mockGetStatement = { get: jest.fn().mockReturnValue(null) };
-      mockDb.prepare.mockReturnValue(mockGetStatement);
-      
+      const mockGetStatement = { get: jest.fn().mockReturnValue(null) }
+      mockDb.prepare.mockReturnValue(mockGetStatement)
+
       // Act
-      const result = dbService.updateTag(tagId, newTitle);
-      
+      const result = dbService.updateTag(tagId, newTitle)
+
       // Assert
-      expect(result).toBeNull();
+      expect(result).toBeNull()
       expect(mockDb.prepare).toHaveBeenCalledWith(
         'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
-      );
-      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId);
+      )
+      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId)
       // The UPDATE statement should not be prepared or executed
-      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
-    });
-    
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1)
+    })
+
     it('should return null when no rows are affected by the update operation', () => {
       // Arrange
-      const tagId = 'tag-not-updated';
-      const newTitle = 'New Title';
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'tag-not-updated'
+      const newTitle = 'New Title'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -1477,31 +1477,29 @@ describe('DatabaseService', () => {
         parent_id: 'parent-tag-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getTagById
-      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) }
       // Second prepare call is for the UPDATE statement, but no rows affected
-      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) };
-      
-      mockDb.prepare
-        .mockReturnValueOnce(mockGetStatement)
-        .mockReturnValueOnce(mockUpdateStatement);
-      
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) }
+
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockReturnValueOnce(mockUpdateStatement)
+
       // Act
-      const result = dbService.updateTag(tagId, newTitle);
-      
+      const result = dbService.updateTag(tagId, newTitle)
+
       // Assert
-      expect(result).toBeNull();
-      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newTitle, 1000000, 1000000, tagId);
-    });
-    
+      expect(result).toBeNull()
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newTitle, 1000000, 1000000, tagId)
+    })
+
     it('should return null when an error occurs during update', () => {
       // Arrange
-      const tagId = 'error-tag';
-      const newTitle = 'Error Title';
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'error-tag'
+      const newTitle = 'Error Title'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -1509,34 +1507,32 @@ describe('DatabaseService', () => {
         parent_id: 'parent-tag-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getTagById
-      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
-      
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) }
+
       // Second prepare call throws an error
-      mockDb.prepare
-        .mockReturnValueOnce(mockGetStatement)
-        .mockImplementationOnce(() => {
-          throw new Error('Database error during update');
-        });
-      
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockImplementationOnce(() => {
+        throw new Error('Database error during update')
+      })
+
       // Act
-      const result = dbService.updateTag(tagId, newTitle);
-      
+      const result = dbService.updateTag(tagId, newTitle)
+
       // Assert
-      expect(result).toBeNull();
-      expect(console.error).toHaveBeenCalled();
-    });
-  });
+      expect(result).toBeNull()
+      expect(console.error).toHaveBeenCalled()
+    })
+  })
 
   describe('moveTag', () => {
     it('should move a tag to a new parent tag', () => {
       // Arrange
-      const tagId = 'tag-to-move';
-      const newParentId = 'new-parent-tag';
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'tag-to-move'
+      const newParentId = 'new-parent-tag'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -1544,47 +1540,47 @@ describe('DatabaseService', () => {
         parent_id: 'old-parent-tag',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getTagById
-      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) }
       // Second prepare call is for the UPDATE statement
-      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
-      
-      mockDb.prepare
-        .mockReturnValueOnce(mockGetStatement)
-        .mockReturnValueOnce(mockUpdateStatement);
-      
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) }
+
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockReturnValueOnce(mockUpdateStatement)
+
       // Act
-      const result = dbService.moveTag(tagId, newParentId);
-      
+      const result = dbService.moveTag(tagId, newParentId)
+
       // Assert
-      expect(result).not.toBeNull();
+      expect(result).not.toBeNull()
       expect(result).toEqual({
         id: tagId,
         title: 'Tag to Move',
         parent_id: newParentId,
         user_created_time: 1000000,
         user_updated_time: 1000000
-      });
-      
+      })
+
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        1, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
-      );
-      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId);
-      
+        1,
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      )
+      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId)
+
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        2, 'UPDATE tags SET parent_id = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
-      );
-      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newParentId, 1000000, 1000000, tagId);
-    });
-    
+        2,
+        'UPDATE tags SET parent_id = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
+      )
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newParentId, 1000000, 1000000, tagId)
+    })
+
     it('should allow moving a tag to the root level by passing empty parent_id', () => {
       // Arrange
-      const tagId = 'tag-to-root';
-      const newParentId = ''; // Empty string for root level
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'tag-to-root'
+      const newParentId = '' // Empty string for root level
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -1592,55 +1588,53 @@ describe('DatabaseService', () => {
         parent_id: 'some-parent-tag',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getTagById
-      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) }
       // Second prepare call is for the UPDATE statement
-      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
-      
-      mockDb.prepare
-        .mockReturnValueOnce(mockGetStatement)
-        .mockReturnValueOnce(mockUpdateStatement);
-      
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) }
+
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockReturnValueOnce(mockUpdateStatement)
+
       // Act
-      const result = dbService.moveTag(tagId, newParentId);
-      
+      const result = dbService.moveTag(tagId, newParentId)
+
       // Assert
-      expect(result).not.toBeNull();
-      expect(result.parent_id).toBe('');
-      expect(mockUpdateStatement.run).toHaveBeenCalledWith('', 1000000, 1000000, tagId);
-    });
-    
+      expect(result).not.toBeNull()
+      expect(result.parent_id).toBe('')
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith('', 1000000, 1000000, tagId)
+    })
+
     it('should return null when the tag does not exist', () => {
       // Arrange
-      const tagId = 'non-existent-tag';
-      const newParentId = 'some-parent';
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'non-existent-tag'
+      const newParentId = 'some-parent'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return null (tag not found)
-      const mockGetStatement = { get: jest.fn().mockReturnValue(null) };
-      mockDb.prepare.mockReturnValue(mockGetStatement);
-      
+      const mockGetStatement = { get: jest.fn().mockReturnValue(null) }
+      mockDb.prepare.mockReturnValue(mockGetStatement)
+
       // Act
-      const result = dbService.moveTag(tagId, newParentId);
-      
+      const result = dbService.moveTag(tagId, newParentId)
+
       // Assert
-      expect(result).toBeNull();
+      expect(result).toBeNull()
       expect(mockDb.prepare).toHaveBeenCalledWith(
         'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
-      );
-      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId);
+      )
+      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId)
       // The UPDATE statement should not be prepared or executed
-      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
-    });
-    
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1)
+    })
+
     it('should prevent a tag from being its own parent', () => {
       // Arrange
-      const tagId = 'self-parent-tag';
-      const newParentId = tagId; // Same as tag ID
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'self-parent-tag'
+      const newParentId = tagId // Same as tag ID
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -1648,26 +1642,26 @@ describe('DatabaseService', () => {
         parent_id: 'old-parent',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
-      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
-      mockDb.prepare.mockReturnValue(mockGetStatement);
-      
+      }
+
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) }
+      mockDb.prepare.mockReturnValue(mockGetStatement)
+
       // Act
-      const result = dbService.moveTag(tagId, newParentId);
-      
+      const result = dbService.moveTag(tagId, newParentId)
+
       // Assert
-      expect(result).toBeNull();
+      expect(result).toBeNull()
       // The UPDATE statement should not be prepared or executed
-      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
-    });
-    
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1)
+    })
+
     it('should return null when no rows are affected by the move operation', () => {
       // Arrange
-      const tagId = 'tag-not-moved';
-      const newParentId = 'new-parent';
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'tag-not-moved'
+      const newParentId = 'new-parent'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -1675,31 +1669,29 @@ describe('DatabaseService', () => {
         parent_id: 'old-parent',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getTagById
-      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) }
       // Second prepare call is for the UPDATE statement, but no rows affected
-      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) };
-      
-      mockDb.prepare
-        .mockReturnValueOnce(mockGetStatement)
-        .mockReturnValueOnce(mockUpdateStatement);
-      
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) }
+
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockReturnValueOnce(mockUpdateStatement)
+
       // Act
-      const result = dbService.moveTag(tagId, newParentId);
-      
+      const result = dbService.moveTag(tagId, newParentId)
+
       // Assert
-      expect(result).toBeNull();
-      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newParentId, 1000000, 1000000, tagId);
-    });
-    
+      expect(result).toBeNull()
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newParentId, 1000000, 1000000, tagId)
+    })
+
     it('should return null when an error occurs during the move operation', () => {
       // Arrange
-      const tagId = 'error-tag';
-      const newParentId = 'error-parent';
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'error-tag'
+      const newParentId = 'error-parent'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -1707,33 +1699,31 @@ describe('DatabaseService', () => {
         parent_id: 'old-parent',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getTagById
-      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
-      
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) }
+
       // Second prepare call throws an error
-      mockDb.prepare
-        .mockReturnValueOnce(mockGetStatement)
-        .mockImplementationOnce(() => {
-          throw new Error('Database error during move operation');
-        });
-      
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockImplementationOnce(() => {
+        throw new Error('Database error during move operation')
+      })
+
       // Act
-      const result = dbService.moveTag(tagId, newParentId);
-      
+      const result = dbService.moveTag(tagId, newParentId)
+
       // Assert
-      expect(result).toBeNull();
-      expect(console.error).toHaveBeenCalled();
-    });
-  });
+      expect(result).toBeNull()
+      expect(console.error).toHaveBeenCalled()
+    })
+  })
 
   describe('deleteTag', () => {
     it('should delete a tag when it exists', () => {
       // Arrange
-      const tagId = 'tag-to-delete';
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'tag-to-delete'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -1741,57 +1731,56 @@ describe('DatabaseService', () => {
         parent_id: 'parent-tag-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getTagById
-      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) }
       // Second prepare call is for the DELETE statement
-      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
-      
-      mockDb.prepare
-        .mockReturnValueOnce(mockGetStatement)
-        .mockReturnValueOnce(mockDeleteStatement);
-      
+      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) }
+
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockReturnValueOnce(mockDeleteStatement)
+
       // Act
-      const result = dbService.deleteTag(tagId);
-      
+      const result = dbService.deleteTag(tagId)
+
       // Assert
-      expect(result).toBe(true);
+      expect(result).toBe(true)
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        1, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
-      );
-      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId);
-      expect(mockDb.prepare).toHaveBeenNthCalledWith(2, 'DELETE FROM tags WHERE id = ?');
-      expect(mockDeleteStatement.run).toHaveBeenCalledWith(tagId);
-    });
-    
+        1,
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      )
+      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId)
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(2, 'DELETE FROM tags WHERE id = ?')
+      expect(mockDeleteStatement.run).toHaveBeenCalledWith(tagId)
+    })
+
     it('should return false when the tag does not exist', () => {
       // Arrange
-      const tagId = 'non-existent-tag';
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'non-existent-tag'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return null (tag not found)
-      const mockGetStatement = { get: jest.fn().mockReturnValue(null) };
-      mockDb.prepare.mockReturnValue(mockGetStatement);
-      
+      const mockGetStatement = { get: jest.fn().mockReturnValue(null) }
+      mockDb.prepare.mockReturnValue(mockGetStatement)
+
       // Act
-      const result = dbService.deleteTag(tagId);
-      
+      const result = dbService.deleteTag(tagId)
+
       // Assert
-      expect(result).toBe(false);
+      expect(result).toBe(false)
       expect(mockDb.prepare).toHaveBeenCalledWith(
         'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
-      );
-      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId);
+      )
+      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId)
       // The DELETE statement should not be prepared or executed
-      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
-    });
-    
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1)
+    })
+
     it('should return false when no rows are affected by the delete operation', () => {
       // Arrange
-      const tagId = 'tag-not-deleted';
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'tag-not-deleted'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -1799,30 +1788,28 @@ describe('DatabaseService', () => {
         parent_id: 'parent-tag-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getTagById
-      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) }
       // Second prepare call is for the DELETE statement, but no rows affected
-      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) };
-      
-      mockDb.prepare
-        .mockReturnValueOnce(mockGetStatement)
-        .mockReturnValueOnce(mockDeleteStatement);
-      
+      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) }
+
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockReturnValueOnce(mockDeleteStatement)
+
       // Act
-      const result = dbService.deleteTag(tagId);
-      
+      const result = dbService.deleteTag(tagId)
+
       // Assert
-      expect(result).toBe(false);
-      expect(mockDeleteStatement.run).toHaveBeenCalledWith(tagId);
-    });
-    
+      expect(result).toBe(false)
+      expect(mockDeleteStatement.run).toHaveBeenCalledWith(tagId)
+    })
+
     it('should return false when an error occurs during deletion', () => {
       // Arrange
-      const tagId = 'error-tag';
-      const mockDb = require('better-sqlite3')();
-      
+      const tagId = 'error-tag'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -1830,31 +1817,29 @@ describe('DatabaseService', () => {
         parent_id: 'parent-tag-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getTagById
-      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
-      
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) }
+
       // Second prepare call throws an error
-      mockDb.prepare
-        .mockReturnValueOnce(mockGetStatement)
-        .mockImplementationOnce(() => {
-          throw new Error('Database error during deletion');
-        });
-      
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockImplementationOnce(() => {
+        throw new Error('Database error during deletion')
+      })
+
       // Act
-      const result = dbService.deleteTag(tagId);
-      
+      const result = dbService.deleteTag(tagId)
+
       // Assert
-      expect(result).toBe(false);
-      expect(console.error).toHaveBeenCalled();
-    });
-  });
+      expect(result).toBe(false)
+      expect(console.error).toHaveBeenCalled()
+    })
+  })
 
   describe('getTagsByNoteId', () => {
     it('should return all tags assigned to a specific note', () => {
       // Arrange
-      const noteId = 'note-with-tags';
+      const noteId = 'note-with-tags'
       const mockTags = [
         {
           id: 'tag-1',
@@ -1870,10 +1855,10 @@ describe('DatabaseService', () => {
           user_created_time: 1000000,
           user_updated_time: 1000000
         }
-      ];
-      
-      const mockDb = require('better-sqlite3')();
-      
+      ]
+
+      const mockDb = require('better-sqlite3')()
+
       // Mock getNoteById to return a note
       const mockNote = {
         id: noteId,
@@ -1882,44 +1867,46 @@ describe('DatabaseService', () => {
         parent_id: 'folder-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getNoteById
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) }
       // Second prepare call is for the JOIN query
-      const mockJoinStatement = { all: jest.fn().mockReturnValue(mockTags) };
-      
+      const mockJoinStatement = { all: jest.fn().mockReturnValue(mockTags) }
+
       mockDb.prepare
         .mockReturnValueOnce(mockGetNoteStatement)
-        .mockReturnValueOnce(mockJoinStatement);
-      
+        .mockReturnValueOnce(mockJoinStatement)
+
       // Act
-      const tags = dbService.getTagsByNoteId(noteId);
-      
+      const tags = dbService.getTagsByNoteId(noteId)
+
       // Assert
-      expect(tags).toEqual(mockTags);
-      expect(tags.length).toBe(2);
+      expect(tags).toEqual(mockTags)
+      expect(tags.length).toBe(2)
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        1, 'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
-      );
-      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId);
-      
+        1,
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      )
+      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId)
+
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        2, `
+        2,
+        `
         SELECT t.id, t.title, t.parent_id, t.user_created_time, t.user_updated_time
         FROM tags t
         JOIN note_tags nt ON t.id = nt.tag_id
         WHERE nt.note_id = ?
       `
-      );
-      expect(mockJoinStatement.all).toHaveBeenCalledWith(noteId);
-    });
-    
+      )
+      expect(mockJoinStatement.all).toHaveBeenCalledWith(noteId)
+    })
+
     it('should return an empty array when the note has no tags', () => {
       // Arrange
-      const noteId = 'note-without-tags';
-      const mockDb = require('better-sqlite3')();
-      
+      const noteId = 'note-without-tags'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getNoteById to return a note
       const mockNote = {
         id: noteId,
@@ -1928,49 +1915,49 @@ describe('DatabaseService', () => {
         parent_id: 'folder-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getNoteById
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) }
       // Second prepare call is for the JOIN query
-      const mockJoinStatement = { all: jest.fn().mockReturnValue([]) };
-      
+      const mockJoinStatement = { all: jest.fn().mockReturnValue([]) }
+
       mockDb.prepare
         .mockReturnValueOnce(mockGetNoteStatement)
-        .mockReturnValueOnce(mockJoinStatement);
-      
+        .mockReturnValueOnce(mockJoinStatement)
+
       // Act
-      const tags = dbService.getTagsByNoteId(noteId);
-      
+      const tags = dbService.getTagsByNoteId(noteId)
+
       // Assert
-      expect(tags).toEqual([]);
-      expect(tags.length).toBe(0);
-    });
-    
+      expect(tags).toEqual([])
+      expect(tags.length).toBe(0)
+    })
+
     it('should return an empty array when the note does not exist', () => {
       // Arrange
-      const noteId = 'non-existent-note';
-      const mockDb = require('better-sqlite3')();
-      
+      const noteId = 'non-existent-note'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getNoteById to return null (note not found)
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(null) };
-      mockDb.prepare.mockReturnValue(mockGetNoteStatement);
-      
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(null) }
+      mockDb.prepare.mockReturnValue(mockGetNoteStatement)
+
       // Act
-      const tags = dbService.getTagsByNoteId(noteId);
-      
+      const tags = dbService.getTagsByNoteId(noteId)
+
       // Assert
-      expect(tags).toEqual([]);
-      expect(tags.length).toBe(0);
+      expect(tags).toEqual([])
+      expect(tags.length).toBe(0)
       // The JOIN query should not be executed
-      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
-    });
-    
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1)
+    })
+
     it('should return an empty array when an error occurs', () => {
       // Arrange
-      const noteId = 'error-note';
-      const mockDb = require('better-sqlite3')();
-      
+      const noteId = 'error-note'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getNoteById to return a note
       const mockNote = {
         id: noteId,
@@ -1979,34 +1966,32 @@ describe('DatabaseService', () => {
         parent_id: 'folder-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getNoteById
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
-      
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) }
+
       // Second prepare call throws an error
-      mockDb.prepare
-        .mockReturnValueOnce(mockGetNoteStatement)
-        .mockImplementationOnce(() => {
-          throw new Error('Database error');
-        });
-      
+      mockDb.prepare.mockReturnValueOnce(mockGetNoteStatement).mockImplementationOnce(() => {
+        throw new Error('Database error')
+      })
+
       // Act
-      const tags = dbService.getTagsByNoteId(noteId);
-      
+      const tags = dbService.getTagsByNoteId(noteId)
+
       // Assert
-      expect(tags).toEqual([]);
-      expect(console.error).toHaveBeenCalled();
-    });
-  });
+      expect(tags).toEqual([])
+      expect(console.error).toHaveBeenCalled()
+    })
+  })
 
   describe('removeTagFromNote', () => {
     it('should remove a tag from a note', () => {
       // Arrange
-      const noteId = 'note-id';
-      const tagId = 'tag-id';
-      const mockDb = require('better-sqlite3')();
-      
+      const noteId = 'note-id'
+      const tagId = 'tag-id'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getNoteById to return a note
       const mockNote = {
         id: noteId,
@@ -2015,8 +2000,8 @@ describe('DatabaseService', () => {
         parent_id: 'folder-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -2024,70 +2009,73 @@ describe('DatabaseService', () => {
         parent_id: '',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getNoteById
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) }
       // Second prepare call is for getTagById
-      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) }
       // Third prepare call is for the DELETE statement
-      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
-      
+      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) }
+
       mockDb.prepare
         .mockReturnValueOnce(mockGetNoteStatement)
         .mockReturnValueOnce(mockGetTagStatement)
-        .mockReturnValueOnce(mockDeleteStatement);
-      
+        .mockReturnValueOnce(mockDeleteStatement)
+
       // Act
-      const result = dbService.removeTagFromNote(noteId, tagId);
-      
+      const result = dbService.removeTagFromNote(noteId, tagId)
+
       // Assert
-      expect(result).toBe(true);
+      expect(result).toBe(true)
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        1, 'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
-      );
-      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId);
-      
+        1,
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      )
+      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId)
+
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        2, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
-      );
-      expect(mockGetTagStatement.get).toHaveBeenCalledWith(tagId);
-      
+        2,
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      )
+      expect(mockGetTagStatement.get).toHaveBeenCalledWith(tagId)
+
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        3, 'DELETE FROM note_tags WHERE note_id = ? AND tag_id = ?'
-      );
-      expect(mockDeleteStatement.run).toHaveBeenCalledWith(noteId, tagId);
-    });
-    
+        3,
+        'DELETE FROM note_tags WHERE note_id = ? AND tag_id = ?'
+      )
+      expect(mockDeleteStatement.run).toHaveBeenCalledWith(noteId, tagId)
+    })
+
     it('should return false when the note does not exist', () => {
       // Arrange
-      const noteId = 'non-existent-note';
-      const tagId = 'tag-id';
-      const mockDb = require('better-sqlite3')();
-      
+      const noteId = 'non-existent-note'
+      const tagId = 'tag-id'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getNoteById to return null (note not found)
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(null) };
-      mockDb.prepare.mockReturnValue(mockGetNoteStatement);
-      
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(null) }
+      mockDb.prepare.mockReturnValue(mockGetNoteStatement)
+
       // Act
-      const result = dbService.removeTagFromNote(noteId, tagId);
-      
+      const result = dbService.removeTagFromNote(noteId, tagId)
+
       // Assert
-      expect(result).toBe(false);
+      expect(result).toBe(false)
       expect(mockDb.prepare).toHaveBeenCalledWith(
         'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
-      );
-      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId);
+      )
+      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId)
       // The other statements should not be prepared or executed
-      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
-    });
-    
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1)
+    })
+
     it('should return false when the tag does not exist', () => {
       // Arrange
-      const noteId = 'note-id';
-      const tagId = 'non-existent-tag';
-      const mockDb = require('better-sqlite3')();
-      
+      const noteId = 'note-id'
+      const tagId = 'non-existent-tag'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getNoteById to return a note
       const mockNote = {
         id: noteId,
@@ -2096,81 +2084,37 @@ describe('DatabaseService', () => {
         parent_id: 'folder-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getNoteById
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) }
       // Second prepare call is for getTagById to return null (tag not found)
-      const mockGetTagStatement = { get: jest.fn().mockReturnValue(null) };
-      
-      mockDb.prepare
-        .mockReturnValueOnce(mockGetNoteStatement)
-        .mockReturnValueOnce(mockGetTagStatement);
-      
-      // Act
-      const result = dbService.removeTagFromNote(noteId, tagId);
-      
-      // Assert
-      expect(result).toBe(false);
-      expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        2, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
-      );
-      expect(mockGetTagStatement.get).toHaveBeenCalledWith(tagId);
-      // The DELETE statement should not be prepared or executed
-      expect(mockDb.prepare).toHaveBeenCalledTimes(2);
-    });
-    
-    it('should return false when no tag-note relationship exists', () => {
-      // Arrange
-      const noteId = 'note-id';
-      const tagId = 'tag-id';
-      const mockDb = require('better-sqlite3')();
-      
-      // Mock getNoteById to return a note
-      const mockNote = {
-        id: noteId,
-        title: 'Test Note',
-        body: 'Test Body',
-        parent_id: 'folder-id',
-        user_created_time: 1000000,
-        user_updated_time: 1000000
-      };
-      
-      // Mock getTagById to return a tag
-      const mockTag = {
-        id: tagId,
-        title: 'Test Tag',
-        parent_id: '',
-        user_created_time: 1000000,
-        user_updated_time: 1000000
-      };
-      
-      // First prepare call is for getNoteById
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
-      // Second prepare call is for getTagById
-      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) };
-      // Third prepare call is for the DELETE statement, but no rows affected
-      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) };
-      
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(null) }
+
       mockDb.prepare
         .mockReturnValueOnce(mockGetNoteStatement)
         .mockReturnValueOnce(mockGetTagStatement)
-        .mockReturnValueOnce(mockDeleteStatement);
-      
+
       // Act
-      const result = dbService.removeTagFromNote(noteId, tagId);
-      
+      const result = dbService.removeTagFromNote(noteId, tagId)
+
       // Assert
-      expect(result).toBe(false);
-      expect(mockDeleteStatement.run).toHaveBeenCalledWith(noteId, tagId);
-    });
-    
-    it('should return false when an error occurs during tag removal', () => {
+      expect(result).toBe(false)
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2,
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      )
+      expect(mockGetTagStatement.get).toHaveBeenCalledWith(tagId)
+      // The DELETE statement should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(2)
+    })
+
+    it('should return false when no tag-note relationship exists', () => {
       // Arrange
-      const noteId = 'note-id';
-      const tagId = 'tag-id';
-      const mockDb = require('better-sqlite3')();
-      
+      const noteId = 'note-id'
+      const tagId = 'tag-id'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getNoteById to return a note
       const mockNote = {
         id: noteId,
@@ -2179,8 +2123,8 @@ describe('DatabaseService', () => {
         parent_id: 'folder-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -2188,37 +2132,82 @@ describe('DatabaseService', () => {
         parent_id: '',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getNoteById
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) }
       // Second prepare call is for getTagById
-      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) };
-      
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) }
+      // Third prepare call is for the DELETE statement, but no rows affected
+      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) }
+
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetNoteStatement)
+        .mockReturnValueOnce(mockGetTagStatement)
+        .mockReturnValueOnce(mockDeleteStatement)
+
+      // Act
+      const result = dbService.removeTagFromNote(noteId, tagId)
+
+      // Assert
+      expect(result).toBe(false)
+      expect(mockDeleteStatement.run).toHaveBeenCalledWith(noteId, tagId)
+    })
+
+    it('should return false when an error occurs during tag removal', () => {
+      // Arrange
+      const noteId = 'note-id'
+      const tagId = 'tag-id'
+      const mockDb = require('better-sqlite3')()
+
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Test Note',
+        body: 'Test Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      }
+
+      // Mock getTagById to return a tag
+      const mockTag = {
+        id: tagId,
+        title: 'Test Tag',
+        parent_id: '',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      }
+
+      // First prepare call is for getNoteById
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) }
+      // Second prepare call is for getTagById
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) }
+
       // Third prepare call throws an error
       mockDb.prepare
         .mockReturnValueOnce(mockGetNoteStatement)
         .mockReturnValueOnce(mockGetTagStatement)
         .mockImplementationOnce(() => {
-          throw new Error('Database error during tag removal');
-        });
-      
+          throw new Error('Database error during tag removal')
+        })
+
       // Act
-      const result = dbService.removeTagFromNote(noteId, tagId);
-      
+      const result = dbService.removeTagFromNote(noteId, tagId)
+
       // Assert
-      expect(result).toBe(false);
-      expect(console.error).toHaveBeenCalled();
-    });
-  });
+      expect(result).toBe(false)
+      expect(console.error).toHaveBeenCalled()
+    })
+  })
 
   describe('assignTagToNote', () => {
     it('should assign a tag to a note', () => {
       // Arrange
-      const noteId = 'note-id';
-      const tagId = 'tag-id';
-      const mockDb = require('better-sqlite3')();
-      
+      const noteId = 'note-id'
+      const tagId = 'tag-id'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getNoteById to return a note
       const mockNote = {
         id: noteId,
@@ -2227,8 +2216,8 @@ describe('DatabaseService', () => {
         parent_id: 'folder-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -2236,72 +2225,80 @@ describe('DatabaseService', () => {
         parent_id: '',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getNoteById
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) }
       // Second prepare call is for getTagById
-      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) }
       // Third prepare call is for the INSERT statement
-      const mockInsertStatement = { run: jest.fn() };
-      
+      const mockInsertStatement = { run: jest.fn() }
+
       mockDb.prepare
         .mockReturnValueOnce(mockGetNoteStatement)
         .mockReturnValueOnce(mockGetTagStatement)
-        .mockReturnValueOnce(mockInsertStatement);
-      
+        .mockReturnValueOnce(mockInsertStatement)
+
       // Act
-      const result = dbService.assignTagToNote(noteId, tagId);
-      
+      const result = dbService.assignTagToNote(noteId, tagId)
+
       // Assert
-      expect(result).toBe(true);
+      expect(result).toBe(true)
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        1, 'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
-      );
-      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId);
-      
+        1,
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      )
+      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId)
+
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        2, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
-      );
-      expect(mockGetTagStatement.get).toHaveBeenCalledWith(tagId);
-      
+        2,
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      )
+      expect(mockGetTagStatement.get).toHaveBeenCalledWith(tagId)
+
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        3, 'INSERT INTO note_tags (note_id, tag_id, created_time, updated_time, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?, ?)'
-      );
+        3,
+        'INSERT INTO note_tags (note_id, tag_id, created_time, updated_time, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?, ?)'
+      )
       expect(mockInsertStatement.run).toHaveBeenCalledWith(
-        noteId, tagId, 1000000, 1000000, 1000000, 1000000
-      );
-    });
-    
+        noteId,
+        tagId,
+        1000000,
+        1000000,
+        1000000,
+        1000000
+      )
+    })
+
     it('should return false when the note does not exist', () => {
       // Arrange
-      const noteId = 'non-existent-note';
-      const tagId = 'tag-id';
-      const mockDb = require('better-sqlite3')();
-      
+      const noteId = 'non-existent-note'
+      const tagId = 'tag-id'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getNoteById to return null (note not found)
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(null) };
-      mockDb.prepare.mockReturnValue(mockGetNoteStatement);
-      
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(null) }
+      mockDb.prepare.mockReturnValue(mockGetNoteStatement)
+
       // Act
-      const result = dbService.assignTagToNote(noteId, tagId);
-      
+      const result = dbService.assignTagToNote(noteId, tagId)
+
       // Assert
-      expect(result).toBe(false);
+      expect(result).toBe(false)
       expect(mockDb.prepare).toHaveBeenCalledWith(
         'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
-      );
-      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId);
+      )
+      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId)
       // The other statements should not be prepared or executed
-      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
-    });
-    
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1)
+    })
+
     it('should return false when the tag does not exist', () => {
       // Arrange
-      const noteId = 'note-id';
-      const tagId = 'non-existent-tag';
-      const mockDb = require('better-sqlite3')();
-      
+      const noteId = 'note-id'
+      const tagId = 'non-existent-tag'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getNoteById to return a note
       const mockNote = {
         id: noteId,
@@ -2310,36 +2307,37 @@ describe('DatabaseService', () => {
         parent_id: 'folder-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getNoteById
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) }
       // Second prepare call is for getTagById to return null (tag not found)
-      const mockGetTagStatement = { get: jest.fn().mockReturnValue(null) };
-      
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(null) }
+
       mockDb.prepare
         .mockReturnValueOnce(mockGetNoteStatement)
-        .mockReturnValueOnce(mockGetTagStatement);
-      
+        .mockReturnValueOnce(mockGetTagStatement)
+
       // Act
-      const result = dbService.assignTagToNote(noteId, tagId);
-      
+      const result = dbService.assignTagToNote(noteId, tagId)
+
       // Assert
-      expect(result).toBe(false);
+      expect(result).toBe(false)
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
-        2, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
-      );
-      expect(mockGetTagStatement.get).toHaveBeenCalledWith(tagId);
+        2,
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      )
+      expect(mockGetTagStatement.get).toHaveBeenCalledWith(tagId)
       // The INSERT statement should not be prepared or executed
-      expect(mockDb.prepare).toHaveBeenCalledTimes(2);
-    });
-    
+      expect(mockDb.prepare).toHaveBeenCalledTimes(2)
+    })
+
     it('should return false when an error occurs during tag assignment', () => {
       // Arrange
-      const noteId = 'note-id';
-      const tagId = 'tag-id';
-      const mockDb = require('better-sqlite3')();
-      
+      const noteId = 'note-id'
+      const tagId = 'tag-id'
+      const mockDb = require('better-sqlite3')()
+
       // Mock getNoteById to return a note
       const mockNote = {
         id: noteId,
@@ -2348,8 +2346,8 @@ describe('DatabaseService', () => {
         parent_id: 'folder-id',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // Mock getTagById to return a tag
       const mockTag = {
         id: tagId,
@@ -2357,29 +2355,29 @@ describe('DatabaseService', () => {
         parent_id: '',
         user_created_time: 1000000,
         user_updated_time: 1000000
-      };
-      
+      }
+
       // First prepare call is for getNoteById
-      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) }
       // Second prepare call is for getTagById
-      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) };
-      
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) }
+
       // Third prepare call throws an error
       mockDb.prepare
         .mockReturnValueOnce(mockGetNoteStatement)
         .mockReturnValueOnce(mockGetTagStatement)
         .mockImplementationOnce(() => {
-          throw new Error('Database error during tag assignment');
-        });
-      
+          throw new Error('Database error during tag assignment')
+        })
+
       // Act
-      const result = dbService.assignTagToNote(noteId, tagId);
-      
+      const result = dbService.assignTagToNote(noteId, tagId)
+
       // Assert
-      expect(result).toBe(false);
-      expect(console.error).toHaveBeenCalled();
-    });
-  });
+      expect(result).toBe(false)
+      expect(console.error).toHaveBeenCalled()
+    })
+  })
 
   describe('buildTagTree', () => {
     it('should build a tree structure from flat list of tags', () => {
@@ -2391,7 +2389,7 @@ describe('DatabaseService', () => {
         { id: 'subtag1', title: 'Subtag 1', parent_id: 'tag1' },
         { id: 'subtag2', title: 'Subtag 2', parent_id: 'tag1' },
         { id: 'subtag3', title: 'Subtag 3', parent_id: 'tag2' }
-      ];
+      ]
 
       // Expected tree structure
       const expectedTree = {
@@ -2423,55 +2421,55 @@ describe('DatabaseService', () => {
             ]
           }
         ]
-      };
+      }
 
       // Mock database methods to return our test data
-      const mockDb = require('better-sqlite3')();
-      const mockTagsStatement = { all: jest.fn().mockReturnValue(mockTags) };
-      mockDb.prepare.mockReturnValue(mockTagsStatement);
+      const mockDb = require('better-sqlite3')()
+      const mockTagsStatement = { all: jest.fn().mockReturnValue(mockTags) }
+      mockDb.prepare.mockReturnValue(mockTagsStatement)
 
       // Act
-      const tree = dbService.buildTagTree();
+      const tree = dbService.buildTagTree()
 
       // Assert
-      expect(tree).toEqual(expectedTree);
+      expect(tree).toEqual(expectedTree)
 
       // Verify the database was queried for tags
       expect(mockDb.prepare).toHaveBeenCalledWith(
         'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags'
-      );
-      expect(mockTagsStatement.all).toHaveBeenCalled();
-    });
+      )
+      expect(mockTagsStatement.all).toHaveBeenCalled()
+    })
 
     it('should handle empty database with no tags', () => {
       // Arrange
-      const mockTags: any[] = [];
+      const mockTags: any[] = []
 
       // Expected tree structure with just the root
       const expectedTree = {
         id: 'ROOT',
         name: 'Tags',
         children: []
-      };
+      }
 
       // Mock database methods to return empty arrays
-      const mockDb = require('better-sqlite3')();
-      const mockTagsStatement = { all: jest.fn().mockReturnValue(mockTags) };
-      mockDb.prepare.mockReturnValue(mockTagsStatement);
+      const mockDb = require('better-sqlite3')()
+      const mockTagsStatement = { all: jest.fn().mockReturnValue(mockTags) }
+      mockDb.prepare.mockReturnValue(mockTagsStatement)
 
       // Act
-      const tree = dbService.buildTagTree();
+      const tree = dbService.buildTagTree()
 
       // Assert
-      expect(tree).toEqual(expectedTree);
-    });
+      expect(tree).toEqual(expectedTree)
+    })
 
     it('should handle circular references in tag structure', () => {
       // Arrange - create a circular reference in tags
       const mockTags = [
         { id: 'tag1', title: 'Tag 1', parent_id: 'tag2' },
         { id: 'tag2', title: 'Tag 2', parent_id: 'tag1' } // Circular reference
-      ];
+      ]
 
       // Expected tree - both tags should be at root level to break the circular reference
       const expectedTree = {
@@ -2487,26 +2485,26 @@ describe('DatabaseService', () => {
             name: 'Tag 2'
           }
         ]
-      };
+      }
 
       // Mock database methods
-      const mockDb = require('better-sqlite3')();
-      const mockTagsStatement = { all: jest.fn().mockReturnValue(mockTags) };
-      mockDb.prepare.mockReturnValue(mockTagsStatement);
+      const mockDb = require('better-sqlite3')()
+      const mockTagsStatement = { all: jest.fn().mockReturnValue(mockTags) }
+      mockDb.prepare.mockReturnValue(mockTagsStatement)
 
       // Act
-      const tree = dbService.buildTagTree();
+      const tree = dbService.buildTagTree()
 
       // Assert
-      expect(tree).toEqual(expectedTree);
-    });
+      expect(tree).toEqual(expectedTree)
+    })
 
     it('should handle tags with non-existent parent tags', () => {
       // Arrange
       const mockTags = [
         { id: 'tag1', title: 'Tag 1', parent_id: '' },
         { id: 'tag2', title: 'Tag 2', parent_id: 'non-existent-tag' }
-      ];
+      ]
 
       // Expected tree - tag with non-existent parent should be at root level
       const expectedTree = {
@@ -2522,42 +2520,42 @@ describe('DatabaseService', () => {
             name: 'Tag 2'
           }
         ]
-      };
+      }
 
       // Mock database methods
-      const mockDb = require('better-sqlite3')();
-      const mockTagsStatement = { all: jest.fn().mockReturnValue(mockTags) };
-      mockDb.prepare.mockReturnValue(mockTagsStatement);
+      const mockDb = require('better-sqlite3')()
+      const mockTagsStatement = { all: jest.fn().mockReturnValue(mockTags) }
+      mockDb.prepare.mockReturnValue(mockTagsStatement)
 
       // Act
-      const tree = dbService.buildTagTree();
+      const tree = dbService.buildTagTree()
 
       // Assert
-      expect(tree).toEqual(expectedTree);
-    });
+      expect(tree).toEqual(expectedTree)
+    })
 
     it('should return a default tree when an error occurs', () => {
       // Arrange
-      const mockDb = require('better-sqlite3')();
+      const mockDb = require('better-sqlite3')()
       mockDb.prepare.mockImplementation(() => {
-        throw new Error('Database error');
-      });
+        throw new Error('Database error')
+      })
 
       // Expected default tree
       const expectedTree = {
         id: 'ROOT',
         name: 'Tags',
         children: []
-      };
+      }
 
       // Act
-      const tree = dbService.buildTagTree();
+      const tree = dbService.buildTagTree()
 
       // Assert
-      expect(tree).toEqual(expectedTree);
-      expect(console.error).toHaveBeenCalled();
-    });
-  });
+      expect(tree).toEqual(expectedTree)
+      expect(console.error).toHaveBeenCalled()
+    })
+  })
 
   describe('createTag', () => {
     it('should create a new tag with the provided title', () => {
