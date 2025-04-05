@@ -788,6 +788,54 @@ export class DatabaseService {
   }
  
   // Parent .........................................................................
+  /**
+   * Moves a tag to a new parent tag
+   * @param id The ID of the tag to move
+   * @param newParentId The ID of the new parent tag, or empty string for root level
+   * @returns The updated tag or null if the move failed
+   */
+  public moveTag(id: string, newParentId: string): Tag | null {
+    try {
+      const now = Date.now();
+
+      // Check if the tag exists
+      const existingTag = this.getTagById(id);
+      if (!existingTag) {
+        console.error(`Cannot move tag: Tag with ID ${id} not found`);
+        return null;
+      }
+
+      // Prevent a tag from being its own parent
+      if (id === newParentId) {
+        console.error(`Cannot move tag: A tag cannot be its own parent`);
+        return null;
+      }
+
+      // Update the tag's parent_id in the database
+      const stmt = this.db.prepare(
+        'UPDATE tags SET parent_id = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
+      );
+
+      const result = stmt.run(newParentId, now, now, id);
+
+      if (result.changes === 0) {
+        console.error(`No changes made to tag with ID ${id}`);
+        return null;
+      }
+
+      // Return the updated tag
+      return {
+        id,
+        title: existingTag.title,
+        parent_id: newParentId,
+        user_created_time: existingTag.user_created_time,
+        user_updated_time: now
+      };
+    } catch (error) {
+      console.error(`Error moving tag with ID ${id}:`, error);
+      return null;
+    }
+  }
   
   // Delete ///////////////////////////////////////////////////////////////////
 
