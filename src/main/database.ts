@@ -943,6 +943,35 @@ export class DatabaseService {
   }
   
   // List Notes of a Tag ......................................................
+  /**
+   * Gets all notes that have a specific tag
+   * @param tagId The ID of the tag
+   * @returns Array of notes that have the specified tag
+   */
+  public getNotesByTagId(tagId: string): Note[] {
+    try {
+      // Check if the tag exists
+      const tag = this.getTagById(tagId);
+      if (!tag) {
+        console.error(`Cannot get notes: Tag with ID ${tagId} not found`);
+        return [];
+      }
+
+      // Get all notes that have this tag
+      const stmt = this.db.prepare(`
+        SELECT n.id, n.title, n.body, n.parent_id, n.user_created_time, n.user_updated_time 
+        FROM notes n
+        JOIN note_tags nt ON n.id = nt.note_id
+        WHERE nt.tag_id = ?
+      `);
+      
+      return stmt.all(tagId) as Note[];
+    } catch (error) {
+      console.error(`Error fetching notes for tag with ID ${tagId}:`, error);
+      return [];
+    }
+  }
+  
   // Update ///////////////////////////////////////////////////////////////////
   // Not implemented, just use Create and delete accordingly
   // Delete ///////////////////////////////////////////////////////////////////
