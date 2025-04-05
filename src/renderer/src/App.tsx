@@ -4,7 +4,7 @@ import NoteList from './components/NoteList'
 import ResourceUploader from './components/ResourceUploader'
 import electronLogo from './assets/electron.svg'
 
-const App: Component = () => {
+function dummyContent = () => {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
   return (
@@ -20,10 +20,6 @@ const App: Component = () => {
           </div>
         </div>
       </div>
-
-      <ResourceUploader />
-      <NoteList />
-
 
       <p class="tip mt-6">
         Please try pressing <code>F12</code> to open the devTool
@@ -42,7 +38,11 @@ const App: Component = () => {
       </div>
       <Versions />
     </div>
-  )
+  );
+}
+
+const App: Component = () => {
+  return <dummyContent />
 }
 
 export default App
