@@ -426,24 +426,24 @@ export class DatabaseService {
   public moveNote(noteId: string, newFolderId: string): Note | null {
     try {
       // Check if the note exists
-      const existingNote = this.getNoteById(noteId);
+      const existingNote = this.getNoteById(noteId)
       if (!existingNote) {
-        console.error(`Cannot move note: Note with ID ${noteId} not found`);
-        return null;
+        console.error(`Cannot move note: Note with ID ${noteId} not found`)
+        return null
       }
 
-      const now = Date.now();
+      const now = Date.now()
 
       // Update the note's parent_id in the database
       const stmt = this.db.prepare(
         'UPDATE notes SET parent_id = ?, user_updated_time = ? WHERE id = ?'
-      );
+      )
 
-      const result = stmt.run(newFolderId, now, noteId);
+      const result = stmt.run(newFolderId, now, noteId)
 
       if (result.changes === 0) {
-        console.error(`No changes made to note with ID ${noteId}`);
-        return null;
+        console.error(`No changes made to note with ID ${noteId}`)
+        return null
       }
 
       // Return the updated note
@@ -454,10 +454,10 @@ export class DatabaseService {
         parent_id: newFolderId,
         user_created_time: existingNote.user_created_time,
         user_updated_time: now
-      };
+      }
     } catch (error) {
-      console.error(`Error moving note with ID ${noteId}:`, error);
-      return null;
+      console.error(`Error moving note with ID ${noteId}:`, error)
+      return null
     }
   }
 
@@ -476,50 +476,50 @@ export class DatabaseService {
     try {
       // Define interfaces for tree nodes
       interface TreeNode {
-        id: string;
-        name: string;
-        children?: TreeNode[];
+        id: string
+        name: string
+        children?: TreeNode[]
       }
 
       interface FolderMap {
         [id: string]: {
-          id: string;
-          title: string;
-          parent_id: string;
-          children: TreeNode[];
-          processed?: boolean;
-        };
+          id: string
+          title: string
+          parent_id: string
+          children: TreeNode[]
+          processed?: boolean
+        }
       }
 
       // Fetch all folders and notes from the database
-      const foldersStmt = this.db.prepare('SELECT id, title, parent_id FROM folders');
-      const notesStmt = this.db.prepare('SELECT id, title, parent_id FROM notes');
+      const foldersStmt = this.db.prepare('SELECT id, title, parent_id FROM folders')
+      const notesStmt = this.db.prepare('SELECT id, title, parent_id FROM notes')
 
-      const folders = foldersStmt.all();
-      const notes = notesStmt.all();
+      const folders = foldersStmt.all()
+      const notes = notesStmt.all()
 
       // Create a map of folders for easy lookup
-      const folderMap: FolderMap = {};
+      const folderMap: FolderMap = {}
       folders.forEach((folder: any) => {
         folderMap[folder.id] = {
           id: folder.id,
           title: folder.title,
           parent_id: folder.parent_id,
           children: []
-        };
-      });
+        }
+      })
 
       // Create the root node
       const root: TreeNode = {
         id: 'ROOT',
         name: '',
         children: []
-      };
+      }
 
       // Process folders to build the hierarchy
       // Handle circular references by detecting cycles
-      const processedFolders = new Set<string>();
-      const isBeingProcessed = new Set<string>();
+      const processedFolders = new Set<string>()
+      const isBeingProcessed = new Set<string>()
 
       /**
        * Recursively processes a folder and its children
@@ -529,61 +529,61 @@ export class DatabaseService {
       const processFolder = (folderId: string): TreeNode | null => {
         // Check for circular references
         if (isBeingProcessed.has(folderId)) {
-          console.warn(`Circular reference detected for folder: ${folderId}`);
-          return null;
+          console.warn(`Circular reference detected for folder: ${folderId}`)
+          return null
         }
 
         // Skip already processed folders
         if (processedFolders.has(folderId)) {
-          return null;
+          return null
         }
 
-        const folder = folderMap[folderId];
+        const folder = folderMap[folderId]
         if (!folder) {
-          return null;
+          return null
         }
 
-        isBeingProcessed.add(folderId);
+        isBeingProcessed.add(folderId)
 
         // Process parent folder first if it exists
         if (folder.parent_id && folderMap[folder.parent_id]) {
-          processFolder(folder.parent_id);
+          processFolder(folder.parent_id)
         }
 
         // Create the folder node
         const folderNode: TreeNode = {
           id: folder.id,
           name: folder.title
-        };
+        }
 
         // Mark as processed
-        processedFolders.add(folderId);
-        isBeingProcessed.delete(folderId);
+        processedFolders.add(folderId)
+        isBeingProcessed.delete(folderId)
 
-        return folderNode;
-      };
+        return folderNode
+      }
 
       // First pass: detect circular references
-      const circularFolders = new Set<string>();
+      const circularFolders = new Set<string>()
 
       folders.forEach((folder: any) => {
         // Check for circular references
-        const visited = new Set<string>();
-        let currentId = folder.id;
+        const visited = new Set<string>()
+        let currentId = folder.id
 
         while (currentId) {
           if (visited.has(currentId)) {
             // Found a circular reference
-            circularFolders.add(folder.id);
-            break;
+            circularFolders.add(folder.id)
+            break
           }
 
-          visited.add(currentId);
-          const parentId = folderMap[currentId]?.parent_id;
-          if (!parentId || !folderMap[parentId]) break;
-          currentId = parentId;
+          visited.add(currentId)
+          const parentId = folderMap[currentId]?.parent_id
+          if (!parentId || !folderMap[parentId]) break
+          currentId = parentId
         }
-      });
+      })
 
       // Second pass: build the actual tree structure
       folders.forEach((folder: any) => {
@@ -592,77 +592,77 @@ export class DatabaseService {
         const folderNode: TreeNode = {
           id: folder.id,
           name: folder.title
-        };
+        }
 
         // If this folder has a valid parent and is not part of a circular reference
         if (folder.parent_id && folderMap[folder.parent_id] && !circularFolders.has(folder.id)) {
           // Add this folder as a child of its parent
           if (!folderMap[folder.parent_id].children) {
-            folderMap[folder.parent_id].children = [];
+            folderMap[folder.parent_id].children = []
           }
-          folderMap[folder.parent_id].children.push(folderNode);
+          folderMap[folder.parent_id].children.push(folderNode)
         } else {
           // This is a root-level folder or part of a circular reference
-          root.children!.push(folderNode);
+          root.children!.push(folderNode)
         }
-      });
+      })
 
       // Process notes
       notes.forEach((note: any) => {
         const noteNode: TreeNode = {
           id: note.id,
           name: note.title
-        };
+        }
 
         // If this note has a valid parent folder, add it as a child
         if (note.parent_id && folderMap[note.parent_id]) {
           // Add this note as a child of its parent folder
           if (!folderMap[note.parent_id].children) {
-            folderMap[note.parent_id].children = [];
+            folderMap[note.parent_id].children = []
           }
-          folderMap[note.parent_id].children.push(noteNode);
+          folderMap[note.parent_id].children.push(noteNode)
         } else {
           // This is a root-level note or has a non-existent parent
-          root.children!.push(noteNode);
+          root.children!.push(noteNode)
         }
-      });
+      })
 
       // Add children arrays to folder nodes that need them
       folders.forEach((folder: any) => {
-        const folderNode = folderMap[folder.id];
+        const folderNode = folderMap[folder.id]
         if (folderNode && folderNode.children && folderNode.children.length > 0) {
           // Find this folder in the tree and add its children
           const addChildrenToNode = (node: TreeNode): boolean => {
             if (node.id === folder.id) {
-              node.children = folderNode.children;
-              return true;
+              node.children = folderNode.children
+              return true
             }
 
             if (node.children) {
               for (const child of node.children) {
                 if (addChildrenToNode(child)) {
-                  return true;
+                  return true
                 }
               }
             }
 
-            return false;
-          };
+            return false
+          }
 
           // Start from root to find and update the folder
-          addChildrenToNode(root);
+          addChildrenToNode(root)
         }
-      });
+      })
 
-      return root;
+      return root
     } catch (error) {
-      console.error('Error building note tree:', error);
+      console.error('Error building note tree:', error)
       // Return an empty root node in case of error
       return {
         id: 'ROOT',
         name: '',
         children: []
-      };
+      }
     }
   }
 
@@ -680,15 +680,15 @@ export class DatabaseService {
   public createTag(title: string, parentId: string = ''): Tag | null {
     try {
       // Generate a new UUID for the tag
-      const id = require('crypto').randomUUID();
-      const now = Date.now();
+      const id = require('crypto').randomUUID()
+      const now = Date.now()
 
       // Insert the new tag into the database
       const stmt = this.db.prepare(
         'INSERT INTO tags (id, title, parent_id, created_time, updated_time, user_created_time, user_updated_time) VALUES (?, ?, ?, ?, ?, ?, ?)'
-      );
+      )
 
-      stmt.run(id, title, parentId, now, now, now, now);
+      stmt.run(id, title, parentId, now, now, now, now)
 
       // Return the newly created tag
       return {
@@ -697,15 +697,15 @@ export class DatabaseService {
         parent_id: parentId,
         user_created_time: now,
         user_updated_time: now
-      };
+      }
     } catch (error) {
-      console.error('Error creating new tag:', error);
-      return null;
+      console.error('Error creating new tag:', error)
+      return null
     }
   }
 
   // Read   ///////////////////////////////////////////////////////////////////
- 
+
   // Get a Tag By ID ..........................................................
   /**
    * Gets a tag by its ID
@@ -716,16 +716,16 @@ export class DatabaseService {
     try {
       const stmt = this.db.prepare(
         'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
-      );
-      return (stmt.get(id) as Tag) || null;
+      )
+      return (stmt.get(id) as Tag) || null
     } catch (error) {
-      console.error(`Error fetching tag with ID ${id}:`, error);
-      return null;
+      console.error(`Error fetching tag with ID ${id}:`, error)
+      return null
     }
   }
-  
+
   // Get all Tags .............................................................
-  
+
   // Update ///////////////////////////////////////////////////////////////////
   // Delete ///////////////////////////////////////////////////////////////////
 
