@@ -1906,7 +1906,7 @@ describe('DatabaseService', () => {
       
       expect(mockDb.prepare).toHaveBeenNthCalledWith(
         2, `
-        SELECT t.id, t.title, t.parent_id, t.user_created_time, t.user_updated_time 
+        SELECT t.id, t.title, t.parent_id, t.user_created_time, t.user_updated_time
         FROM tags t
         JOIN note_tags nt ON t.id = nt.tag_id
         WHERE nt.note_id = ?
