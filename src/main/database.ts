@@ -975,6 +975,46 @@ export class DatabaseService {
   // Update ///////////////////////////////////////////////////////////////////
   // Not implemented, just use Create and delete accordingly
   // Delete ///////////////////////////////////////////////////////////////////
+  /**
+   * Removes a tag from a note
+   * @param noteId The ID of the note
+   * @param tagId The ID of the tag to remove
+   * @returns True if the tag was successfully removed from the note, false otherwise
+   */
+  public removeTagFromNote(noteId: string, tagId: string): boolean {
+    try {
+      // Check if the note exists
+      const note = this.getNoteById(noteId);
+      if (!note) {
+        console.error(`Cannot remove tag: Note with ID ${noteId} not found`);
+        return false;
+      }
+
+      // Check if the tag exists
+      const tag = this.getTagById(tagId);
+      if (!tag) {
+        console.error(`Cannot remove tag: Tag with ID ${tagId} not found`);
+        return false;
+      }
+
+      // Delete the relationship from the note_tags table
+      const stmt = this.db.prepare(
+        'DELETE FROM note_tags WHERE note_id = ? AND tag_id = ?'
+      );
+
+      const result = stmt.run(noteId, tagId);
+
+      if (result.changes === 0) {
+        console.error(`No tag-note relationship found for note ${noteId} and tag ${tagId}`);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error(`Error removing tag ${tagId} from note ${noteId}:`, error);
+      return false;
+    }
+  }
 
   // Close the database connection
   public close(): void {
