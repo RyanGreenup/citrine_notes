@@ -414,6 +414,44 @@ export class DatabaseService {
   }
   // Update ///////////////////////////////////////////////////////////////////
   // Assign a note to a new parent
+  public moveNote(noteId: string, newFolderId: string): Note | null {
+    try {
+      // Check if the note exists
+      const existingNote = this.getNoteById(noteId);
+      if (!existingNote) {
+        console.error(`Cannot move note: Note with ID ${noteId} not found`);
+        return null;
+      }
+
+      const now = Date.now();
+
+      // Update the note's parent_id in the database
+      const stmt = this.db.prepare(
+        'UPDATE notes SET parent_id = ?, user_updated_time = ? WHERE id = ?'
+      );
+
+      const result = stmt.run(newFolderId, now, noteId);
+
+      if (result.changes === 0) {
+        console.error(`No changes made to note with ID ${noteId}`);
+        return null;
+      }
+
+      // Return the updated note
+      return {
+        id: noteId,
+        title: existingNote.title,
+        body: existingNote.body,
+        parent_id: newFolderId,
+        user_created_time: existingNote.user_created_time,
+        user_updated_time: now
+      };
+    } catch (error) {
+      console.error(`Error moving note with ID ${noteId}:`, error);
+      return null;
+    }
+  }
+
   // Delete ///////////////////////////////////////////////////////////////////
   // No note can be without a parent, so we don't delete any such relationship
 
