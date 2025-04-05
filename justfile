@@ -1,5 +1,5 @@
 dev:
-    npm run dev -- --db /home/ryan/.config/joplin-desktop/database.sqlite
+    DB_PATH=/home/ryan/.config/joplin-desktop/database.sqlite npm run dev
 
 install:
     npm install
