@@ -1320,6 +1320,78 @@ describe('DatabaseService', () => {
     })
   })
 
+  describe('getAllTags', () => {
+    it('should return all tags in the database', () => {
+      // Arrange
+      const mockTags = [
+        {
+          id: 'tag-1',
+          title: 'Tag 1',
+          parent_id: '',
+          user_created_time: 1000000,
+          user_updated_time: 1000000
+        },
+        {
+          id: 'tag-2',
+          title: 'Tag 2',
+          parent_id: '',
+          user_created_time: 1000000,
+          user_updated_time: 1000000
+        },
+        {
+          id: 'tag-3',
+          title: 'Child Tag',
+          parent_id: 'tag-1',
+          user_created_time: 1000000,
+          user_updated_time: 1000000
+        }
+      ];
+      
+      const mockDb = require('better-sqlite3')();
+      const mockStatement = { all: jest.fn().mockReturnValue(mockTags) };
+      mockDb.prepare.mockReturnValue(mockStatement);
+      
+      // Act
+      const tags = dbService.getAllTags();
+      
+      // Assert
+      expect(tags).toEqual(mockTags);
+      expect(tags.length).toBe(3);
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags'
+      );
+    });
+    
+    it('should return an empty array when there are no tags', () => {
+      // Arrange
+      const mockDb = require('better-sqlite3')();
+      const mockStatement = { all: jest.fn().mockReturnValue([]) };
+      mockDb.prepare.mockReturnValue(mockStatement);
+      
+      // Act
+      const tags = dbService.getAllTags();
+      
+      // Assert
+      expect(tags).toEqual([]);
+      expect(tags.length).toBe(0);
+    });
+    
+    it('should return an empty array when an error occurs', () => {
+      // Arrange
+      const mockDb = require('better-sqlite3')();
+      mockDb.prepare.mockImplementation(() => {
+        throw new Error('Database error');
+      });
+      
+      // Act
+      const tags = dbService.getAllTags();
+      
+      // Assert
+      expect(tags).toEqual([]);
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
   describe('createTag', () => {
     it('should create a new tag with the provided title', () => {
       // Arrange
