@@ -1,6 +1,7 @@
 import type { Component } from 'solid-js'
 import Versions from './components/Versions'
 import NoteList from './components/NoteList'
+import ResourceUploader from './components/ResourceUploader'
 import electronLogo from './assets/electron.svg'
 
 const App: Component = () => {
@@ -21,6 +22,8 @@ const App: Component = () => {
       </div>
 
       <NoteList />
+      
+      <ResourceUploader />
 
       <p class="tip mt-6">
         Please try pressing <code>F12</code> to open the devTool
