@@ -844,6 +844,64 @@ describe('DatabaseService', () => {
     });
   });
 
+  describe('getNotesByFolderId', () => {
+    it('should return all notes in a specific folder', () => {
+      // Arrange
+      const folderId = 'test-folder-id';
+      const mockNotes = [
+        { id: 'note-1', title: 'Note 1', body: 'Body 1', parent_id: folderId, user_created_time: 1000000, user_updated_time: 1000000 },
+        { id: 'note-2', title: 'Note 2', body: 'Body 2', parent_id: folderId, user_created_time: 1000000, user_updated_time: 1000000 }
+      ];
+      
+      const mockDb = require('better-sqlite3')();
+      const mockStatement = { all: jest.fn().mockReturnValue(mockNotes) };
+      mockDb.prepare.mockReturnValue(mockStatement);
+      
+      // Act
+      const notes = dbService.getNotesByFolderId(folderId);
+      
+      // Assert
+      expect(notes).toEqual(mockNotes);
+      expect(notes.length).toBe(2);
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE parent_id = ?'
+      );
+      expect(mockStatement.all).toHaveBeenCalledWith(folderId);
+    });
+    
+    it('should return an empty array when no notes exist in the folder', () => {
+      // Arrange
+      const folderId = 'empty-folder-id';
+      const mockDb = require('better-sqlite3')();
+      const mockStatement = { all: jest.fn().mockReturnValue([]) };
+      mockDb.prepare.mockReturnValue(mockStatement);
+      
+      // Act
+      const notes = dbService.getNotesByFolderId(folderId);
+      
+      // Assert
+      expect(notes).toEqual([]);
+      expect(notes.length).toBe(0);
+      expect(mockStatement.all).toHaveBeenCalledWith(folderId);
+    });
+    
+    it('should return an empty array when an error occurs', () => {
+      // Arrange
+      const folderId = 'error-folder-id';
+      const mockDb = require('better-sqlite3')();
+      mockDb.prepare.mockImplementation(() => {
+        throw new Error('Database error');
+      });
+      
+      // Act
+      const notes = dbService.getNotesByFolderId(folderId);
+      
+      // Assert
+      expect(notes).toEqual([]);
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
   describe('deleteFolder', () => {
     it('should delete a folder and all its notes when the folder exists', () => {
       // Arrange
