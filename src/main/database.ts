@@ -838,6 +838,35 @@ export class DatabaseService {
   }
   
   // Delete ///////////////////////////////////////////////////////////////////
+  /**
+   * Deletes a tag from the database
+   * @param id The ID of the tag to delete
+   * @returns True if the tag was deleted successfully, false otherwise
+   */
+  public deleteTag(id: string): boolean {
+    try {
+      // Check if the tag exists
+      const existingTag = this.getTagById(id);
+      if (!existingTag) {
+        console.error(`Cannot delete tag: Tag with ID ${id} not found`);
+        return false;
+      }
+
+      // Delete the tag from the database
+      const stmt = this.db.prepare('DELETE FROM tags WHERE id = ?');
+      const result = stmt.run(id);
+
+      if (result.changes === 0) {
+        console.error(`No tag deleted with ID ${id}`);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error(`Error deleting tag with ID ${id}:`, error);
+      return false;
+    }
+  }
 
   /////////////////////////////////////////////////////////////////////////////
   // Note-Tags ////////////////////////////////////////////////////////////////
