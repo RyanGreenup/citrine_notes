@@ -744,6 +744,48 @@ export class DatabaseService {
   // Update ///////////////////////////////////////////////////////////////////
   
   // Title  .........................................................................
+  /**
+   * Updates the title of a tag
+   * @param id The ID of the tag to update
+   * @param title The new title for the tag
+   * @returns The updated tag or null if update failed
+   */
+  public updateTag(id: string, title: string): Tag | null {
+    try {
+      const now = Date.now();
+
+      // Check if the tag exists
+      const existingTag = this.getTagById(id);
+      if (!existingTag) {
+        console.error(`Cannot update tag: Tag with ID ${id} not found`);
+        return null;
+      }
+
+      // Update the tag in the database
+      const stmt = this.db.prepare(
+        'UPDATE tags SET title = ?, updated_time = ?, user_updated_time = ? WHERE id = ?'
+      );
+
+      const result = stmt.run(title, now, now, id);
+
+      if (result.changes === 0) {
+        console.error(`No changes made to tag with ID ${id}`);
+        return null;
+      }
+
+      // Return the updated tag
+      return {
+        id,
+        title,
+        parent_id: existingTag.parent_id,
+        user_created_time: existingTag.user_created_time,
+        user_updated_time: now
+      };
+    } catch (error) {
+      console.error(`Error updating tag with ID ${id}:`, error);
+      return null;
+    }
+  }
  
   // Parent .........................................................................
   
