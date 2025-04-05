@@ -4,7 +4,7 @@ import NoteList from './components/NoteList'
 import ResourceUploader from './components/ResourceUploader'
 import electronLogo from './assets/electron.svg'
 
-function dummyContent = () => {
+const DummyContent: Component = () => {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
   return (
@@ -42,7 +42,7 @@ function dummyContent = () => {
 }
 
 const App: Component = () => {
-  return <dummyContent />
+  return <DummyContent />
 }
 
 export default App
