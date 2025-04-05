@@ -844,6 +844,151 @@ describe('DatabaseService', () => {
     });
   });
 
+  describe('moveNote', () => {
+    it('should move a note to a new parent folder', () => {
+      // Arrange
+      const noteId = 'note-to-move';
+      const newFolderId = 'new-parent-folder';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = { 
+        id: noteId, 
+        title: 'Note to Move', 
+        body: 'This note will be moved',
+        parent_id: 'old-parent-folder',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for the UPDATE statement
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockUpdateStatement);
+      
+      // Act
+      const result = dbService.moveNote(noteId, newFolderId);
+      
+      // Assert
+      expect(result).not.toBeNull();
+      expect(result).toEqual({
+        id: noteId,
+        title: 'Note to Move',
+        body: 'This note will be moved',
+        parent_id: newFolderId,
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      });
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1, 'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(noteId);
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, 'UPDATE notes SET parent_id = ?, user_updated_time = ? WHERE id = ?'
+      );
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(
+        newFolderId, 1000000, noteId
+      );
+    });
+    
+    it('should return null when the note does not exist', () => {
+      // Arrange
+      const noteId = 'non-existent-note';
+      const newFolderId = 'some-folder';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return null (note not found)
+      const mockGetStatement = { get: jest.fn().mockReturnValue(null) };
+      mockDb.prepare.mockReturnValue(mockGetStatement);
+      
+      // Act
+      const result = dbService.moveNote(noteId, newFolderId);
+      
+      // Assert
+      expect(result).toBeNull();
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(noteId);
+      // The UPDATE statement should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
+    });
+    
+    it('should return null when no rows are affected by the move operation', () => {
+      // Arrange
+      const noteId = 'note-not-moved';
+      const newFolderId = 'new-folder';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = { 
+        id: noteId, 
+        title: 'Note Not Moved', 
+        body: 'This note will not be moved',
+        parent_id: 'old-folder',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for the UPDATE statement, but no rows affected
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockUpdateStatement);
+      
+      // Act
+      const result = dbService.moveNote(noteId, newFolderId);
+      
+      // Assert
+      expect(result).toBeNull();
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(
+        newFolderId, 1000000, noteId
+      );
+    });
+    
+    it('should return null when an error occurs during the move operation', () => {
+      // Arrange
+      const noteId = 'error-note';
+      const newFolderId = 'error-folder';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = { 
+        id: noteId, 
+        title: 'Error Note', 
+        body: 'This note will cause an error',
+        parent_id: 'old-folder',
+        user_created_time: 1000000, 
+        user_updated_time: 1000000 
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      
+      // Second prepare call throws an error
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockImplementationOnce(() => {
+          throw new Error('Database error during move operation');
+        });
+      
+      // Act
+      const result = dbService.moveNote(noteId, newFolderId);
+      
+      // Assert
+      expect(result).toBeNull();
+    });
+  });
+
   describe('getNotesByFolderId', () => {
     it('should return all notes in a specific folder', () => {
       // Arrange
