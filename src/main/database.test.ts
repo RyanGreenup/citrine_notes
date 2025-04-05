@@ -2000,6 +2000,218 @@ describe('DatabaseService', () => {
     });
   });
 
+  describe('removeTagFromNote', () => {
+    it('should remove a tag from a note', () => {
+      // Arrange
+      const noteId = 'note-id';
+      const tagId = 'tag-id';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Test Note',
+        body: 'Test Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // Mock getTagById to return a tag
+      const mockTag = {
+        id: tagId,
+        title: 'Test Tag',
+        parent_id: '',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for getTagById
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      // Third prepare call is for the DELETE statement
+      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetNoteStatement)
+        .mockReturnValueOnce(mockGetTagStatement)
+        .mockReturnValueOnce(mockDeleteStatement);
+      
+      // Act
+      const result = dbService.removeTagFromNote(noteId, tagId);
+      
+      // Assert
+      expect(result).toBe(true);
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1, 'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      );
+      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId);
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      );
+      expect(mockGetTagStatement.get).toHaveBeenCalledWith(tagId);
+      
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        3, 'DELETE FROM note_tags WHERE note_id = ? AND tag_id = ?'
+      );
+      expect(mockDeleteStatement.run).toHaveBeenCalledWith(noteId, tagId);
+    });
+    
+    it('should return false when the note does not exist', () => {
+      // Arrange
+      const noteId = 'non-existent-note';
+      const tagId = 'tag-id';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return null (note not found)
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(null) };
+      mockDb.prepare.mockReturnValue(mockGetNoteStatement);
+      
+      // Act
+      const result = dbService.removeTagFromNote(noteId, tagId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      );
+      expect(mockGetNoteStatement.get).toHaveBeenCalledWith(noteId);
+      // The other statements should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
+    });
+    
+    it('should return false when the tag does not exist', () => {
+      // Arrange
+      const noteId = 'note-id';
+      const tagId = 'non-existent-tag';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Test Note',
+        body: 'Test Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for getTagById to return null (tag not found)
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(null) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetNoteStatement)
+        .mockReturnValueOnce(mockGetTagStatement);
+      
+      // Act
+      const result = dbService.removeTagFromNote(noteId, tagId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      );
+      expect(mockGetTagStatement.get).toHaveBeenCalledWith(tagId);
+      // The DELETE statement should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(2);
+    });
+    
+    it('should return false when no tag-note relationship exists', () => {
+      // Arrange
+      const noteId = 'note-id';
+      const tagId = 'tag-id';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Test Note',
+        body: 'Test Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // Mock getTagById to return a tag
+      const mockTag = {
+        id: tagId,
+        title: 'Test Tag',
+        parent_id: '',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for getTagById
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      // Third prepare call is for the DELETE statement, but no rows affected
+      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetNoteStatement)
+        .mockReturnValueOnce(mockGetTagStatement)
+        .mockReturnValueOnce(mockDeleteStatement);
+      
+      // Act
+      const result = dbService.removeTagFromNote(noteId, tagId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(mockDeleteStatement.run).toHaveBeenCalledWith(noteId, tagId);
+    });
+    
+    it('should return false when an error occurs during tag removal', () => {
+      // Arrange
+      const noteId = 'note-id';
+      const tagId = 'tag-id';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Test Note',
+        body: 'Test Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // Mock getTagById to return a tag
+      const mockTag = {
+        id: tagId,
+        title: 'Test Tag',
+        parent_id: '',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getNoteById
+      const mockGetNoteStatement = { get: jest.fn().mockReturnValue(mockNote) };
+      // Second prepare call is for getTagById
+      const mockGetTagStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      
+      // Third prepare call throws an error
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetNoteStatement)
+        .mockReturnValueOnce(mockGetTagStatement)
+        .mockImplementationOnce(() => {
+          throw new Error('Database error during tag removal');
+        });
+      
+      // Act
+      const result = dbService.removeTagFromNote(noteId, tagId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
   describe('assignTagToNote', () => {
     it('should assign a tag to a note', () => {
       // Arrange
