@@ -725,6 +725,21 @@ export class DatabaseService {
   }
 
   // Get all Tags .............................................................
+  /**
+   * Gets all tags from the database
+   * @returns Array of all tags
+   */
+  public getAllTags(): Tag[] {
+    try {
+      const stmt = this.db.prepare(
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags'
+      );
+      return stmt.all() as Tag[];
+    } catch (error) {
+      console.error('Error fetching all tags:', error);
+      return [];
+    }
+  }
 
   // Update ///////////////////////////////////////////////////////////////////
   // Delete ///////////////////////////////////////////////////////////////////
