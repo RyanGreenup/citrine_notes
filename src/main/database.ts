@@ -149,18 +149,16 @@ export class DatabaseService {
 
 
   // Get the body of a note based on its id
-  //  Fix this method AI!
-  // Diagnostics:
-  // 1. ts: Function lacks ending return statement and return type does not include 'undefined'. [2366]
-  // 2. typescript: Function lacks ending return statement and return type does not include 'undefined'. [2366]
   public getNoteBodyById(id: string): string | null {
     try {
       const stmt = this.db.prepare(
         `SELECT body FROM notes WHERE id = ?`
       )
-      return (stmt.get(id)) || null
+      const result = stmt.get(id)
+      return result ? result.body : null
     } catch (error) {
       console.error(`Error fetching content of note with ID ${id}:`, error)
+      return null
     }
   }
 
