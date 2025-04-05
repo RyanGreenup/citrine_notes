@@ -231,6 +231,7 @@ app.whenReady().then(() => {
 
     // Resources //////////////////////////////////////////////////////////////
     // Create _________________________________________________________________
+    // Improve this function to copy it to ~/.config/joplin-desktop/resources/{id}.{ext} AI!
     ipcMain.handle(
       'db:resources:create',
       (
