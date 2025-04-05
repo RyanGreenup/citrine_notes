@@ -148,7 +148,6 @@ export class DatabaseService {
   }
 
 
-  // AI: The function is defined here
   // Get the body of a note based on its id
   public getNoteBodyById(id: string): string | null {
     try {

@@ -93,7 +93,9 @@ app.whenReady().then(() => {
       return databaseService!.getAllNotes()
     })
     // Get Note by ID .........................................................
-    // Expose the getNoteById method here AI!
+    ipcMain.handle('db:notes:getNoteById', (_, id: string): Note | null => {
+      return databaseService!.getNoteById(id)
+    })
     // Update _________________________________________________________________
     // Delete _________________________________________________________________
     // Tree ___________________________________________________________________
