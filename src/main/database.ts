@@ -459,6 +459,185 @@ export class DatabaseService {
   // Tree /////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * Builds a hierarchical tree structure of notes and folders
+   * @returns A tree structure with a root node containing all notes and folders
+   */
+  public buildNoteTree(): any {
+    try {
+      // Define interfaces for tree nodes
+      interface TreeNode {
+        id: string;
+        name: string;
+        children?: TreeNode[];
+      }
+
+      interface FolderMap {
+        [id: string]: {
+          id: string;
+          title: string;
+          parent_id: string;
+          children: TreeNode[];
+          processed?: boolean;
+        };
+      }
+
+      // Fetch all folders and notes from the database
+      const foldersStmt = this.db.prepare('SELECT id, title, parent_id FROM folders');
+      const notesStmt = this.db.prepare('SELECT id, title, parent_id FROM notes');
+      
+      const folders = foldersStmt.all();
+      const notes = notesStmt.all();
+
+      // Create a map of folders for easy lookup
+      const folderMap: FolderMap = {};
+      folders.forEach((folder: any) => {
+        folderMap[folder.id] = {
+          id: folder.id,
+          title: folder.title,
+          parent_id: folder.parent_id,
+          children: []
+        };
+      });
+
+      // Create the root node
+      const root: TreeNode = {
+        id: 'ROOT',
+        name: '',
+        children: []
+      };
+
+      // Process folders to build the hierarchy
+      // Handle circular references by detecting cycles
+      const processedFolders = new Set<string>();
+      const isBeingProcessed = new Set<string>();
+
+      /**
+       * Recursively processes a folder and its children
+       * @param folderId The ID of the folder to process
+       * @returns The processed folder as a TreeNode
+       */
+      const processFolder = (folderId: string): TreeNode | null => {
+        // Check for circular references
+        if (isBeingProcessed.has(folderId)) {
+          console.warn(`Circular reference detected for folder: ${folderId}`);
+          return null;
+        }
+
+        // Skip already processed folders
+        if (processedFolders.has(folderId)) {
+          return null;
+        }
+
+        const folder = folderMap[folderId];
+        if (!folder) {
+          return null;
+        }
+
+        isBeingProcessed.add(folderId);
+
+        // Process parent folder first if it exists
+        if (folder.parent_id && folderMap[folder.parent_id]) {
+          processFolder(folder.parent_id);
+        }
+
+        // Create the folder node
+        const folderNode: TreeNode = {
+          id: folder.id,
+          name: folder.title
+        };
+
+        // Mark as processed
+        processedFolders.add(folderId);
+        isBeingProcessed.delete(folderId);
+
+        return folderNode;
+      };
+
+      // First pass: process all folders to detect and break circular references
+      folders.forEach((folder: any) => {
+        processFolder(folder.id);
+      });
+
+      // Second pass: build the actual tree structure
+      folders.forEach((folder: any) => {
+        const folderNode: TreeNode = {
+          id: folder.id,
+          name: folder.title
+        };
+
+        // If this folder has a valid parent, add it as a child
+        if (folder.parent_id && folderMap[folder.parent_id]) {
+          // Add this folder as a child of its parent
+          if (!folderMap[folder.parent_id].children) {
+            folderMap[folder.parent_id].children = [];
+          }
+          folderMap[folder.parent_id].children.push(folderNode);
+        } else {
+          // This is a root-level folder
+          root.children!.push(folderNode);
+        }
+      });
+
+      // Process notes
+      notes.forEach((note: any) => {
+        const noteNode: TreeNode = {
+          id: note.id,
+          name: note.title
+        };
+
+        // If this note has a valid parent folder, add it as a child
+        if (note.parent_id && folderMap[note.parent_id]) {
+          // Add this note as a child of its parent folder
+          if (!folderMap[note.parent_id].children) {
+            folderMap[note.parent_id].children = [];
+          }
+          folderMap[note.parent_id].children.push(noteNode);
+        } else {
+          // This is a root-level note
+          root.children!.push(noteNode);
+        }
+      });
+
+      // Add children arrays to folder nodes that need them
+      folders.forEach((folder: any) => {
+        const folderNode = folderMap[folder.id];
+        if (folderNode && folderNode.children && folderNode.children.length > 0) {
+          // Find this folder in the tree and add its children
+          const addChildrenToNode = (node: TreeNode): boolean => {
+            if (node.id === folder.id) {
+              node.children = folderNode.children;
+              return true;
+            }
+            
+            if (node.children) {
+              for (const child of node.children) {
+                if (addChildrenToNode(child)) {
+                  return true;
+                }
+              }
+            }
+            
+            return false;
+          };
+          
+          // Start from root to find and update the folder
+          addChildrenToNode(root);
+        }
+      });
+
+      return root;
+    } catch (error) {
+      console.error('Error building note tree:', error);
+      // Return an empty root node in case of error
+      return {
+        id: 'ROOT',
+        name: '',
+        children: []
+      };
+    }
+  }
+
   // Close the database connection
   public close(): void {
     try {
