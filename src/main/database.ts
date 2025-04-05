@@ -147,7 +147,6 @@ export class DatabaseService {
     }
   }
 
-
   // Get the body of a note based on its id
   public getNoteBodyById(id: string): string | null {
     try {
@@ -162,7 +161,81 @@ export class DatabaseService {
 
   // Update ///////////////////////////////////////////////////////////////////
 
-  // Update an existing note
+  // Update an existing note's title
+  public updateNoteTitle(id: string, title: string): Note | null {
+    try {
+      const now = Date.now()
+
+      // Check if the note exists
+      const existingNote = this.getNoteById(id)
+      if (!existingNote) {
+        console.error(`Cannot update note title: Note with ID ${id} not found`)
+        return null
+      }
+
+      // Update the note title in the database
+      const stmt = this.db.prepare('UPDATE notes SET title = ?, user_updated_time = ? WHERE id = ?')
+
+      const result = stmt.run(title, now, id)
+
+      if (result.changes === 0) {
+        console.error(`No changes made to note title with ID ${id}`)
+        return null
+      }
+
+      // Return the updated note
+      return {
+        id,
+        title,
+        body: existingNote.body,
+        parent_id: existingNote.parent_id,
+        user_created_time: existingNote.user_created_time,
+        user_updated_time: now
+      }
+    } catch (error) {
+      console.error(`Error updating note title with ID ${id}:`, error)
+      return null
+    }
+  }
+
+  // Update an existing note's body
+  public updateNoteBody(id: string, body: string): Note | null {
+    try {
+      const now = Date.now()
+
+      // Check if the note exists
+      const existingNote = this.getNoteById(id)
+      if (!existingNote) {
+        console.error(`Cannot update note body: Note with ID ${id} not found`)
+        return null
+      }
+
+      // Update the note body in the database
+      const stmt = this.db.prepare('UPDATE notes SET body = ?, user_updated_time = ? WHERE id = ?')
+
+      const result = stmt.run(body, now, id)
+
+      if (result.changes === 0) {
+        console.error(`No changes made to note body with ID ${id}`)
+        return null
+      }
+
+      // Return the updated note
+      return {
+        id,
+        title: existingNote.title,
+        body,
+        parent_id: existingNote.parent_id,
+        user_created_time: existingNote.user_created_time,
+        user_updated_time: now
+      }
+    } catch (error) {
+      console.error(`Error updating note body with ID ${id}:`, error)
+      return null
+    }
+  }
+
+  // Update an existing note (both title and body)
   public updateNote(id: string, title: string, body: string): Note | null {
     try {
       const now = Date.now()

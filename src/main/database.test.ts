@@ -707,6 +707,333 @@ describe('DatabaseService', () => {
     })
   })
 
+  describe('updateNoteTitle', () => {
+    it('should update a note title when the note exists', () => {
+      // Arrange
+      const noteId = 'note-to-update'
+      const newTitle = 'Updated Note Title'
+      const mockDb = require('better-sqlite3')()
+
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Original Note Title',
+        body: 'Original note body content',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      }
+
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) }
+      // Second prepare call is for the UPDATE statement
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) }
+
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockReturnValueOnce(mockUpdateStatement)
+
+      // Act
+      const result = dbService.updateNoteTitle(noteId, newTitle)
+
+      // Assert
+      expect(result).not.toBeNull()
+      expect(result).toEqual({
+        id: noteId,
+        title: newTitle,
+        body: 'Original note body content',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      })
+
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1,
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      )
+      expect(mockGetStatement.get).toHaveBeenCalledWith(noteId)
+
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2,
+        'UPDATE notes SET title = ?, user_updated_time = ? WHERE id = ?'
+      )
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newTitle, 1000000, noteId)
+    })
+
+    it('should return null when the note does not exist', () => {
+      // Arrange
+      const noteId = 'non-existent-note'
+      const newTitle = 'New Title'
+      const mockDb = require('better-sqlite3')()
+
+      // Mock getNoteById to return null (note not found)
+      const mockGetStatement = { get: jest.fn().mockReturnValue(null) }
+      mockDb.prepare.mockReturnValue(mockGetStatement)
+
+      // Act
+      const result = dbService.updateNoteTitle(noteId, newTitle)
+
+      // Assert
+      expect(result).toBeNull()
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      )
+      expect(mockGetStatement.get).toHaveBeenCalledWith(noteId)
+      // The UPDATE statement should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1)
+    })
+
+    it('should return null when no rows are affected by the update operation', () => {
+      // Arrange
+      const noteId = 'note-not-updated'
+      const newTitle = 'New Title'
+      const mockDb = require('better-sqlite3')()
+
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Original Title',
+        body: 'Original Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      }
+
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) }
+      // Second prepare call is for the UPDATE statement, but no rows affected
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) }
+
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockReturnValueOnce(mockUpdateStatement)
+
+      // Act
+      const result = dbService.updateNoteTitle(noteId, newTitle)
+
+      // Assert
+      expect(result).toBeNull()
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newTitle, 1000000, noteId)
+    })
+
+    it('should return null when an error occurs during update', () => {
+      // Arrange
+      const noteId = 'error-note'
+      const newTitle = 'Error Title'
+      const mockDb = require('better-sqlite3')()
+
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Original Title',
+        body: 'Original Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      }
+
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) }
+
+      // Second prepare call throws an error
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockImplementationOnce(() => {
+        throw new Error('Database error during update')
+      })
+
+      // Act
+      const result = dbService.updateNoteTitle(noteId, newTitle)
+
+      // Assert
+      expect(result).toBeNull()
+    })
+  })
+
+  describe('updateNoteBody', () => {
+    it('should update a note body when the note exists', () => {
+      // Arrange
+      const noteId = 'note-to-update'
+      const newBody = 'Updated note body content'
+      const mockDb = require('better-sqlite3')()
+
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Original Note Title',
+        body: 'Original note body content',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      }
+
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) }
+      // Second prepare call is for the UPDATE statement
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) }
+
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockReturnValueOnce(mockUpdateStatement)
+
+      // Act
+      const result = dbService.updateNoteBody(noteId, newBody)
+
+      // Assert
+      expect(result).not.toBeNull()
+      expect(result).toEqual({
+        id: noteId,
+        title: 'Original Note Title',
+        body: newBody,
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      })
+
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1,
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      )
+      expect(mockGetStatement.get).toHaveBeenCalledWith(noteId)
+
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2,
+        'UPDATE notes SET body = ?, user_updated_time = ? WHERE id = ?'
+      )
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newBody, 1000000, noteId)
+    })
+
+    it('should return null when the note does not exist', () => {
+      // Arrange
+      const noteId = 'non-existent-note'
+      const newBody = 'New Body'
+      const mockDb = require('better-sqlite3')()
+
+      // Mock getNoteById to return null (note not found)
+      const mockGetStatement = { get: jest.fn().mockReturnValue(null) }
+      mockDb.prepare.mockReturnValue(mockGetStatement)
+
+      // Act
+      const result = dbService.updateNoteBody(noteId, newBody)
+
+      // Assert
+      expect(result).toBeNull()
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      )
+      expect(mockGetStatement.get).toHaveBeenCalledWith(noteId)
+      // The UPDATE statement should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1)
+    })
+
+    it('should return null when no rows are affected by the update operation', () => {
+      // Arrange
+      const noteId = 'note-not-updated'
+      const newBody = 'New Body'
+      const mockDb = require('better-sqlite3')()
+
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Original Title',
+        body: 'Original Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      }
+
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) }
+      // Second prepare call is for the UPDATE statement, but no rows affected
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) }
+
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockReturnValueOnce(mockUpdateStatement)
+
+      // Act
+      const result = dbService.updateNoteBody(noteId, newBody)
+
+      // Assert
+      expect(result).toBeNull()
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newBody, 1000000, noteId)
+    })
+
+    it('should return null when an error occurs during update', () => {
+      // Arrange
+      const noteId = 'error-note'
+      const newBody = 'Error Body'
+      const mockDb = require('better-sqlite3')()
+
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Original Title',
+        body: 'Original Body',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      }
+
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) }
+
+      // Second prepare call throws an error
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockImplementationOnce(() => {
+        throw new Error('Database error during update')
+      })
+
+      // Act
+      const result = dbService.updateNoteBody(noteId, newBody)
+
+      // Assert
+      expect(result).toBeNull()
+    })
+  })
+
+  describe('updateNote', () => {
+    it('should update both title and body when the note exists', () => {
+      // Arrange
+      const noteId = 'note-to-update'
+      const newTitle = 'Updated Note Title'
+      const newBody = 'Updated note body content'
+      const mockDb = require('better-sqlite3')()
+
+      // Mock getNoteById to return a note
+      const mockNote = {
+        id: noteId,
+        title: 'Original Note Title',
+        body: 'Original note body content',
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      }
+
+      // First prepare call is for getNoteById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockNote) }
+      // Second prepare call is for the UPDATE statement
+      const mockUpdateStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) }
+
+      mockDb.prepare.mockReturnValueOnce(mockGetStatement).mockReturnValueOnce(mockUpdateStatement)
+
+      // Act
+      const result = dbService.updateNote(noteId, newTitle, newBody)
+
+      // Assert
+      expect(result).not.toBeNull()
+      expect(result).toEqual({
+        id: noteId,
+        title: newTitle,
+        body: newBody,
+        parent_id: 'folder-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      })
+
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1,
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE id = ?'
+      )
+      expect(mockGetStatement.get).toHaveBeenCalledWith(noteId)
+
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        2,
+        'UPDATE notes SET title = ?, body = ?, user_updated_time = ? WHERE id = ?'
+      )
+      expect(mockUpdateStatement.run).toHaveBeenCalledWith(newTitle, newBody, 1000000, noteId)
+    })
+  })
+
   describe('moveFolder', () => {
     it('should change the parent_id of a folder when the folder exists', () => {
       // Arrange

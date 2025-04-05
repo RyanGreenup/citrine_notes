@@ -89,14 +89,20 @@ app.whenReady().then(() => {
     // Create _________________________________________________________________
     // Read ___________________________________________________________________
     // Get All Notes ..........................................................
-    ipcMain.handle('db:notes:getAllNotes', (): Note[] => {
+    ipcMain.handle('db:notes:getAllNotes', (_event): Note[] => {
       return databaseService!.getAllNotes()
     })
     // Get Note by ID .........................................................
-    ipcMain.handle('db:notes:getNoteById', (_, id: string): Note | null => {
+    ipcMain.handle('db:notes:getNoteById', (_event, id: string): Note | null => {
       return databaseService!.getNoteById(id)
     })
     // Update _________________________________________________________________
+    ipcMain.handle('db:notes:updateNoteTitle', (_event, id: string, title: string): Note | null => {
+      return databaseService!.updateNoteTitle(id, title)
+    })
+    ipcMain.handle('db:notes:updateNoteBody', (_event, id: string, body: string): Note | null => {
+      return databaseService!.updateNoteBody(id, body)
+    })
     // Delete _________________________________________________________________
     // Tree ___________________________________________________________________
     // ........................................................................

@@ -33,7 +33,7 @@ const NoteList = () => {
         return
       }
 
-      const allNotes = (await window.electron.ipcRenderer.invoke('db:getAllNotes')) as Note[]
+      const allNotes = (await window.electron.ipcRenderer.invoke('db:notes:getAllNotes')) as Note[]
       // Get only the first 10 notes
       setNotes(allNotes.slice(0, 10))
       setError(null)
