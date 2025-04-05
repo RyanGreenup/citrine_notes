@@ -1728,6 +1728,129 @@ describe('DatabaseService', () => {
     });
   });
 
+  describe('deleteTag', () => {
+    it('should delete a tag when it exists', () => {
+      // Arrange
+      const tagId = 'tag-to-delete';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getTagById to return a tag
+      const mockTag = {
+        id: tagId,
+        title: 'Tag to Delete',
+        parent_id: 'parent-tag-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getTagById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      // Second prepare call is for the DELETE statement
+      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 1 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockDeleteStatement);
+      
+      // Act
+      const result = dbService.deleteTag(tagId);
+      
+      // Assert
+      expect(result).toBe(true);
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(
+        1, 'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId);
+      expect(mockDb.prepare).toHaveBeenNthCalledWith(2, 'DELETE FROM tags WHERE id = ?');
+      expect(mockDeleteStatement.run).toHaveBeenCalledWith(tagId);
+    });
+    
+    it('should return false when the tag does not exist', () => {
+      // Arrange
+      const tagId = 'non-existent-tag';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getTagById to return null (tag not found)
+      const mockGetStatement = { get: jest.fn().mockReturnValue(null) };
+      mockDb.prepare.mockReturnValue(mockGetStatement);
+      
+      // Act
+      const result = dbService.deleteTag(tagId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(mockDb.prepare).toHaveBeenCalledWith(
+        'SELECT id, title, parent_id, user_created_time, user_updated_time FROM tags WHERE id = ?'
+      );
+      expect(mockGetStatement.get).toHaveBeenCalledWith(tagId);
+      // The DELETE statement should not be prepared or executed
+      expect(mockDb.prepare).toHaveBeenCalledTimes(1);
+    });
+    
+    it('should return false when no rows are affected by the delete operation', () => {
+      // Arrange
+      const tagId = 'tag-not-deleted';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getTagById to return a tag
+      const mockTag = {
+        id: tagId,
+        title: 'Tag Not Deleted',
+        parent_id: 'parent-tag-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getTagById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      // Second prepare call is for the DELETE statement, but no rows affected
+      const mockDeleteStatement = { run: jest.fn().mockReturnValue({ changes: 0 }) };
+      
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockReturnValueOnce(mockDeleteStatement);
+      
+      // Act
+      const result = dbService.deleteTag(tagId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(mockDeleteStatement.run).toHaveBeenCalledWith(tagId);
+    });
+    
+    it('should return false when an error occurs during deletion', () => {
+      // Arrange
+      const tagId = 'error-tag';
+      const mockDb = require('better-sqlite3')();
+      
+      // Mock getTagById to return a tag
+      const mockTag = {
+        id: tagId,
+        title: 'Error Tag',
+        parent_id: 'parent-tag-id',
+        user_created_time: 1000000,
+        user_updated_time: 1000000
+      };
+      
+      // First prepare call is for getTagById
+      const mockGetStatement = { get: jest.fn().mockReturnValue(mockTag) };
+      
+      // Second prepare call throws an error
+      mockDb.prepare
+        .mockReturnValueOnce(mockGetStatement)
+        .mockImplementationOnce(() => {
+          throw new Error('Database error during deletion');
+        });
+      
+      // Act
+      const result = dbService.deleteTag(tagId);
+      
+      // Assert
+      expect(result).toBe(false);
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
   describe('createTag', () => {
     it('should create a new tag with the provided title', () => {
       // Arrange
