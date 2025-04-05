@@ -38,7 +38,7 @@ const DummyContent: Component = () => {
       </div>
       <Versions />
     </div>
-  );
+  )
 }
 
 const App: Component = () => {
