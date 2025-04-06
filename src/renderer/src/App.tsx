@@ -52,9 +52,9 @@ const SidebarItemWithElement: Component<{
   href: string
   element: JSXElement
 }> = (props) => {
-  const baseClass = ' flex items-center p-2 rounded-lg dark:text-white group '
-  const textColor = ' text-gray-900 dark:text-white'
-  const bgColor = ' hover:bg-gray-100 dark:hover:bg-gray-700 '
+  const baseClass = 'flex items-center p-2 rounded-lg group'
+  const textColor = 'text-gray-900 dark:text-white'
+  const bgColor = 'hover:bg-gray-100 dark:hover:bg-gray-700'
   return (
     <li>
       <a href={props.href} class={baseClass + textColor + bgColor}>
