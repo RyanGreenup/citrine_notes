@@ -95,7 +95,7 @@ function Sidebar() {
           <ul class="space-y-2 font-medium">
             <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
             <SidebarItem icon={Mailbox} href="#" label="Inbox" />
-            <SidebarItemWithElement icon={KanbanIcon}, href="#", label="Kanban", element={<Tag text="pro" />} />
+            <SidebarItemWithElement icon={KanbanIcon} href="#" label="Kanban" element={<Tag text="pro" />} />
             <li>
               <a
                 href="#"
