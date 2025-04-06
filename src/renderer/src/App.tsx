@@ -239,10 +239,8 @@ function Sidebar() {
                 href="#"
                 class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
               >
-                <Compass
-                  class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                  aria-hidden="true"
-                />
+              // Fix this AI!
+              <SidebarIcon icon=<Compass/>/>
                 <span class="ms-3">Help</span>
               </a>
             </li>
