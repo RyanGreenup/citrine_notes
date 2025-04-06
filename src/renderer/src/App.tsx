@@ -86,12 +86,12 @@ function Sidebar(props: SidebarProps) {
     <>
       <aside
         id="separator-sidebar"
-        class={`fixed top-0 left-0 z-40 w-64 h-screen transition-transform pt-16 ${
+        class={`fixed top-0 left-0 z-40 w-64 h-screen transition-transform ${
           props.isOpen ? 'translate-x-0' : '-translate-x-full'
         } sm:translate-x-0`}
         aria-label="Sidebar"
       >
-        <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+        <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800 pt-16">
           <ul class="space-y-2 font-medium">
             <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
             <SidebarItem icon={Mailbox} href="#" label="Inbox" />
