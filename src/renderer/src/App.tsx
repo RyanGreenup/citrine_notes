@@ -1,5 +1,6 @@
 import type { Component, JSXElement } from 'solid-js'
 import type { LucideIcon } from 'lucide-solid'
+import { SIDEBAR_TOP_PADDING } from './constants/layout'
 import {
   BookIcon,
   ChartPie,
@@ -105,7 +106,7 @@ function Sidebar(props: SidebarProps) {
         } sm:translate-x-0`}
         aria-label="Sidebar"
       >
-        <div class={`h-full px-3 py-4 overflow-y-auto ${BG_COLOR_LIGHT} ${BG_COLOR_DARK} pt-16`}>
+        <div class={`h-full px-3 py-4 overflow-y-auto ${BG_COLOR_LIGHT} ${BG_COLOR_DARK} ${SIDEBAR_TOP_PADDING}`}>
           <ul class="space-y-2 font-medium">
             <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
             <SidebarItem icon={Mailbox} href="#" label="Inbox" />
