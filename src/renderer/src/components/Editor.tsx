@@ -1,14 +1,24 @@
-import { Component, createSignal, createEffect } from 'solid-js'
+import { Component, createSignal, createEffect, onMount } from 'solid-js'
 import { marked } from 'marked'
+import markedKatex from 'marked-katex-extension'
+import 'katex/dist/katex.min.css'
 
 /**
  * Editor component provides a markdown editing experience with live preview
  * 
  * This component handles text input and renders a live preview of the markdown content.
+ * Supports KaTeX for mathematical equations.
  */
 export const Editor: Component = () => {
-  const [content, setContent] = createSignal('# Hello World\n\nStart typing your note here...')
+  const [content, setContent] = createSignal('# Hello World\n\nStart typing your note here...\n\nTry some math: $c = \\pm\\sqrt{a^2 + b^2}$\n\nOr block math:\n\n$$\nc = \\pm\\sqrt{a^2 + b^2}\n$$')
   const [renderedContent, setRenderedContent] = createSignal('')
+
+  // Initialize marked with KaTeX extension
+  onMount(() => {
+    marked.use(markedKatex({
+      throwOnError: false
+    }))
+  })
 
   // Update the preview whenever content changes
   createEffect(() => {
