@@ -4,7 +4,7 @@ import NoteList from './components/NoteList'
 import ResourceUploader from './components/ResourceUploader'
 import electronLogo from './assets/electron.svg'
 
-function Foo() {
+function Sidebar() {
   return (
     <>
       <div
@@ -38,7 +38,6 @@ function Foo() {
           ></path>
         </svg>
       </button>
-
       <aside
         id="separator-sidebar"
         class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
@@ -239,6 +238,7 @@ function Foo() {
                 href="#"
                 class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
               >
+                // Replace this with the corresponding lucide-solid icon AI!
                 <svg
                   class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                   aria-hidden="true"
@@ -254,7 +254,15 @@ function Foo() {
           </ul>
         </div>
       </aside>
+      <FillerContent />
+      zzz
+    </>
+  )
+}
 
+function FillerContent() {
+  return (
+    <>
       <div class="p-4 sm:ml-64">
         <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
           <div class="grid grid-cols-3 gap-4 mb-4">
@@ -726,7 +734,7 @@ function Modal() {
 
 const DummyContent: Component = () => {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-  return <Foo />
+  return <Sidebar />
 }
 
 const App: Component = () => {
