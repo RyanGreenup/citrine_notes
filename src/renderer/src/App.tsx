@@ -1,4 +1,4 @@
-import type { Component, JSXElement, ComponentProps } from 'solid-js'
+import type { Component, JSXElement } from 'solid-js'
 import type { LucideIcon } from 'lucide-solid'
 import {
   BookIcon,
@@ -15,8 +15,9 @@ import {
 } from 'lucide-solid'
 
 import { FillerContent } from './components/FillerContent'
+import { Navbar } from './components/Navbar'
 import { initFlowbite } from 'flowbite'
-import { onMount } from 'solid-js'
+import { onMount, createSignal } from 'solid-js'
 
 const SidebarText: Component<{
   text: string
@@ -63,47 +64,18 @@ const SidebarItemWithElement: Component<{
   )
 }
 
-function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean
+}
+
+function Sidebar(props: SidebarProps) {
   // Required because of the Button
   onMount(() => {
     initFlowbite()
   })
 
-  /** The button used to toggle the sidebar
-   *
-   */
-  const ToggleSidebarButton: Component = () => {
-    return (
-      <>
-        <div
-          id="tooltip-default"
-          role="tooltip"
-          class={
-            `absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300  rounded-lg shadow-xs opacity-0 tooltip ` +
-            bgColor +
-            textColor
-          }
-        >
-          Tooltip content
-          <div class="tooltip-arrow" data-popper-arrow></div>
-        </div>
-        <button
-          data-tooltip-target="tooltip-default"
-          data-drawer-target="separator-sidebar"
-          data-drawer-toggle="separator-sidebar"
-          aria-controls="separator-sidebar"
-          type="button"
-          class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-        >
-          <span class="sr-only">Open sidebar</span>
-          <SidebarIcon icon={KanbanIcon} />
-        </button>
-      </>
-    )
-  }
-
   /**
-   * Draw a line above an unordered list but not between items. Drawes a line between two lists to separate them
+   * Draw a line above an unordered list but not between items. Draws a line between two lists to separate them
    */
   let unordered_list_with_top_line =
     'pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700'
@@ -112,10 +84,11 @@ function Sidebar() {
   let textColor = ' text-white '
   return (
     <>
-      <ToggleSidebarButton />
       <aside
         id="separator-sidebar"
-        class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
+        class={`fixed top-0 left-0 z-40 w-64 h-screen transition-transform pt-16 ${
+          props.isOpen ? 'translate-x-0' : '-translate-x-full'
+        } sm:translate-x-0`}
         aria-label="Sidebar"
       >
         <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
@@ -235,11 +208,21 @@ function SidebarIcon({ icon: Icon }: { icon: LucideIcon }): JSXElement {
 }
 
 const DummyContent: Component = () => {
+  const [sidebarOpen, setSidebarOpen] = createSignal(false)
+  
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen())
+  }
+  
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+  
   return (
     <>
-      <FillerContent />
-      <Sidebar />
+      <Navbar toggleSidebar={toggleSidebar} />
+      <Sidebar isOpen={sidebarOpen()} />
+      <div class="p-4 sm:ml-64 mt-16">
+        <FillerContent />
+      </div>
     </>
   )
 }
