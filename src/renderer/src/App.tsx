@@ -38,7 +38,7 @@ const SidebarItem: Component<{
       <li>
         <a href={props.href} class={default_class}>
           <SidebarIcon icon={props.icon} />
-          <SidebarText text={props.text}/>
+          <SidebarText text={props.label}/>
         </a>
       </li>
     </>
