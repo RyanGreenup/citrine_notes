@@ -52,11 +52,12 @@ const SidebarItemWithElement: Component<{
   href: string
   element: JSXElement
 }> = (props) => {
-  let default_class =
-    'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
+  const baseClass = ' flex items-center p-2 rounded-lg dark:text-white group '
+  const textColor = ' text-gray-900 dark:text-white'
+  const bgColor = ' hover:bg-gray-100 dark:hover:bg-gray-700 '
   return (
     <li>
-      <a href={props.href} class={default_class}>
+      <a href={props.href} class={baseClass + textColor + bgColor}>
         <SidebarIcon icon={props.icon} />
         <SidebarText text={props.label} />
         {props.element}
@@ -66,12 +67,22 @@ const SidebarItemWithElement: Component<{
 }
 
 function Sidebar() {
+  /**
+   * Draw a line above an unordered list but not between items. Drawes a line between two lists to separate them
+   */
+  let unordered_list_with_top_line =
+    'pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700'
+
+  let bg = 'bg-gray-900 dark:bg-gray-700'
   return (
     <>
       <div
         id="tooltip-default"
         role="tooltip"
-        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+        class={
+          `absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300  rounded-lg shadow-xs opacity-0 tooltip ` +
+          bg
+        }
       >
         Tooltip content
         <div class="tooltip-arrow" data-popper-arrow></div>
@@ -113,7 +124,7 @@ function Sidebar() {
             <SidebarItem icon={LogIn} href="#" label="Log In" />
             <SidebarItem icon={Signature} href="#" label="Sign Up" />
           </ul>
-          <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+          <ul class={unordered_list_with_top_line}>
             <SidebarItem icon={FlameIcon} href="#" label="Upgrade to Pro" />
             <SidebarItem icon={BookIcon} href="#" label="Documentation" />
             <SidebarItem icon={PanelLeft} href="#" label="Components" />
