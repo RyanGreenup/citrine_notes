@@ -28,8 +28,8 @@ export const Editor: Component = () => {
         </div>
         
         {/* Preview pane */}
-        <div class="flex-1 p-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white overflow-auto">
-          <div class="prose dark:prose-invert max-w-none" innerHTML={renderedContent()} />
+        <div class="flex-1 p-4 bg-white dark:bg-gray-800 overflow-auto">
+          <div class="prose dark:prose-invert prose-sm md:prose-base lg:prose-lg max-w-none" innerHTML={renderedContent()} />
         </div>
       </div>
     </div>
