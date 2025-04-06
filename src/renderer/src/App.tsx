@@ -95,102 +95,28 @@ function Sidebar() {
           <ul class="space-y-2 font-medium">
             <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
             <SidebarItem icon={Mailbox} href="#" label="Inbox" />
-            <SidebarItemWithElement icon={KanbanIcon} href="#" label="Kanban" element={<Tag text="pro" />} />
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <SidebarIcon icon={KanbanIcon} />
-                <SidebarText text="Kanban" />
-                <Tag text="Pro" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <SidebarIcon icon={Shield} />
-
-                <span class="flex-1 ms-3 whitespace-nowrap">Inbox</span>
-                <Badge text="3" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <SidebarIcon icon={Group} />
-                <span class="flex-1 ms-3 whitespace-nowrap">Users</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <SidebarIcon icon={ShoppingBag} />
-                <span class="flex-1 ms-3 whitespace-nowrap">Products</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <SidebarIcon icon={LogIn} />
-                <span class="flex-1 ms-3 whitespace-nowrap">Sign In</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <SidebarIcon icon={Signature} />
-                <span class="flex-1 ms-3 whitespace-nowrap">Sign Up</span>
-              </a>
-            </li>
+            <SidebarItemWithElement
+              icon={KanbanIcon}
+              href="#"
+              label="Kanban"
+              element={<Tag text="pro" />}
+            />
+            <SidebarItemWithElement
+              icon={Mailbox}
+              href="#"
+              label="Inbox"
+              element={<Badge text="3" />}
+            />
+            <SidebarItem icon={Group} href="#" label="Users" />
+            <SidebarItem icon={ShoppingBag} href="#" label="Products" />
+            <SidebarItem icon={LogIn} href="#" label="Log In" />
+            <SidebarItem icon={Signature} href="#" label="Sign Up" />
           </ul>
           <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
-              >
-                <SidebarIcon icon={FlameIcon} />
-                <span class="ms-3">Upgrade to Pro</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
-              >
-                <SidebarIcon icon={BookIcon} />
-                <span class="ms-3">Documentation</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
-              >
-                <SidebarIcon icon={PanelLeft} />
-                <span class="ms-3">Components</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
-              >
-                <SidebarIcon icon={Compass} />
-                <span class="ms-3">Help</span>
-              </a>
-            </li>
+            <SidebarItem icon={FlameIcon} href="#" label="Upgrade to Pro" />
+            <SidebarItem icon={BookIcon} href="#" label="Documentation" />
+            <SidebarItem icon={PanelLeft} href="#" label="Components" />
+            <SidebarItem icon={Compass} href="#" label="Help" />
           </ul>
         </div>
       </aside>
