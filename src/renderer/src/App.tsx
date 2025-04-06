@@ -1,4 +1,5 @@
-import type { Component, JSXElement } from 'solid-js'
+import type { Component, JSXElement, ComponentProps } from 'solid-js'
+import type { LucideIcon } from 'lucide-solid'
 import {
   BookIcon,
   ChartPie,
@@ -27,7 +28,7 @@ const SidebarText: Component<{
 }
 
 const SidebarItem: Component<{
-  icon: Element
+  icon: LucideIcon
   label: string
   href: string
 }> = (props) => {
@@ -46,10 +47,10 @@ const SidebarItem: Component<{
 }
 
 const SidebarItemWithElement: Component<{
-  icon: Element
+  icon: LucideIcon
   label: string
   href: string
-  element: Element
+  element: JSXElement
 }> = (props) => {
   let default_class =
     'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
@@ -195,11 +196,11 @@ function Badge(props: BadgeProps): JSXElement {
  * Sidebar Icon Component wraps an icon in the appropriate class for icons in the sidebar
  *
  * Props:
- * - icon (Icon): The lucide-solid Icon to be displayed
+ * - icon (LucideIcon): The lucide-solid Icon to be displayed
  * - textColor (string, optional): A custom text color class for the badge.
  * - bgColor (string, optional): A custom background color class for the badge.
  */
-function SidebarIcon({ icon: Icon }): JSXElement {
+function SidebarIcon({ icon: Icon }: { icon: LucideIcon }): JSXElement {
   return (
     <Icon
       class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
