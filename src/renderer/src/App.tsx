@@ -19,6 +19,20 @@ import { Navbar } from './components/Navbar'
 import { initFlowbite } from 'flowbite'
 import { onMount, createSignal } from 'solid-js'
 
+// Color scheme variables
+const BG_COLOR_LIGHT = "bg-gray-50"
+const BG_COLOR_DARK = "dark:bg-gray-800"
+const TEXT_COLOR_LIGHT = "text-gray-900"
+const TEXT_COLOR_DARK = "dark:text-white"
+const TEXT_COLOR_MUTED_LIGHT = "text-gray-500"
+const TEXT_COLOR_MUTED_DARK = "dark:text-gray-400"
+const HOVER_BG_LIGHT = "hover:bg-gray-100"
+const HOVER_BG_DARK = "dark:hover:bg-gray-700"
+const HOVER_TEXT_LIGHT = "group-hover:text-gray-900"
+const HOVER_TEXT_DARK = "dark:group-hover:text-white"
+const BORDER_COLOR_LIGHT = "border-gray-200"
+const BORDER_COLOR_DARK = "dark:border-gray-700"
+
 const SidebarText: Component<{
   text: string
 }> = (props) => {
@@ -31,7 +45,7 @@ const SidebarItem: Component<{
   href: string
 }> = (props) => {
   let default_class =
-    'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
+    `flex items-center p-2 rounded-lg ${TEXT_COLOR_LIGHT} ${TEXT_COLOR_DARK} ${HOVER_BG_LIGHT} ${HOVER_BG_DARK} group`
   return (
     <>
       <li>
@@ -50,9 +64,9 @@ const SidebarItemWithElement: Component<{
   href: string
   element: JSXElement
 }> = (props) => {
-  const baseClass = ' flex items-center p-2 rounded-lg dark:text-white group '
-  const textColor = ' text-gray-900 dark:text-white'
-  const bgColor = ' hover:bg-gray-100 dark:hover:bg-gray-700 '
+  const baseClass = ' flex items-center p-2 rounded-lg group '
+  const textColor = ` ${TEXT_COLOR_LIGHT} ${TEXT_COLOR_DARK}`
+  const bgColor = ` ${HOVER_BG_LIGHT} ${HOVER_BG_DARK} `
   return (
     <li>
       <a href={props.href} class={baseClass + textColor + bgColor}>
@@ -78,7 +92,7 @@ function Sidebar(props: SidebarProps) {
    * Draw a line above an unordered list but not between items. Draws a line between two lists to separate them
    */
   let unordered_list_with_top_line =
-    'pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700'
+    `pt-4 mt-4 space-y-2 font-medium border-t ${BORDER_COLOR_LIGHT} ${BORDER_COLOR_DARK}`
 
   let bgColor = ' bg-gray-900 dark:bg-gray-700 '
   let textColor = ' text-white '
@@ -91,7 +105,7 @@ function Sidebar(props: SidebarProps) {
         } sm:translate-x-0`}
         aria-label="Sidebar"
       >
-        <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800 pt-16">
+        <div class={`h-full px-3 py-4 overflow-y-auto ${BG_COLOR_LIGHT} ${BG_COLOR_DARK} pt-16`}>
           <ul class="space-y-2 font-medium">
             <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
             <SidebarItem icon={Mailbox} href="#" label="Inbox" />
@@ -132,9 +146,9 @@ interface TagProps {
 
 function Tag(props: TagProps): JSXElement {
   let bgColor = 'bg-gray-100 dark:bg-gray-700 '
-  let textColor = 'dark:text-gray-300 text-gray-800'
+  let textColor = 'text-gray-800 dark:text-gray-300'
   let default_class =
-    'inline-flex items-center justify-center px-2 ms-3 text-sm font-medium   rounded-full'
+    'inline-flex items-center justify-center px-2 ms-3 text-sm font-medium rounded-full'
   return (
     <>
       <span class={`${default_class} ${props.bgColor || bgColor} ${props.textColor || textColor}`}>
@@ -201,7 +215,7 @@ function Badge(props: BadgeProps): JSXElement {
 function SidebarIcon({ icon: Icon }: { icon: LucideIcon }): JSXElement {
   return (
     <Icon
-      class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+      class={`shrink-0 w-5 h-5 ${TEXT_COLOR_MUTED_LIGHT} ${TEXT_COLOR_MUTED_DARK} transition duration-75 ${HOVER_TEXT_LIGHT} ${HOVER_TEXT_DARK}`}
       aria-hidden="true"
     />
   )
