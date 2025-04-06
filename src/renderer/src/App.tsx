@@ -1,5 +1,5 @@
 import type { Component } from 'solid-js'
-import { Compass, Target } from 'lucide-solid'
+import { Compass, PanelLeft, SquareRoundCorner, Target } from 'lucide-solid'
 import Versions from './components/Versions'
 import NoteList from './components/NoteList'
 import ResourceUploader from './components/ResourceUploader'
@@ -51,6 +51,7 @@ function Sidebar() {
                 href="#"
                 class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
+              // Replace this with a lucide icon using the SidebarIcon component AI!
                 <svg
                   class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                   aria-hidden="true"
@@ -221,16 +222,8 @@ function Sidebar() {
                 href="#"
                 class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
               >
-                <svg
-                  class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 20 18"
-                >
-                  <path d="M18 0H6a2 2 0 0 0-2 2h14v12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Z" />
-                  <path d="M14 4H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2ZM2 16v-6h12v6H2Z" />
-                </svg>
+                <SidebarIcon icon={SquareRoundCorner} />
+                <SidebarIcon icon={PanelLeft} />
                 <span class="ms-3">Components</span>
               </a>
             </li>
@@ -239,7 +232,7 @@ function Sidebar() {
                 href="#"
                 class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
               >
-              <SidebarIcon icon={Compass}/>
+                <SidebarIcon icon={Compass} />
                 <span class="ms-3">Help</span>
               </a>
             </li>
@@ -259,7 +252,6 @@ function SidebarIcon({ icon: Icon }) {
     />
   )
 }
-
 
 function FillerContent() {
   return (
