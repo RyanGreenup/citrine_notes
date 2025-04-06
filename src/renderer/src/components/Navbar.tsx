@@ -6,6 +6,9 @@ interface NavbarProps {
 }
 
 export const Navbar: Component<NavbarProps> = (props) => {
+  // Class that hides elements on screens wider than small breakpoint (640px+)
+  const HIDE_ON_WIDE_SCREENS = "sm:hidden"
+  
   return (
     <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
       <div class="px-3 py-3 lg:px-5 lg:pl-3">
@@ -14,7 +17,7 @@ export const Navbar: Component<NavbarProps> = (props) => {
             <button
               onClick={props.toggleSidebar}
               type="button"
-              class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+              class={`inline-flex items-center p-2 text-sm text-gray-500 rounded-lg ${HIDE_ON_WIDE_SCREENS} hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600`}
             >
               <span class="sr-only">Open sidebar</span>
               <KanbanIcon class="w-6 h-6" />
