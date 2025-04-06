@@ -38,13 +38,31 @@ const SidebarItem: Component<{
       <li>
         <a href={props.href} class={default_class}>
           <SidebarIcon icon={props.icon} />
-          <SidebarText text={props.label}/>
+          <SidebarText text={props.label} />
         </a>
       </li>
     </>
   )
 }
 
+const SidebarItemWithElement: Component<{
+  icon: Element
+  label: string
+  href: string
+  element: Element
+}> = (props) => {
+  let default_class =
+    'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group'
+  return (
+    <li>
+      <a href={props.href} class={default_class}>
+        <SidebarIcon icon={props.icon} />
+        <SidebarText text={props.label} />
+        {props.element}
+      </a>
+    </li>
+  )
+}
 
 function Sidebar() {
   return (
@@ -77,6 +95,7 @@ function Sidebar() {
           <ul class="space-y-2 font-medium">
             <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
             <SidebarItem icon={Mailbox} href="#" label="Inbox" />
+            <SidebarItemWithElement icon={KanbanIcon}, href="#", label="Kanban", element={<Tag text="pro" />} />
             <li>
               <a
                 href="#"
