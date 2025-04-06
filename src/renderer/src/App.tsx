@@ -20,6 +20,12 @@ import NoteList from './components/NoteList'
 import ResourceUploader from './components/ResourceUploader'
 import electronLogo from './assets/electron.svg'
 
+const SidebarText: Component<{
+  text: string
+}> = (props) => {
+  return <span class="flex-1 ms-3 whitespace-nowrap">{props.text}</span>
+}
+
 const SidebarItem: Component<{
   icon: Element
   label: string
@@ -32,12 +38,13 @@ const SidebarItem: Component<{
       <li>
         <a href={props.href} class={default_class}>
           <SidebarIcon icon={props.icon} />
-          <span class="ml-3">{props.label}</span>
+          <SidebarText text={props.text}/>
         </a>
       </li>
     </>
   )
 }
+
 
 function Sidebar() {
   return (
@@ -69,13 +76,14 @@ function Sidebar() {
         <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
           <ul class="space-y-2 font-medium">
             <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
+            <SidebarItem icon={Mailbox} href="#" label="Inbox" />
             <li>
               <a
                 href="#"
                 class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
-                <SidebarIcon icon={Mailbox} />
-                <span class="flex-1 ms-3 whitespace-nowrap">Kanban</span>
+                <SidebarIcon icon={KanbanIcon} />
+                <SidebarText text="Kanban" />
                 <Tag text="Pro" />
               </a>
             </li>
