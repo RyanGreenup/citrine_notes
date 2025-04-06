@@ -15,7 +15,7 @@ import {
   Signature
 } from 'lucide-solid'
 
-import { FillerContent } from './components/FillerContent'
+import { NoteLayout } from './components/NoteLayout'
 import { Navbar } from './components/Navbar'
 import { initFlowbite } from 'flowbite'
 import { onMount, createSignal } from 'solid-js'
@@ -222,7 +222,7 @@ function SidebarIcon({ icon: Icon }: { icon: LucideIcon }): JSXElement {
   )
 }
 
-const DummyContent: Component = () => {
+const MainContent: Component = () => {
   const [sidebarOpen, setSidebarOpen] = createSignal(false)
   
   const toggleSidebar = () => {
@@ -235,8 +235,8 @@ const DummyContent: Component = () => {
     <>
       <Navbar toggleSidebar={toggleSidebar} />
       <Sidebar isOpen={sidebarOpen()} />
-      <div class="p-4 sm:ml-64 mt-16">
-        <FillerContent />
+      <div class="p-4 sm:ml-64 mt-16 h-[calc(100vh-4rem)]">
+        <NoteLayout />
       </div>
     </>
   )
@@ -245,7 +245,7 @@ const DummyContent: Component = () => {
 const App: Component = () => {
   return (
     <>
-      <DummyContent />
+      <MainContent />
     </>
   )
 }
