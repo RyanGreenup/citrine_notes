@@ -64,9 +64,44 @@ const SidebarItemWithElement: Component<{
 }
 
 function Sidebar() {
+  // Required because of the Button
   onMount(() => {
     initFlowbite()
   })
+
+  /** The button used to toggle the sidebar
+   *
+   */
+  const ToggleSidebarButton: Component = () => {
+    return (
+      <>
+        <div
+          id="tooltip-default"
+          role="tooltip"
+          class={
+            `absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300  rounded-lg shadow-xs opacity-0 tooltip ` +
+            bgColor +
+            textColor
+          }
+        >
+          Tooltip content
+          <div class="tooltip-arrow" data-popper-arrow></div>
+        </div>
+        <button
+          data-tooltip-target="tooltip-default"
+          data-drawer-target="separator-sidebar"
+          data-drawer-toggle="separator-sidebar"
+          aria-controls="separator-sidebar"
+          type="button"
+          class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+        >
+          <span class="sr-only">Open sidebar</span>
+          <SidebarIcon icon={KanbanIcon} />
+        </button>
+      </>
+    )
+  }
+
   /**
    * Draw a line above an unordered list but not between items. Drawes a line between two lists to separate them
    */
@@ -77,29 +112,7 @@ function Sidebar() {
   let textColor = ' text-white '
   return (
     <>
-      <div
-        id="tooltip-default"
-        role="tooltip"
-        class={
-          `absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300  rounded-lg shadow-xs opacity-0 tooltip ` +
-          bgColor +
-          textColor
-        }
-      >
-        Tooltip content
-        <div class="tooltip-arrow" data-popper-arrow></div>
-      </div>
-      <button
-        data-tooltip-target="tooltip-default"
-        data-drawer-target="separator-sidebar"
-        data-drawer-toggle="separator-sidebar"
-        aria-controls="separator-sidebar"
-        type="button"
-        class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-      >
-        <span class="sr-only">Open sidebar</span>
-        <SidebarIcon icon={KanbanIcon} />
-      </button>
+      <ToggleSidebarButton />
       <aside
         id="separator-sidebar"
         class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
