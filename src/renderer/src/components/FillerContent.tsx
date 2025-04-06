@@ -279,7 +279,6 @@ export function FillerContent() {
             </div>
           </div>
         </div>
-      </div>
     </>
   )
 }
