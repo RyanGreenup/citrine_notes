@@ -15,6 +15,8 @@ import {
 } from 'lucide-solid'
 
 import { FillerContent } from './components/FillerContent'
+import { initFlowbite } from 'flowbite'
+import { onMount } from 'solid-js'
 
 const SidebarText: Component<{
   text: string
@@ -62,6 +64,9 @@ const SidebarItemWithElement: Component<{
 }
 
 function Sidebar() {
+  onMount(() => {
+    initFlowbite()
+  })
   /**
    * Draw a line above an unordered list but not between items. Drawes a line between two lists to separate them
    */
