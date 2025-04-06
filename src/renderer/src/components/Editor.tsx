@@ -1,7 +1,10 @@
 import { Component, createSignal, createEffect, onMount } from 'solid-js'
-import { marked } from 'marked'
+import { Marked } from 'marked'
 import markedKatex from 'marked-katex-extension'
+import { markedHighlight } from 'marked-highlight'
+import hljs from 'highlight.js'
 import 'katex/dist/katex.min.css'
+import 'highlight.js/styles/github-dark.css'
 
 /**
  * Editor component provides a markdown editing experience with live preview
@@ -10,19 +13,65 @@ import 'katex/dist/katex.min.css'
  * Supports KaTeX for mathematical equations.
  */
 export const Editor: Component = () => {
-  const [content, setContent] = createSignal('# Hello World\n\nStart typing your note here...\n\nTry some math: $c = \\pm\\sqrt{a^2 + b^2}$\n\nOr block math:\n\n$$\nc = \\pm\\sqrt{a^2 + b^2}\n$$')
+  const [content, setContent] = createSignal(`# Hello World
+
+Start typing your note here...
+
+Try some math: $c = \\pm\\sqrt{a^2 + b^2}$
+
+Or block math:
+
+$$
+c = \\pm\\sqrt{a^2 + b^2}
+$$
+
+\`\`\`javascript
+// Code with syntax highlighting
+function hello() {
+  console.log("Hello, world!");
+  return 42;
+}
+\`\`\`
+
+\`\`\`typescript
+// TypeScript example
+interface User {
+  name: string;
+  id: number;
+}
+
+class UserAccount {
+  name: string;
+  id: number;
+
+  constructor(name: string, id: number) {
+    this.name = name;
+    this.id = id;
+  }
+}
+\`\`\`
+`)
   const [renderedContent, setRenderedContent] = createSignal('')
 
-  // Initialize marked with KaTeX extension
-  onMount(() => {
-    marked.use(markedKatex({
-      throwOnError: false
-    }))
-  })
+  // Initialize marked with KaTeX and syntax highlighting extensions
+  const [markedInstance] = createSignal(
+    new Marked(
+      markedKatex({
+        throwOnError: false
+      }),
+      markedHighlight({
+        langPrefix: 'hljs language-',
+        highlight(code, lang) {
+          const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+          return hljs.highlight(code, { language }).value;
+        }
+      })
+    )
+  )
 
   // Update the preview whenever content changes
   createEffect(() => {
-    setRenderedContent(marked(content()))
+    setRenderedContent(markedInstance().parse(content()))
   })
 
   return (
