@@ -89,6 +89,9 @@ export class DatabaseService {
       // For write operations like createNote and updateNote, we need to set readonly to false
       this.db = new Database(dbPath, { readonly: false })
       console.log(`Connected to database: ${dbPath}`)
+      
+      // Check if FTS5 table exists and create it if it doesn't
+      this.setupFullTextSearch()
     } catch (error) {
       console.error('Failed to connect to database:', error)
       throw error
@@ -1539,6 +1542,65 @@ export class DatabaseService {
     } catch (error) {
       console.error(`Error removing tag ${tagId} from note ${noteId}:`, error)
       return false
+    }
+  }
+
+  // Set up full-text search tables if they don't exist
+  private setupFullTextSearch(): void {
+    try {
+      // Check if the FTS5 table already exists
+      const tableExists = this.db.prepare(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='notes_fts5_porter'"
+      ).get()
+      
+      if (!tableExists) {
+        console.log('Setting up full-text search tables...')
+        
+        // Create the FTS5 virtual table and related tables/triggers
+        this.db.exec(`
+          CREATE VIRTUAL TABLE notes_fts5_porter USING fts5(
+            id,
+            title,
+            body,
+            content='notes',
+            content_rowid='rowid',
+            tokenize = 'porter ascii'
+          )
+          /* notes_fts5_porter(id,title,body) */;
+          CREATE TABLE IF NOT EXISTS 'notes_fts5_porter_data'(id INTEGER PRIMARY KEY, block BLOB);
+          CREATE TABLE IF NOT EXISTS 'notes_fts5_porter_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
+          CREATE TABLE IF NOT EXISTS 'notes_fts5_porter_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
+          CREATE TABLE IF NOT EXISTS 'notes_fts5_porter_config'(k PRIMARY KEY, v) WITHOUT ROWID;
+          CREATE TRIGGER notes_ai AFTER INSERT ON notes
+            BEGIN
+              INSERT INTO notes_fts5_porter(rowid, title, body)
+              VALUES (new.rowid, new.title, new.body);
+            END;
+          CREATE TRIGGER notes_ad AFTER DELETE ON notes
+            BEGIN
+              INSERT INTO notes_fts5_porter(notes_fts5_porter, rowid, title, body)
+              VALUES ('delete', old.rowid, old.title, old.body);
+            END;
+          CREATE TRIGGER notes_au AFTER UPDATE ON notes
+            BEGIN
+              INSERT INTO notes_fts5_porter(notes_fts5_porter, rowid, title, body)
+              VALUES ('delete', old.rowid, old.title, old.body);
+              INSERT INTO notes_fts5_porter(rowid, title, body)
+              VALUES (new.rowid, new.title, new.body);
+            END;
+        `)
+        
+        // Populate the FTS table with existing notes
+        this.db.exec(`
+          INSERT INTO notes_fts5_porter(rowid, id, title, body)
+          SELECT rowid, id, title, body FROM notes
+        `)
+        
+        console.log('Full-text search setup complete')
+      }
+    } catch (error) {
+      console.error('Error setting up full-text search:', error)
+      // Don't throw the error - we want the app to continue even if FTS setup fails
     }
   }
 
