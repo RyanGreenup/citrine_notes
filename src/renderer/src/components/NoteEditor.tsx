@@ -9,15 +9,16 @@ export const NoteEditor: Component = () => {
   const [content, setContent] = createSignal<string>('# Your note here\n\nStart typing to edit...')
   const [isEditorMaximized, setIsEditorMaximized] = createSignal(false)
   const [isVimEnabled, setIsVimEnabled] = createSignal(false)
-  
+
   // Callback function that fires when content changes
+  // NOTE when implementing with SolidStart this will need a save button
   const handleContentChange = (newContent: string) => {
     setContent(newContent)
     console.log('Content changed:', newContent)
   }
-  const splitter = useSplitter({ 
-    defaultSize: [50, 50], 
-    panels: [{ id: 'editor' }, { id: 'preview' }] 
+  const splitter = useSplitter({
+    defaultSize: [50, 50],
+    panels: [{ id: 'editor' }, { id: 'preview' }]
   })
 
   const toggleMaximized = () => {
@@ -35,7 +36,7 @@ export const NoteEditor: Component = () => {
     splitter().setSizes([50, 50])
     setIsEditorMaximized(false)
   }
-  
+
   const toggleVim = () => {
     // Access the editor controls exposed on the window object
     if (typeof window !== 'undefined' && window.editorControls) {
@@ -57,22 +58,22 @@ export const NoteEditor: Component = () => {
   return (
     <div class={`${theme.editor.container} h-full`}>
       <div class={theme.editor.controls}>
-        <button 
-          onClick={equalSplit} 
+        <button
+          onClick={equalSplit}
           class={theme.editor.controlButton}
           title="Equal split"
         >
           <Columns size={16} />
         </button>
-        <button 
-          onClick={toggleMaximized} 
+        <button
+          onClick={toggleMaximized}
           class={theme.editor.controlButton}
           title={isEditorMaximized() ? "Maximize preview" : "Maximize editor"}
         >
           {isEditorMaximized() ? <AlignCenter size={16} /> : <Maximize2 size={16} />}
         </button>
-        <button 
-          onClick={toggleVim} 
+        <button
+          onClick={toggleVim}
           class={`${theme.editor.controlButton} ${isVimEnabled() ? theme.editor.controlButtonActive : ''}`}
           title="Toggle Vim mode"
         >
@@ -81,14 +82,14 @@ export const NoteEditor: Component = () => {
       </div>
       <Splitter.RootProvider value={splitter} class="flex-grow h-full">
         <Splitter.Panel id="editor" class={theme.editor.panel.base}>
-          <TextEditor 
-            initialContent={content()} 
-            onContentChange={handleContentChange} 
+          <TextEditor
+            initialContent={content()}
+            onContentChange={handleContentChange}
           />
         </Splitter.Panel>
-        <Splitter.ResizeTrigger 
-          id="editor:preview" 
-          aria-label="Resize" 
+        <Splitter.ResizeTrigger
+          id="editor:preview"
+          aria-label="Resize"
           class={theme.editor.resizeTrigger.base}
         >
           <div class={theme.editor.resizeTrigger.handle}></div>
