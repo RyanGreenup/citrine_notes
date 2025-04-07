@@ -205,27 +205,18 @@ app.whenReady().then(() => {
       return databaseService!.getFolderById(id)
     })
     // Update _________________________________________________________________
-    ipcMain.handle(
-      'db:updateFolder',
-      (_event, id: string, title: string): Folder | null => {
-        return databaseService!.updateFolder(id, title)
-      }
-    )
+    ipcMain.handle('db:updateFolder', (_event, id: string, title: string): Folder | null => {
+      return databaseService!.updateFolder(id, title)
+    })
 
-    ipcMain.handle(
-      'db:moveFolder',
-      (_event, id: string, newParentId: string): Folder | null => {
-        return databaseService!.moveFolder(id, newParentId)
-      }
-    )
+    ipcMain.handle('db:moveFolder', (_event, id: string, newParentId: string): Folder | null => {
+      return databaseService!.moveFolder(id, newParentId)
+    })
 
     // Delete _________________________________________________________________
-    ipcMain.handle(
-      'db:deleteFolder',
-      (_event, id: string, recursive: boolean = false): boolean => {
-        return databaseService!.deleteFolder(id, recursive)
-      }
-    )
+    ipcMain.handle('db:deleteFolder', (_event, id: string, recursive: boolean = false): boolean => {
+      return databaseService!.deleteFolder(id, recursive)
+    })
 
     // Folder-Notes ///////////////////////////////////////////////////////////
     // Create _________________________________________________________________
@@ -244,7 +235,7 @@ app.whenReady().then(() => {
     ipcMain.handle('db:getBacklinks', (_event, noteId: string): Note[] => {
       return databaseService!.getBacklinks(noteId)
     })
-    
+
     // Get forward links for a note
     ipcMain.handle('db:getForwardLinks', (_event, noteId: string): Note[] => {
       return databaseService!.getForwardLinks(noteId)
@@ -252,12 +243,9 @@ app.whenReady().then(() => {
 
     // Update _________________________________________________________________
 
-    ipcMain.handle(
-      'db:moveNote',
-      (_event, noteId: string, newFolderId: string): Note | null => {
-        return databaseService!.moveNote(noteId, newFolderId)
-      }
-    )
+    ipcMain.handle('db:moveNote', (_event, noteId: string, newFolderId: string): Note | null => {
+      return databaseService!.moveNote(noteId, newFolderId)
+    })
     // Delete _________________________________________________________________
     // NONE
     // ........................................................................
