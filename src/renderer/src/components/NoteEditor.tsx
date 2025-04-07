@@ -144,8 +144,8 @@ $$`
           <Save size={16} />
         </button>
       </div>
-      <Splitter.RootProvider value={splitter} class="flex-grow h-full overflow-hidden rounded-md shadow-sm border border-gray-200 dark:border-gray-700">
-        <Splitter.Panel id="editor" class="h-full overflow-hidden">
+      <Splitter.RootProvider value={splitter} class="flex-grow h-full overflow-hidden rounded-md shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out">
+        <Splitter.Panel id="editor" class="h-full overflow-hidden transition-all duration-300 ease-in-out">
           <TextEditor initialContent={content()} onContentChange={handleContentChange} />
         </Splitter.Panel>
         <Splitter.ResizeTrigger
@@ -155,7 +155,7 @@ $$`
         >
           <div class="w-[3px] h-16 rounded-full bg-gray-300 dark:bg-gray-600 hover:bg-blue-400 dark:hover:bg-blue-500 transition-colors duration-200"></div>
         </Splitter.ResizeTrigger>
-        <Splitter.Panel id="preview" class="h-full overflow-auto bg-white dark:bg-gray-800">
+        <Splitter.Panel id="preview" class="h-full overflow-auto bg-white dark:bg-gray-800 transition-all duration-300 ease-in-out">
           <NotePreview content={content()} />
         </Splitter.Panel>
       </Splitter.RootProvider>
