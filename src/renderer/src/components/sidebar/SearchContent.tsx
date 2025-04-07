@@ -82,11 +82,14 @@ export function SearchContent() {
       </Show>
       
       <Show when={!hasSearched()}>
+        <div class="px-3 pt-2">
+          <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2">Quick Access</h3>
+        </div>
         <ul class={unordered_list_with_top_line}>
-          <SidebarItem icon={FlameIcon} href="#" label="Upgrade to Pro" />
-          <SidebarItem icon={BookIcon} href="#" label="Documentation" />
-          <SidebarItem icon={PanelLeft} href="#" label="Components" />
-          <SidebarItem icon={Compass} href="#" label="Help" />
+          <SidebarItem icon={BookIcon} href="#" label="Recent Notes" />
+          <SidebarItem icon={PanelLeft} href="#" label="Knowledge Base" />
+          <SidebarItem icon={FlameIcon} href="#" label="Bookmarked Pages" />
+          <SidebarItem icon={Compass} href="#" label="Table of Contents" />
         </ul>
       </Show>
     </div>
