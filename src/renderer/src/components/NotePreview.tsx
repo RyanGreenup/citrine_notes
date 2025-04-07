@@ -5,6 +5,7 @@ import { markedHighlight } from 'marked-highlight'
 import markedKatex from 'marked-katex-extension'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github-dark.css'
+import 'katex/dist/katex.min.css'
 import { createStyleTag } from '../utils/styleUtils'
 
 interface NotePreviewProps {
@@ -14,15 +15,8 @@ interface NotePreviewProps {
 export const NotePreview: Component<NotePreviewProps> = (props) => {
   // Add custom CSS to make highlight.js backgrounds transparent,
   // improve the splitter styling with Tailwind-compatible classes,
-  // and load KaTeX CSS
+  // and apply KaTeX dark mode styling
   onMount(() => {
-    // Load KaTeX CSS from CDN
-    const katexLink = document.createElement('link');
-    katexLink.rel = 'stylesheet';
-    katexLink.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css';
-    katexLink.integrity = 'sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn';
-    katexLink.crossOrigin = 'anonymous';
-    document.head.appendChild(katexLink);
 
     createStyleTag(`
       .hljs {
