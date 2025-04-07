@@ -147,13 +147,6 @@ export const NoteEditor: Component = () => {
 
   return (
     <div class={`${theme.editor.container} h-full`}>
-      <Show when={currentNote()}>
-        <div class="px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-          <h2 class="text-lg font-medium text-gray-800 dark:text-gray-200">
-            {currentNote()?.title}
-          </h2>
-        </div>
-      </Show>
 
       <Show when={loading()}>
         <div class="flex items-center justify-center h-full">
