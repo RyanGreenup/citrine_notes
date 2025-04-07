@@ -6,6 +6,7 @@ interface Note {
   id: string
   title: string
   body: string
+  parent_id: string
   user_created_time: number
   user_updated_time: number
 }
@@ -20,8 +21,9 @@ interface ZoomAPI {
 interface DatabaseAPI {
   getAllNotes: () => Promise<Note[]>
   getNoteById: (id: string) => Promise<Note | null>
+  getNoteBodyById: (id: string) => Promise<string | null>
   getStatus: () => Promise<{ connected: boolean; path: string | null }>
-  createNote: (title: string, body: string) => Promise<Note | null>
+  createNote: (title: string, body: string, folderId?: string) => Promise<Note | null>
   updateNote: (id: string, title: string, body: string) => Promise<Note | null>
   searchNotes: (query: string, limit?: number) => Promise<Note[]>
   getBacklinks: (noteId: string) => Promise<Note[]>
@@ -33,20 +35,20 @@ const api = {
   database: {
     getAllNotes: (): Promise<Note[]> => ipcRenderer.invoke('db:getAllNotes'),
     getNoteById: (id: string): Promise<Note | null> =>
-      ipcRenderer.invoke('db:notes:getNoteById', id),
+      ipcRenderer.invoke('db:getNoteById', id),
     getNoteBodyById: (id: string): Promise<string | null> =>
-      ipcRenderer.invoke('db:notes:getNoteBodyById', id),
+      ipcRenderer.invoke('db:getNoteBodyById', id),
     getStatus: (): Promise<{ connected: boolean; path: string | null }> =>
       ipcRenderer.invoke('db:getStatus'),
-    createNote: (title: string, body: string): Promise<Note | null> =>
-      ipcRenderer.invoke('db:createNote', title, body),
+    createNote: (title: string, body: string, folderId: string = ''): Promise<Note | null> =>
+      ipcRenderer.invoke('db:createNote', title, body, folderId),
     updateNote: (id: string, title: string, body: string): Promise<Note | null> =>
       ipcRenderer.invoke('db:updateNote', id, title, body),
     searchNotes: (query: string, limit: number = 20): Promise<Note[]> =>
       ipcRenderer.invoke('db:searchNotes', query, limit),
     getBacklinks: (noteId: string): Promise<Note[]> =>
-      ipcRenderer.invoke('db:notes:getBacklinks', noteId),
-    getHomeNote: (): Promise<Note | null> => ipcRenderer.invoke('db:notes:getHomeNote')
+      ipcRenderer.invoke('db:getBacklinks', noteId),
+    getHomeNote: (): Promise<Note | null> => ipcRenderer.invoke('db:getHomeNote')
   } as DatabaseAPI,
   zoom: {
     zoomIn: (): Promise<number> => ipcRenderer.invoke('zoom:in'),
