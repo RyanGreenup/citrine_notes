@@ -1639,6 +1639,45 @@ export class DatabaseService {
     }
   }
 
+  /**
+   * Gets all notes that a specific note links to (forward links)
+   * @param noteId The ID of the note to find forward links from
+   * @returns Array of notes that are referenced by the specified note
+   */
+  public getForwardLinks(noteId: string): Note[] {
+    try {
+      // Check if the note exists
+      const note = this.getNoteById(noteId)
+      if (!note) {
+        console.error(`Cannot get forward links: Note with ID ${noteId} not found`)
+        return []
+      }
+
+      // Extract all potential UUIDs from the note body
+      // UUID v4 format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx where x is any hex digit and y is 8, 9, a, or b
+      const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/gi
+      const potentialIds = [...note.body.matchAll(uuidRegex)].map(match => match[0])
+      
+      if (potentialIds.length === 0) {
+        return []
+      }
+
+      // Create a parameterized query with the right number of placeholders
+      const placeholders = potentialIds.map(() => '?').join(',')
+      const stmt = this.db.prepare(`
+        SELECT id, title, body, parent_id, user_created_time, user_updated_time
+        FROM notes
+        WHERE id IN (${placeholders})
+      `)
+
+      // Execute the query with all potential IDs as parameters
+      return stmt.all(...potentialIds) as Note[]
+    } catch (error) {
+      console.error(`Error fetching forward links for note with ID ${noteId}:`, error)
+      return []
+    }
+  }
+
   // Update ///////////////////////////////////////////////////////////////////
 
   // Not implemented, just use Create and delete accordingly
