@@ -148,72 +148,72 @@ app.whenReady().then(() => {
     // Notes //////////////////////////////////////////////////////////////////
     // Create _________________________________________________________________
     ipcMain.handle(
-      'db:notes:create',
+      'db:createNote',
       (_event, title: string, body: string, folderId: string = ''): Note | null => {
         return databaseService!.createNote(title, body, folderId)
       }
     )
     // Read ___________________________________________________________________
     // Get All Notes ..........................................................
-    ipcMain.handle('db:notes:getAllNotes', (_event): Note[] => {
+    ipcMain.handle('db:getAllNotes', (_event): Note[] => {
       return databaseService!.getAllNotes()
     })
     // Get Note by ID .........................................................
-    ipcMain.handle('db:notes:getNoteById', (_event, id: string): Note | null => {
+    ipcMain.handle('db:getNoteById', (_event, id: string): Note | null => {
       return databaseService!.getNoteById(id)
     })
     // Get Note Body by ID .........................................................
-    ipcMain.handle('db:notes:getNoteBodyById', (_event, id: string): Note | null => {
+    ipcMain.handle('db:getNoteBodyById', (_event, id: string): string | null => {
       return databaseService!.getNoteBodyById(id)
     })
     // Get Home Note .............................................................
-    ipcMain.handle('db:notes:getHomeNote', (_event): Note | null => {
+    ipcMain.handle('db:getHomeNote', (_event): Note | null => {
       return databaseService!.getHomeNote()
     })
     // Update _________________________________________________________________
-    ipcMain.handle('db:notes:updateNoteTitle', (_event, id: string, title: string): Note | null => {
+    ipcMain.handle('db:updateNoteTitle', (_event, id: string, title: string): Note | null => {
       return databaseService!.updateNoteTitle(id, title)
     })
-    ipcMain.handle('db:notes:updateNoteBody', (_event, id: string, body: string): Note | null => {
+    ipcMain.handle('db:updateNoteBody', (_event, id: string, body: string): Note | null => {
       return databaseService!.updateNoteBody(id, body)
     })
     ipcMain.handle(
-      'db:notes:updateNote',
+      'db:updateNote',
       (_event, id: string, title: string, body: string): Note | null => {
         return databaseService!.updateNote(id, title, body)
       }
     )
     // Delete _________________________________________________________________
-    ipcMain.handle('db:notes:delete', (_event, id: string): boolean => {
+    ipcMain.handle('db:deleteNote', (_event, id: string): boolean => {
       return databaseService.deleteNote(id)
     })
     // Tree ___________________________________________________________________
-    ipcMain.handle('db:notes:tree', (_event): any => {
+    ipcMain.handle('db:buildNoteTree', (_event): any => {
       return databaseService.buildNoteTree()
     })
 
     // Folders ////////////////////////////////////////////////////////////////
     // Create _________________________________________________________________
     ipcMain.handle(
-      'db:folders:createFolder',
+      'db:createFolder',
       (_event, title: string, parentId: string = ''): Folder | null => {
         return databaseService.createFolder(title, parentId)
       }
     )
     // Read ___________________________________________________________________
-    ipcMain.handle('db:folders:getFolderById', (_event, id: string): Folder | null => {
+    ipcMain.handle('db:getFolderById', (_event, id: string): Folder | null => {
       return databaseService!.getFolderById(id)
     })
     // Update _________________________________________________________________
     ipcMain.handle(
-      'db:folders:updateFolder',
+      'db:updateFolder',
       (_event, id: string, title: string): Folder | null => {
         return databaseService!.updateFolder(id, title)
       }
     )
 
     ipcMain.handle(
-      'db:folders:moveFolder',
+      'db:moveFolder',
       (_event, id: string, newParentId: string): Folder | null => {
         return databaseService!.moveFolder(id, newParentId)
       }
@@ -221,7 +221,7 @@ app.whenReady().then(() => {
 
     // Delete _________________________________________________________________
     ipcMain.handle(
-      'db:folders:deleteFolder',
+      'db:deleteFolder',
       (_event, id: string, recursive: boolean = false): boolean => {
         return databaseService!.deleteFolder(id, recursive)
       }
@@ -231,7 +231,7 @@ app.whenReady().then(() => {
     // Create _________________________________________________________________
     // NONE
     // Read ___________________________________________________________________
-    ipcMain.handle('db:note_folders:getNotesByFolderId', (_event, folderId: string): Note[] => {
+    ipcMain.handle('db:getNotesByFolderId', (_event, folderId: string): Note[] => {
       return databaseService!.getNotesByFolderId(folderId)
     })
 
@@ -241,14 +241,14 @@ app.whenReady().then(() => {
     })
 
     // Get backlinks for a note
-    ipcMain.handle('db:notes:getBacklinks', (_event, noteId: string): Note[] => {
+    ipcMain.handle('db:getBacklinks', (_event, noteId: string): Note[] => {
       return databaseService!.getBacklinks(noteId)
     })
 
     // Update _________________________________________________________________
 
     ipcMain.handle(
-      'db:folders:moveNote',
+      'db:moveNote',
       (_event, noteId: string, newFolderId: string): Note | null => {
         return databaseService!.moveNote(noteId, newFolderId)
       }
@@ -259,28 +259,28 @@ app.whenReady().then(() => {
 
     // Tags ///////////////////////////////////////////////////////////////////
     // Create _________________________________________________________________
-    ipcMain.handle('db:tags:create', (_event, title: string, parentId: string = ''): Tag | null => {
+    ipcMain.handle('db:createTag', (_event, title: string, parentId: string = ''): Tag | null => {
       return databaseService!.createTag(title, parentId)
     })
-    ipcMain.handle('db:tags:getById', (_event, id: string): Tag | null => {
+    ipcMain.handle('db:getTagById', (_event, id: string): Tag | null => {
       return databaseService!.getTagById(id)
     })
     // Read ___________________________________________________________________
     // NONE
-    ipcMain.handle('db:tags:update', (_event, id: string, title: string): Tag | null => {
+    ipcMain.handle('db:updateTag', (_event, id: string, title: string): Tag | null => {
       return databaseService!.updateTag(id, title)
     })
     // Update _________________________________________________________________
-    ipcMain.handle('db:tags:move', (_event, id: string, newParentId: string): Tag | null => {
+    ipcMain.handle('db:moveTag', (_event, id: string, newParentId: string): Tag | null => {
       return databaseService!.moveTag(id, newParentId)
     })
 
     // Delete _________________________________________________________________
-    ipcMain.handle('db:tags:delete', (_event, id: string): boolean => {
+    ipcMain.handle('db:deleteTag', (_event, id: string): boolean => {
       return databaseService.deleteTag(id)
     })
     // Tree
-    ipcMain.handle('db:tags:buildTree', (_event): any => {
+    ipcMain.handle('db:buildTagTree', (_event): any => {
       return databaseService!.buildTagTree()
     })
     // Tag Tree _______________________________________________________________
@@ -288,22 +288,22 @@ app.whenReady().then(() => {
 
     // Note-Tags //////////////////////////////////////////////////////////////
     // Create _________________________________________________________________
-    ipcMain.handle('db:notes:assignTag', (_event, noteId: string, tagId: string): boolean => {
+    ipcMain.handle('db:assignTagToNote', (_event, noteId: string, tagId: string): boolean => {
       return databaseService!.assignTagToNote(noteId, tagId)
     })
     // Read ___________________________________________________________________
 
-    ipcMain.handle('db:tags:getByNoteId', (_event, noteId: string): Tag[] => {
+    ipcMain.handle('db:getTagsByNoteId', (_event, noteId: string): Tag[] => {
       return databaseService!.getTagsByNoteId(noteId)
     })
 
-    ipcMain.handle('db:tags:getNotes', (_event, tagId: string): Note[] => {
+    ipcMain.handle('db:getNotesByTagId', (_event, tagId: string): Note[] => {
       return databaseService!.getNotesByTagId(tagId)
     })
     // Update _________________________________________________________________
     // NONE
     // Delete _________________________________________________________________
-    ipcMain.handle('db:notes:removeTag', (_event, noteId: string, tagId: string): boolean => {
+    ipcMain.handle('db:removeTagFromNote', (_event, noteId: string, tagId: string): boolean => {
       return databaseService.removeTagFromNote(noteId, tagId)
     })
     // ........................................................................
@@ -311,7 +311,7 @@ app.whenReady().then(() => {
     // Resources //////////////////////////////////////////////////////////////
     // Create _________________________________________________________________
     ipcMain.handle(
-      'db:resources:create',
+      'db:createResource',
       async (
         _event,
         title: string,
@@ -360,30 +360,30 @@ app.whenReady().then(() => {
       }
     )
     // Read ___________________________________________________________________
-    ipcMain.handle('db:resources:getById', (_event, id: string) => {
+    ipcMain.handle('db:getResourceById', (_event, id: string) => {
       return databaseService!.getResourceById(id)
     })
 
-    ipcMain.handle('db:resources:getAll', () => {
+    ipcMain.handle('db:getAllResources', () => {
       return databaseService!.getAllResources()
     })
 
-    ipcMain.handle('db:resources:getByMimeType', (_event, mimeType: string) => {
+    ipcMain.handle('db:getResourcesByMimeType', (_event, mimeType: string) => {
       return databaseService!.getResourcesByMimeType(mimeType)
     })
     // Update _________________________________________________________________
-    ipcMain.handle('db:resources:update', (_event, id: string, title: string, filename: string) => {
+    ipcMain.handle('db:updateResource', (_event, id: string, title: string, filename: string) => {
       return databaseService!.updateResource(id, title, filename)
     })
 
     ipcMain.handle(
-      'db:resources:updateOcr',
+      'db:updateResourceOcr',
       (_event, id: string, ocrText: string, ocrStatus: number, ocrError: string = '') => {
         return databaseService!.updateResourceOcr(id, ocrText, ocrStatus, ocrError)
       }
     )
     // Delete _________________________________________________________________
-    ipcMain.handle('db:resources:delete', (_event, id: string) => {
+    ipcMain.handle('db:deleteResource', (_event, id: string) => {
       return databaseService!.deleteResource(id)
     })
     // ........................................................................
