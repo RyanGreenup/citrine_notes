@@ -4,6 +4,7 @@ import { Marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
 import markedKatex from 'marked-katex-extension'
 import markedFootnote from 'marked-footnote'
+import markedAlert from 'marked-alert'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github-dark.css'
 import 'katex/dist/katex.min.css'
@@ -86,10 +87,79 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
         text-decoration: none;
         margin-left: 0.25rem;
       }
+      
+      /* Alert styling */
+      .alert {
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 0.375rem;
+        border-left-width: 4px;
+      }
+      
+      .alert-note {
+        background-color: #e0f2fe;
+        border-left-color: #0ea5e9;
+        color: #0c4a6e;
+      }
+      
+      .alert-tip {
+        background-color: #dcfce7;
+        border-left-color: #22c55e;
+        color: #166534;
+      }
+      
+      .alert-important {
+        background-color: #fef3c7;
+        border-left-color: #f59e0b;
+        color: #78350f;
+      }
+      
+      .alert-warning {
+        background-color: #fee2e2;
+        border-left-color: #ef4444;
+        color: #7f1d1d;
+      }
+      
+      .alert-caution {
+        background-color: #fce7f3;
+        border-left-color: #ec4899;
+        color: #831843;
+      }
+      
+      /* Dark mode alert styling */
+      .dark .alert-note {
+        background-color: rgba(14, 165, 233, 0.15);
+        border-left-color: #0ea5e9;
+        color: #e0f2fe;
+      }
+      
+      .dark .alert-tip {
+        background-color: rgba(34, 197, 94, 0.15);
+        border-left-color: #22c55e;
+        color: #dcfce7;
+      }
+      
+      .dark .alert-important {
+        background-color: rgba(245, 158, 11, 0.15);
+        border-left-color: #f59e0b;
+        color: #fef3c7;
+      }
+      
+      .dark .alert-warning {
+        background-color: rgba(239, 68, 68, 0.15);
+        border-left-color: #ef4444;
+        color: #fee2e2;
+      }
+      
+      .dark .alert-caution {
+        background-color: rgba(236, 72, 153, 0.15);
+        border-left-color: #ec4899;
+        color: #fce7f3;
+      }
     `);
   });
 
-  // Create a marked instance with the highlight plugin, KaTeX extension, and footnotes
+  // Create a marked instance with the highlight plugin, KaTeX extension, footnotes, and alerts
   const markedInstance = new Marked(
     markedHighlight({
       langPrefix: 'hljs language-',
@@ -104,7 +174,8 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
       output: 'html',
       nonStandard: true // Allow KaTeX without spaces around delimiters
     }),
-    markedFootnote()
+    markedFootnote(),
+    markedAlert()
   );
 
   // Memoize the parsed markdown to avoid unnecessary re-rendering
