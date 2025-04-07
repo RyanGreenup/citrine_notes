@@ -63,11 +63,13 @@ export const NoteEditor: Component = () => {
         return
       }
 
+      // Create a simple string copy to avoid any potential object reference issues
+      const contentCopy = String(contentToSave);
+
       // Use updateNoteBody instead of updateNote since we're only changing the content
       const result = await window.api.database.updateNoteBody(
         noteId,
-        // Shouldn't this be a function given that we are using prop drilling to pass the variable around AI!
-        contentToSave
+        contentCopy
       )
 
       if (result) {
@@ -88,7 +90,10 @@ export const NoteEditor: Component = () => {
   // Callback function that fires when content changes
   // Does nothing if using Server Side Rendering with Solid Start
   const handleContentChange = (newContent: string) => {
-    setContent(newContent)
+    // Only update if the content has actually changed
+    if (content() !== newContent) {
+      setContent(newContent)
+    }
   }
 
   // Effect to handle saving content with debounce
@@ -96,14 +101,18 @@ export const NoteEditor: Component = () => {
     const currentContent = content();
     
     // Skip saving content if using SSR with SolidStart
-    if (!isSSR() && currentContent) {
+    if (!isSSR() && currentContent && currentNote()) {
       // Use debounce to avoid saving on every keystroke
       if (window.saveTimeout) {
         clearTimeout(window.saveTimeout)
       }
 
       window.saveTimeout = setTimeout(() => {
-        saveContent(currentContent)
+        // Only save if we have a valid note ID
+        const noteId = getCurrentNoteId();
+        if (noteId) {
+          saveContent(currentContent);
+        }
       }, 1000) // Save after 1 second of inactivity
     }
   });
@@ -138,7 +147,10 @@ export const NoteEditor: Component = () => {
 
   const saveContentButton = () => {
     // Manually trigger the save function with current content
-    saveContent(content())
+    const currentContent = content();
+    if (currentContent && getCurrentNoteId()) {
+      saveContent(currentContent)
+    }
   }
 
   // When the splitter changes, we may need to refresh the editor
