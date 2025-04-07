@@ -146,7 +146,7 @@ export const NoteEditor: Component = () => {
   })
 
   return (
-    <div class={`${theme.editor.container} h-full overflow-hidden`}>
+    <div class={`${theme.editor.container} h-full`}>
       <Show when={currentNote()}>
         <div class="px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-medium text-gray-800 dark:text-gray-200">
@@ -201,7 +201,7 @@ export const NoteEditor: Component = () => {
         >
           <div class={`w-[3px] h-16 rounded-full bg-gray-300 dark:bg-gray-600 hover:bg-blue-400 dark:hover:bg-blue-500 ${animations.transition.fast}`}></div>
         </Splitter.ResizeTrigger>
-        <Splitter.Panel id="preview" class={`h-full overflow-y-auto bg-white dark:bg-gray-800 ${animations.transition.normal}`}>
+        <Splitter.Panel id="preview" class={`h-full overflow-y-auto bg-white dark:bg-gray-800 ${animations.transition.normal}`} style="overflow-y: auto;">
           <NotePreview content={content()} />
         </Splitter.Panel>
         </Splitter.RootProvider>
