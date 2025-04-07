@@ -4,6 +4,7 @@ import { onCleanup, onMount, createSignal } from 'solid-js'
 /**
  * This simply returns the date and time as it's convenient for users.
  */
+// Remove the at word AI!
 const getCurrentDateTime = (): string => {
   const now = new Date()
   const options: Intl.DateTimeFormatOptions = {
