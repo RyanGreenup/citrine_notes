@@ -1,6 +1,7 @@
 import type { Component } from 'solid-js'
 
-// Replace this with the date and time AI!
+import type { Component } from 'solid-js'
+
 export const AppLogo: Component = () => {
   // Color scheme
   const HEADING_TEXT = "text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white"
@@ -8,7 +9,7 @@ export const AppLogo: Component = () => {
   return (
     <a href="#" class="flex ml-2 md:mr-24">
       <span class={`self-center ${HEADING_TEXT}`}>
-        Note App
+        Note App - 2025-04-07 12:34:56
       </span>
     </a>
   )
