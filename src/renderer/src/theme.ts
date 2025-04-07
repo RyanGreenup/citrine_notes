@@ -144,6 +144,9 @@ export const theme = {
         muted: 'text-gray-400 dark:text-gray-400 group-hover:text-gray-200 dark:group-hover:text-gray-300',
         normal: 'text-gray-900 dark:text-gray-100 group-hover:text-gray-700 dark:group-hover:text-white'
       }
+    },
+    tabs: {
+      trigger: 'p-2 rounded-t-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 data-[state=active]:text-gray-900 data-[state=active]:dark:text-white data-[state=active]:border-b-2 data-[state=active]:border-blue-500'
     }
   }
 }

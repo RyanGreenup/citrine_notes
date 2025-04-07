@@ -75,13 +75,22 @@ export function Sidebar(props: SidebarProps) {
           class={`h-full px-3 py-4 overflow-y-auto ${theme.bg.light} ${theme.bg.dark} ${SIDEBAR_TOP_PADDING}`}
         >
           <Tabs.Root>
-            <Tabs.List class="flex justify-between">
-              <Tabs.Trigger value="note_tree" class="p-2"><FolderTree size={18} /></Tabs.Trigger>
-              <Tabs.Trigger value="links" class="p-2"><Link size={18} /></Tabs.Trigger>
-              <Tabs.Trigger value="backlinks" class="p-2"><ArrowLeftRight size={18} /></Tabs.Trigger>
-              <Tabs.Trigger value="related" class="p-2"><FileStack size={18} /></Tabs.Trigger>
-              <Tabs.Trigger value="search" class="p-2"><Search size={18} /></Tabs.Trigger>
-              <Tabs.Indicator />
+            <Tabs.List class={`flex justify-between mb-4 border-b ${theme.border.light} ${theme.border.dark}`}>
+              <Tabs.Trigger value="note_tree" class={theme.sidebar.tabs.trigger}>
+                <FolderTree size={18} />
+              </Tabs.Trigger>
+              <Tabs.Trigger value="links" class={theme.sidebar.tabs.trigger}>
+                <Link size={18} />
+              </Tabs.Trigger>
+              <Tabs.Trigger value="backlinks" class={theme.sidebar.tabs.trigger}>
+                <ArrowLeftRight size={18} />
+              </Tabs.Trigger>
+              <Tabs.Trigger value="related" class={theme.sidebar.tabs.trigger}>
+                <FileStack size={18} />
+              </Tabs.Trigger>
+              <Tabs.Trigger value="search" class={theme.sidebar.tabs.trigger}>
+                <Search size={18} />
+              </Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="note_tree">
               <FileTree />
