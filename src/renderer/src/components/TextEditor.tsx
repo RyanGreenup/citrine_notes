@@ -4,7 +4,7 @@ import { EditorView, basicSetup } from 'codemirror'
 import { EditorState } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown'
 import { oneDark } from '@codemirror/theme-one-dark'
-import { vim } from '@replit/codemirror-vim'
+import { vim, Vim } from '@replit/codemirror-vim'
 import { Terminal } from 'lucide-solid'
 
 interface TextEditorProps {
@@ -71,6 +71,10 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
   }
 
   onMount(() => {
+    // Register Vim keybindings
+    Vim.map("jj", "<Esc>", "insert"); // in insert mode
+    Vim.map("Y", "y$"); // in normal mode
+    
     initEditor()
 
     // Listen for theme changes via MutationObserver
