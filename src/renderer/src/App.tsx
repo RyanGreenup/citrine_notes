@@ -20,19 +20,20 @@ import { Navbar } from './components/Navbar'
 import { initFlowbite } from 'flowbite'
 import { onMount, createSignal } from 'solid-js'
 
+// AI: Here are the variables
 // Color scheme variables
-const BG_COLOR_LIGHT = "bg-gray-50"
-const BG_COLOR_DARK = "dark:bg-gray-800"
-const TEXT_COLOR_LIGHT = "text-gray-900"
-const TEXT_COLOR_DARK = "dark:text-white"
-const TEXT_COLOR_MUTED_LIGHT = "text-gray-500"
-const TEXT_COLOR_MUTED_DARK = "dark:text-gray-400"
-const HOVER_BG_LIGHT = "hover:bg-gray-100"
-const HOVER_BG_DARK = "dark:hover:bg-gray-700"
-const HOVER_TEXT_LIGHT = "group-hover:text-gray-900"
-const HOVER_TEXT_DARK = "dark:group-hover:text-white"
-const BORDER_COLOR_LIGHT = "border-gray-200"
-const BORDER_COLOR_DARK = "dark:border-gray-700"
+const BG_COLOR_LIGHT = 'bg-gray-50'
+const BG_COLOR_DARK = 'dark:bg-gray-800'
+const TEXT_COLOR_LIGHT = 'text-gray-900'
+const TEXT_COLOR_DARK = 'dark:text-white'
+const TEXT_COLOR_MUTED_LIGHT = 'text-gray-500'
+const TEXT_COLOR_MUTED_DARK = 'dark:text-gray-400'
+const HOVER_BG_LIGHT = 'hover:bg-gray-100'
+const HOVER_BG_DARK = 'dark:hover:bg-gray-700'
+const HOVER_TEXT_LIGHT = 'group-hover:text-gray-900'
+const HOVER_TEXT_DARK = 'dark:group-hover:text-white'
+const BORDER_COLOR_LIGHT = 'border-gray-200'
+const BORDER_COLOR_DARK = 'dark:border-gray-700'
 
 const SidebarText: Component<{
   text: string
@@ -45,8 +46,7 @@ const SidebarItem: Component<{
   label: string
   href: string
 }> = (props) => {
-  let default_class =
-    `flex items-center p-2 rounded-lg ${TEXT_COLOR_LIGHT} ${TEXT_COLOR_DARK} ${HOVER_BG_LIGHT} ${HOVER_BG_DARK} group`
+  let default_class = `flex items-center p-2 rounded-lg ${TEXT_COLOR_LIGHT} ${TEXT_COLOR_DARK} ${HOVER_BG_LIGHT} ${HOVER_BG_DARK} group`
   return (
     <>
       <li>
@@ -92,8 +92,7 @@ function Sidebar(props: SidebarProps) {
   /**
    * Draw a line above an unordered list but not between items. Draws a line between two lists to separate them
    */
-  let unordered_list_with_top_line =
-    `pt-4 mt-4 space-y-2 font-medium border-t ${BORDER_COLOR_LIGHT} ${BORDER_COLOR_DARK}`
+  let unordered_list_with_top_line = `pt-4 mt-4 space-y-2 font-medium border-t ${BORDER_COLOR_LIGHT} ${BORDER_COLOR_DARK}`
 
   let bgColor = ' bg-gray-900 dark:bg-gray-700 '
   let textColor = ' text-white '
@@ -106,7 +105,9 @@ function Sidebar(props: SidebarProps) {
         } sm:translate-x-0`}
         aria-label="Sidebar"
       >
-        <div class={`h-full px-3 py-4 overflow-y-auto ${BG_COLOR_LIGHT} ${BG_COLOR_DARK} ${SIDEBAR_TOP_PADDING}`}>
+        <div
+          class={`h-full px-3 py-4 overflow-y-auto ${BG_COLOR_LIGHT} ${BG_COLOR_DARK} ${SIDEBAR_TOP_PADDING}`}
+        >
           <ul class="space-y-2 font-medium">
             <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
             <SidebarItem icon={Mailbox} href="#" label="Inbox" />
@@ -235,8 +236,9 @@ const DummyContent: Component = () => {
     <>
       <Navbar toggleSidebar={toggleSidebar} />
       <Sidebar isOpen={sidebarOpen()} />
+      // Refactor the appropriate class utilities into variables AI!
       <div class="p-4 sm:ml-64 mt-16 bg-white dark:bg-gray-900 min-h-screen">
-      <h1 class="text-gray-900 dark:text-white">hello</h1>
+        <h1 class="text-gray-900 dark:text-white">hello</h1>
       </div>
     </>
   )
