@@ -2,6 +2,7 @@ import { Splitter, useSplitter } from '@ark-ui/solid/splitter'
 import { Component, createSignal } from 'solid-js'
 import { theme } from '../theme'
 import { Maximize2, AlignCenter, Columns } from 'lucide-solid'
+import { TextEditor } from './TextEditor'
 
 export const NoteEditor: Component = () => {
   const [content, setContent] = createSignal<string>('# Your note here\n\nStart typing to edit...')
@@ -47,11 +48,9 @@ export const NoteEditor: Component = () => {
       </div>
       <Splitter.RootProvider value={splitter} class="flex-grow h-full">
         <Splitter.Panel id="editor" class={theme.editor.panel.base}>
-          <textarea
-            class={theme.editor.panel.textarea}
-            value={content()}
-            onInput={(e) => setContent(e.currentTarget.value)}
-            placeholder="Start typing..."
+          <TextEditor 
+            initialContent={content()} 
+            onContentChange={(newContent) => setContent(newContent)} 
           />
         </Splitter.Panel>
         <Splitter.ResizeTrigger 
