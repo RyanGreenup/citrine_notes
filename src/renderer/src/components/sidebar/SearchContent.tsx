@@ -39,20 +39,20 @@ export function SearchContent() {
   }
 
   return (
-    <div class="flex flex-col gap-4">
-      <div class="px-3 pt-3">
+    <div class={theme.sidebar.search.container}>
+      <div class={theme.sidebar.search.inputWrapper}>
         <SearchInput onSearch={handleSearch} />
       </div>
 
       <Show when={hasSearched()}>
-        <div class="px-3">
-          <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2">
+        <div class={theme.sidebar.search.resultsContainer}>
+          <h3 class={theme.sidebar.search.resultsHeading}>
             {searchResults().length > 0
               ? `Results for "${searchQuery()}" (${searchResults().length})`
               : `No results for "${searchQuery()}"`}
           </h3>
 
-          <div class="max-h-[calc(100vh-200px)] overflow-y-auto">
+          <div class={theme.sidebar.search.resultsList}>
             <Show when={searchResults().length > 0}>
               <TreeView.Root collection={getCollection()} lazyMount={true}>
                 <TreeView.Tree class="w-full space-y-2">
@@ -82,8 +82,8 @@ export function SearchContent() {
       </Show>
 
       <Show when={!hasSearched()}>
-        <div class="px-3 pt-2">
-          <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2">Quick Access</h3>
+        <div class={theme.sidebar.search.quickAccessContainer}>
+          <h3 class={theme.sidebar.search.quickAccessHeading}>Quick Access</h3>
         </div>
         <ul>
           <SidebarItem icon={BookIcon} href="#" label="Recent Notes" />

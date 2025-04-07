@@ -164,6 +164,15 @@ export const theme = {
       selected: 'bg-gray-100 dark:bg-gray-700',
       title: 'font-medium text-sm',
       content: 'text-xs line-clamp-2 mt-1 opacity-80'
+    },
+    search: {
+      container: 'flex flex-col gap-4',
+      inputWrapper: 'px-3 pt-3',
+      resultsContainer: 'px-3',
+      resultsHeading: 'text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2',
+      resultsList: 'max-h-[calc(100vh-200px)] overflow-y-auto',
+      quickAccessHeading: 'text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2',
+      quickAccessContainer: 'px-3 pt-2'
     }
   }
 }
