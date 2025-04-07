@@ -36,7 +36,7 @@ export class DatabaseService {
       // For write operations like createNote and updateNote, we need to set readonly to false
       this.db = new Database(dbPath, { readonly: false })
       console.log(`Connected to database: ${dbPath}`)
-      
+
       // Check if FTS5 table exists and create it if it doesn't
       this.setupFullTextSearch()
     } catch (error) {
@@ -109,7 +109,7 @@ export class DatabaseService {
       return []
     }
   }
-  
+
   /**
    * Search notes by title using trigram matching for partial matches
    * @param query The search query for note titles
@@ -121,7 +121,7 @@ export class DatabaseService {
       if (!query.trim()) {
         return []
       }
-      
+
       // Use the trigram FTS5 table to search titles
       // The query is wrapped in quotes and asterisks for partial matching
       const stmt = this.db.prepare(`
@@ -132,10 +132,10 @@ export class DatabaseService {
         ORDER BY rank
         LIMIT ?
       `)
-      
+
       // Format the query for trigram search
       const formattedQuery = `"${query}"*`
-      
+
       return stmt.all(formattedQuery, limit) as Note[]
     } catch (error) {
       console.error('Error searching notes by title:', error)
@@ -155,7 +155,7 @@ export class DatabaseService {
       return null
     }
   }
-  
+
   /**
    * Search notes by content using porter stemming for better matching
    * @param query The search query for note content
@@ -167,7 +167,7 @@ export class DatabaseService {
       if (!query.trim()) {
         return []
       }
-      
+
       // Use the porter FTS5 table to search note content
       const stmt = this.db.prepare(`
         SELECT n.id, n.title, n.body, n.parent_id, n.user_created_time, n.user_updated_time
@@ -177,7 +177,7 @@ export class DatabaseService {
         ORDER BY rank
         LIMIT ?
       `)
-      
+
       return stmt.all(query, limit) as Note[]
     } catch (error) {
       console.error('Error searching notes by content:', error)
@@ -196,7 +196,7 @@ export class DatabaseService {
       return null
     }
   }
-  
+
   /**
    * Search notes by both title and content
    * @param query The search query
@@ -208,17 +208,17 @@ export class DatabaseService {
       if (!query.trim()) {
         return []
       }
-      
+
       // First search by title using trigram matching
       const titleResults = this.searchNotesByTitle(query, limit)
-      
+
       // Then search by content using porter stemming
       const contentResults = this.searchNotesByContent(query, limit)
-      
+
       // Combine results, removing duplicates
       const combinedResults: Note[] = []
       const seenIds = new Set<string>()
-      
+
       // Add title results first (they're usually more relevant)
       for (const note of titleResults) {
         if (!seenIds.has(note.id)) {
@@ -226,7 +226,7 @@ export class DatabaseService {
           seenIds.add(note.id)
         }
       }
-      
+
       // Add content results that aren't duplicates
       for (const note of contentResults) {
         if (!seenIds.has(note.id)) {
@@ -234,7 +234,7 @@ export class DatabaseService {
           seenIds.add(note.id)
         }
       }
-      
+
       // Return up to the limit
       return combinedResults.slice(0, limit)
     } catch (error) {
@@ -1195,33 +1195,21 @@ export class DatabaseService {
       // Insert the new resource into the database
       const stmt = this.db.prepare(`
         INSERT INTO resources (
-          id, title, mime, filename, created_time, updated_time, 
-          user_created_time, user_updated_time, file_extension, 
-          encryption_cipher_text, encryption_applied, encryption_blob_encrypted, 
-          size, is_shared, share_id, master_key_id, user_data, 
+          id, title, mime, filename, created_time, updated_time,
+          user_created_time, user_updated_time, file_extension,
+          encryption_cipher_text, encryption_applied, encryption_blob_encrypted,
+          size, is_shared, share_id, master_key_id, user_data,
           blob_updated_time, ocr_text, ocr_details, ocr_status, ocr_error
         ) VALUES (
-          ?, ?, ?, ?, ?, ?, 
-          ?, ?, ?, 
-          '', 0, 0, 
-          ?, 0, '', '', '', 
+          ?, ?, ?, ?, ?, ?,
+          ?, ?, ?,
+          '', 0, 0,
+          ?, 0, '', '', '',
           ?, '', '', 0, ''
         )
       `)
 
-      stmt.run(
-        id,
-        title,
-        mime,
-        filename,
-        now,
-        now,
-        now,
-        now,
-        fileExtension,
-        size,
-        now
-      )
+      stmt.run(id, title, mime, filename, now, now, now, now, fileExtension, size, now)
 
       // Return the newly created resource
       return {
@@ -1263,12 +1251,12 @@ export class DatabaseService {
   public getResourceById(id: string): Resource | null {
     try {
       const stmt = this.db.prepare(`
-        SELECT id, title, mime, filename, created_time, updated_time, 
-               user_created_time, user_updated_time, file_extension, 
-               encryption_cipher_text, encryption_applied, encryption_blob_encrypted, 
-               size, is_shared, share_id, master_key_id, user_data, 
+        SELECT id, title, mime, filename, created_time, updated_time,
+               user_created_time, user_updated_time, file_extension,
+               encryption_cipher_text, encryption_applied, encryption_blob_encrypted,
+               size, is_shared, share_id, master_key_id, user_data,
                blob_updated_time, ocr_text, ocr_details, ocr_status, ocr_error
-        FROM resources 
+        FROM resources
         WHERE id = ?
       `)
       return (stmt.get(id) as Resource) || null
@@ -1285,10 +1273,10 @@ export class DatabaseService {
   public getAllResources(): Resource[] {
     try {
       const stmt = this.db.prepare(`
-        SELECT id, title, mime, filename, created_time, updated_time, 
-               user_created_time, user_updated_time, file_extension, 
-               encryption_cipher_text, encryption_applied, encryption_blob_encrypted, 
-               size, is_shared, share_id, master_key_id, user_data, 
+        SELECT id, title, mime, filename, created_time, updated_time,
+               user_created_time, user_updated_time, file_extension,
+               encryption_cipher_text, encryption_applied, encryption_blob_encrypted,
+               size, is_shared, share_id, master_key_id, user_data,
                blob_updated_time, ocr_text, ocr_details, ocr_status, ocr_error
         FROM resources
       `)
@@ -1307,10 +1295,10 @@ export class DatabaseService {
   public getResourcesByMimeType(mimeType: string): Resource[] {
     try {
       const stmt = this.db.prepare(`
-        SELECT id, title, mime, filename, created_time, updated_time, 
-               user_created_time, user_updated_time, file_extension, 
-               encryption_cipher_text, encryption_applied, encryption_blob_encrypted, 
-               size, is_shared, share_id, master_key_id, user_data, 
+        SELECT id, title, mime, filename, created_time, updated_time,
+               user_created_time, user_updated_time, file_extension,
+               encryption_cipher_text, encryption_applied, encryption_blob_encrypted,
+               size, is_shared, share_id, master_key_id, user_data,
                blob_updated_time, ocr_text, ocr_details, ocr_status, ocr_error
         FROM resources
         WHERE mime = ?
@@ -1343,8 +1331,8 @@ export class DatabaseService {
 
       // Update the resource in the database
       const stmt = this.db.prepare(`
-        UPDATE resources 
-        SET title = ?, filename = ?, updated_time = ?, user_updated_time = ? 
+        UPDATE resources
+        SET title = ?, filename = ?, updated_time = ?, user_updated_time = ?
         WHERE id = ?
       `)
 
@@ -1378,9 +1366,9 @@ export class DatabaseService {
    * @returns The updated resource or null if update failed
    */
   public updateResourceOcr(
-    id: string, 
-    ocrText: string, 
-    ocrStatus: number, 
+    id: string,
+    ocrText: string,
+    ocrStatus: number,
     ocrError: string = ''
   ): Resource | null {
     try {
@@ -1395,8 +1383,8 @@ export class DatabaseService {
 
       // Update the resource OCR data in the database
       const stmt = this.db.prepare(`
-        UPDATE resources 
-        SET ocr_text = ?, ocr_status = ?, ocr_error = ?, updated_time = ? 
+        UPDATE resources
+        SET ocr_text = ?, ocr_status = ?, ocr_error = ?, updated_time = ?
         WHERE id = ?
       `)
 
@@ -1603,8 +1591,8 @@ export class DatabaseService {
       // Extract all potential UUIDs from the note body
       // UUID v4 format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx where x is any hex digit and y is 8, 9, a, or b
       const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/gi
-      const potentialIds = [...note.body.matchAll(uuidRegex)].map(match => match[0])
-      
+      const potentialIds = [...note.body.matchAll(uuidRegex)].map((match) => match[0])
+
       if (potentialIds.length === 0) {
         return []
       }
@@ -1673,18 +1661,18 @@ export class DatabaseService {
   private setupFullTextSearch(): void {
     try {
       // Check if the FTS5 tables already exist
-      const porterTableExists = this.db.prepare(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='notes_fts5_porter'"
-      ).get()
-      
-      const trigramTableExists = this.db.prepare(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='titles_fts5_trigram'"
-      ).get()
-      
+      const porterTableExists = this.db
+        .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='notes_fts5_porter'")
+        .get()
+
+      const trigramTableExists = this.db
+        .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='titles_fts5_trigram'")
+        .get()
+
       // Set up porter stemming FTS for full content search
       if (!porterTableExists) {
         console.log('Setting up porter stemming full-text search tables...')
-        
+
         // Create the FTS5 virtual table and related tables/triggers
         this.db.exec(`
           CREATE VIRTUAL TABLE notes_fts5_porter USING fts5(
@@ -1718,20 +1706,20 @@ export class DatabaseService {
               VALUES (new.rowid, new.title, new.body);
             END;
         `)
-        
+
         // Populate the FTS table with existing notes
         this.db.exec(`
           INSERT INTO notes_fts5_porter(rowid, id, title, body)
           SELECT rowid, id, title, body FROM notes
         `)
-        
+
         console.log('Porter stemming full-text search setup complete')
       }
-      
+
       // Set up trigram FTS for title search with partial matching
       if (!trigramTableExists) {
         console.log('Setting up trigram title search tables...')
-        
+
         // Create the trigram FTS5 virtual table and related tables/triggers for titles
         this.db.exec(`
           CREATE VIRTUAL TABLE titles_fts5_trigram USING fts5(
@@ -1764,13 +1752,13 @@ export class DatabaseService {
               VALUES (new.rowid, new.id, new.title);
             END;
         `)
-        
+
         // Populate the trigram FTS table with existing note titles
         this.db.exec(`
           INSERT INTO titles_fts5_trigram(rowid, id, title)
           SELECT rowid, id, title FROM notes
         `)
-        
+
         console.log('Trigram title search setup complete')
       }
     } catch (error) {
