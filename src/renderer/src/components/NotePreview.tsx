@@ -2,6 +2,7 @@ import { Component, createMemo, onMount } from 'solid-js'
 import { theme } from '../theme'
 import { Marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
+import markedKatex from 'marked-katex-extension'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github-dark.css'
 import { createStyleTag } from '../utils/styleUtils'
@@ -11,9 +12,18 @@ interface NotePreviewProps {
 }
 
 export const NotePreview: Component<NotePreviewProps> = (props) => {
-  // Add custom CSS to make highlight.js backgrounds transparent
-  // and improve the splitter styling with Tailwind-compatible classes
+  // Add custom CSS to make highlight.js backgrounds transparent,
+  // improve the splitter styling with Tailwind-compatible classes,
+  // and load KaTeX CSS
   onMount(() => {
+    // Load KaTeX CSS from CDN
+    const katexLink = document.createElement('link');
+    katexLink.rel = 'stylesheet';
+    katexLink.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css';
+    katexLink.integrity = 'sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn';
+    katexLink.crossOrigin = 'anonymous';
+    document.head.appendChild(katexLink);
+
     createStyleTag(`
       .hljs {
         background: transparent !important;
@@ -53,10 +63,15 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
       [data-role="panel"] {
         @apply transition-[width] duration-150 ease-out;
       }
+      
+      /* KaTeX styling adjustments for dark mode */
+      .dark .katex {
+        color: #e2e8f0;
+      }
     `);
   });
 
-  // Create a marked instance with the highlight plugin
+  // Create a marked instance with the highlight plugin and KaTeX extension
   const markedInstance = new Marked(
     markedHighlight({
       langPrefix: 'hljs language-',
@@ -65,6 +80,11 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
         const language = hljs.getLanguage(lang) ? lang : 'plaintext';
         return hljs.highlight(code, { language }).value;
       }
+    }),
+    markedKatex({
+      throwOnError: false,
+      output: 'html',
+      nonStandard: true // Allow KaTeX without spaces around delimiters
     })
   );
 
