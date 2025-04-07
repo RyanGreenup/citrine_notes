@@ -3,6 +3,7 @@ import { Component, createSignal, createEffect } from 'solid-js'
 import { theme } from '../theme'
 import { Maximize2, AlignCenter, Columns, Terminal } from 'lucide-solid'
 import { TextEditor } from './TextEditor'
+import { NotePreview } from './NotePreview'
 
 export const NoteEditor: Component = () => {
   const [content, setContent] = createSignal<string>('# Your note here\n\nStart typing to edit...')
@@ -87,11 +88,7 @@ export const NoteEditor: Component = () => {
           <div class={theme.editor.resizeTrigger.handle}></div>
         </Splitter.ResizeTrigger>
         <Splitter.Panel id="preview" class={theme.editor.panel.base}>
-          <div class={theme.editor.panel.preview}>
-            <div class={theme.editor.panel.content}>
-              {content()}
-            </div>
-          </div>
+          <NotePreview content={content()} />
         </Splitter.Panel>
       </Splitter.RootProvider>
     </div>
