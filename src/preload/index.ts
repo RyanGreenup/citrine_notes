@@ -25,6 +25,7 @@ interface DatabaseAPI {
   updateNote: (id: string, title: string, body: string) => Promise<Note | null>
   searchNotes: (query: string, limit?: number) => Promise<Note[]>
   getBacklinks: (noteId: string) => Promise<Note[]>
+  getHomeNote: () => Promise<Note | null>
 }
 
 // Custom APIs for renderer
@@ -43,7 +44,9 @@ const api = {
     searchNotes: (query: string, limit: number = 20): Promise<Note[]> =>
       ipcRenderer.invoke('db:searchNotes', query, limit),
     getBacklinks: (noteId: string): Promise<Note[]> =>
-      ipcRenderer.invoke('db:notes:getBacklinks', noteId)
+      ipcRenderer.invoke('db:notes:getBacklinks', noteId),
+    getHomeNote: (): Promise<Note | null> =>
+      ipcRenderer.invoke('db:notes:getHomeNote')
   } as DatabaseAPI,
   zoom: {
     zoomIn: (): Promise<number> => ipcRenderer.invoke('zoom:in'),

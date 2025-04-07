@@ -166,6 +166,10 @@ app.whenReady().then(() => {
     ipcMain.handle('db:notes:getNoteBodyById', (_event, id: string): Note | null => {
       return databaseService!.getNoteBodyById(id)
     })
+    // Get Home Note .............................................................
+    ipcMain.handle('db:notes:getHomeNote', (_event): Note | null => {
+      return databaseService!.getHomeNote()
+    })
     // Update _________________________________________________________________
     ipcMain.handle('db:notes:updateNoteTitle', (_event, id: string, title: string): Note | null => {
       return databaseService!.updateNoteTitle(id, title)
