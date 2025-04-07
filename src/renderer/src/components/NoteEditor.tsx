@@ -50,36 +50,7 @@ export const NoteEditor: Component = () => {
 
   // Function to save content
   const saveContent = async (contentToSave: string) => {
-    const noteId = getCurrentNoteId()
-    if (!noteId || !currentNote()) {
-      console.warn('Cannot save: No note is currently selected')
-      return
-    }
-
-    try {
-      // Make sure the API is available
-      if (!window.api || !window.api.database) {
-        console.error('Database API not available')
-        return
-      }
-
-      // Create a simple string copy to avoid any potential object reference issues
-      const contentCopy = String(contentToSave);
-
-      // Use updateNoteBody instead of updateNote since we're only changing the content
-      const result = await window.api.database.updateNoteBody(
-        noteId,
-        contentCopy
-      )
-
-      if (result) {
-        console.log('Note content saved successfully:', result.id)
-      } else {
-        console.error('Failed to save note content')
-      }
-    } catch (err) {
-      console.error('Error saving note content:', err)
-    }
+    console.log(contentToSave);
   }
 
   // Check if we're running in SSR mode (SolidStart)
@@ -99,7 +70,7 @@ export const NoteEditor: Component = () => {
   // Effect to handle saving content with debounce
   createEffect(() => {
     const currentContent = content();
-    
+
     // Skip saving content if using SSR with SolidStart
     if (!isSSR() && currentContent && currentNote()) {
       // Use debounce to avoid saving on every keystroke
@@ -189,9 +160,9 @@ export const NoteEditor: Component = () => {
           </div>
           <div class="flex items-center gap-1">
             <div class={theme.editor.header.buttonGroup}>
-              <button 
-                onClick={equalSplit} 
-                class={`${theme.editor.header.button} text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 ${animations.transition.fast}`} 
+              <button
+                onClick={equalSplit}
+                class={`${theme.editor.header.button} text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 ${animations.transition.fast}`}
                 title="Equal split"
               >
                 <Columns size={18} />
@@ -204,7 +175,7 @@ export const NoteEditor: Component = () => {
                 {isEditorMaximized() ? <AlignCenter size={18} /> : <Maximize2 size={18} />}
               </button>
             </div>
-            
+
             <div class={`${theme.editor.header.buttonGroup} ${theme.editor.header.buttonGroupSpacing}`}>
               <button
                 onClick={toggleVim}
@@ -214,7 +185,7 @@ export const NoteEditor: Component = () => {
                 <Terminal size={18} />
               </button>
             </div>
-            
+
             <div class={`${theme.editor.header.buttonGroup} ${theme.editor.header.buttonGroupSpacing}`}>
               <button
                 onClick={saveContentButton}
