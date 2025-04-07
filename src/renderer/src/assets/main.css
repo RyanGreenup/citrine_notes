@@ -1,1 +1,4 @@
 @import './base.css';
+
+/* Enable dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
