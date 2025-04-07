@@ -84,7 +84,7 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
   return (
     <div class={theme.editor.panel.preview}>
       <div 
-        class={`${theme.editor.panel.content} prose prose-sm dark:prose-invert max-w-none`}
+        class={`${theme.editor.panel.content} prose prose-sm dark:prose-invert max-w-none p-6 md:p-8`}
         innerHTML={parsedMarkdown()}
       />
     </div>
