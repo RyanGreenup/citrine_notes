@@ -3,28 +3,28 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Define types for our database API
 interface Note {
-  id: string;
-  title: string;
-  body: string;
-  user_created_time: number;
-  user_updated_time: number;
+  id: string
+  title: string
+  body: string
+  user_created_time: number
+  user_updated_time: number
 }
 
 interface ZoomAPI {
-  zoomIn: () => Promise<number>;
-  zoomOut: () => Promise<number>;
-  resetZoom: () => Promise<number>;
-  getZoomFactor: () => Promise<number>;
+  zoomIn: () => Promise<number>
+  zoomOut: () => Promise<number>
+  resetZoom: () => Promise<number>
+  getZoomFactor: () => Promise<number>
 }
 
 interface DatabaseAPI {
-  getAllNotes: () => Promise<Note[]>;
-  getNoteById: (id: string) => Promise<Note | null>;
-  getStatus: () => Promise<{ connected: boolean; path: string | null }>;
-  createNote: (title: string, body: string) => Promise<Note | null>;
-  updateNote: (id: string, title: string, body: string) => Promise<Note | null>;
-  searchNotes: (query: string, limit?: number) => Promise<Note[]>;
-  getBacklinks: (noteId: string) => Promise<Note[]>;
+  getAllNotes: () => Promise<Note[]>
+  getNoteById: (id: string) => Promise<Note | null>
+  getStatus: () => Promise<{ connected: boolean; path: string | null }>
+  createNote: (title: string, body: string) => Promise<Note | null>
+  updateNote: (id: string, title: string, body: string) => Promise<Note | null>
+  searchNotes: (query: string, limit?: number) => Promise<Note[]>
+  getBacklinks: (noteId: string) => Promise<Note[]>
 }
 
 // Custom APIs for renderer
@@ -32,14 +32,18 @@ const api = {
   database: {
     getAllNotes: (): Promise<Note[]> => ipcRenderer.invoke('db:getAllNotes'),
     getNoteById: (id: string): Promise<Note | null> => ipcRenderer.invoke('db:getNoteById', id),
-    getStatus: (): Promise<{ connected: boolean; path: string | null }> => ipcRenderer.invoke('db:getStatus'),
-    createNote: (title: string, body: string): Promise<Note | null> => ipcRenderer.invoke('db:createNote', title, body),
-    updateNote: (id: string, title: string, body: string): Promise<Note | null> => 
+    getNoteBodyById: (id: string): Promise<Note | null> =>
+      ipcRenderer.invoke('db:notes:getNoteBodyById', id),
+    getStatus: (): Promise<{ connected: boolean; path: string | null }> =>
+      ipcRenderer.invoke('db:getStatus'),
+    createNote: (title: string, body: string): Promise<Note | null> =>
+      ipcRenderer.invoke('db:createNote', title, body),
+    updateNote: (id: string, title: string, body: string): Promise<Note | null> =>
       ipcRenderer.invoke('db:updateNote', id, title, body),
-    searchNotes: (query: string, limit: number = 20): Promise<Note[]> => 
+    searchNotes: (query: string, limit: number = 20): Promise<Note[]> =>
       ipcRenderer.invoke('db:searchNotes', query, limit),
     getBacklinks: (noteId: string): Promise<Note[]> =>
-      ipcRenderer.invoke('db:getBacklinks', noteId)
+      ipcRenderer.invoke('db:notes:getBacklinks', noteId)
   } as DatabaseAPI,
   zoom: {
     zoomIn: (): Promise<number> => ipcRenderer.invoke('zoom:in'),

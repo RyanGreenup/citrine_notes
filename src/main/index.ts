@@ -76,7 +76,7 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
-  
+
   // Handle zoom level changes
   ipcMain.handle('zoom:in', (event) => {
     const webContents = event.sender
@@ -101,29 +101,27 @@ app.whenReady().then(() => {
   ipcMain.handle('zoom:get', (event) => {
     return event.sender.getZoomFactor()
   })
-  
+
   // Handle file selection for resource upload
   ipcMain.handle('dialog:openFile', async () => {
     const { dialog } = require('electron')
     const result = await dialog.showOpenDialog({
       properties: ['openFile'],
-      filters: [
-        { name: 'All Files', extensions: ['*'] }
-      ]
+      filters: [{ name: 'All Files', extensions: ['*'] }]
     })
-    
+
     if (result.canceled) {
       return null
     }
-    
+
     const filePath = result.filePaths[0]
-    
+
     try {
       const stats = await fs.promises.stat(filePath)
       const fileExtension = path.extname(filePath).replace('.', '')
       const fileName = path.basename(filePath)
       const mimeType = getMimeType(fileExtension)
-      
+
       return {
         path: filePath,
         name: fileName,
@@ -163,6 +161,10 @@ app.whenReady().then(() => {
     // Get Note by ID .........................................................
     ipcMain.handle('db:notes:getNoteById', (_event, id: string): Note | null => {
       return databaseService!.getNoteById(id)
+    })
+    // Get Note Body by ID .........................................................
+    ipcMain.handle('db:notes:getNoteBodyById', (_event, id: string): Note | null => {
+      return databaseService!.getNoteBodyById(id)
     })
     // Update _________________________________________________________________
     ipcMain.handle('db:notes:updateNoteTitle', (_event, id: string, title: string): Note | null => {
@@ -228,17 +230,17 @@ app.whenReady().then(() => {
     ipcMain.handle('db:note_folders:getNotesByFolderId', (_event, folderId: string): Note[] => {
       return databaseService!.getNotesByFolderId(folderId)
     })
-    
+
     // Search notes
     ipcMain.handle('db:searchNotes', (_event, query: string, limit: number = 20): Note[] => {
       return databaseService!.searchNotes(query, limit)
     })
-    
+
     // Get backlinks for a note
     ipcMain.handle('db:notes:getBacklinks', (_event, noteId: string): Note[] => {
       return databaseService!.getBacklinks(noteId)
     })
-    
+
     // Update _________________________________________________________________
 
     ipcMain.handle(
@@ -317,34 +319,35 @@ app.whenReady().then(() => {
       ) => {
         try {
           // Create the resource in the database
-          const resource = databaseService!.createResource(title, mime, filename, fileExtension, size)
-          
+          const resource = databaseService!.createResource(
+            title,
+            mime,
+            filename,
+            fileExtension,
+            size
+          )
+
           if (!resource) {
             console.error('Failed to create resource in database')
             return null
           }
-          
+
           // Determine Joplin resources directory
-          const resourcesDir = path.join(
-            os.homedir(),
-            '.config',
-            'joplin-desktop',
-            'resources'
-          )
-          
+          const resourcesDir = path.join(os.homedir(), '.config', 'joplin-desktop', 'resources')
+
           // Create the resources directory if it doesn't exist
           if (!fs.existsSync(resourcesDir)) {
             fs.mkdirSync(resourcesDir, { recursive: true })
           }
-          
+
           // Determine destination path
           const destPath = path.join(resourcesDir, `${resource.id}.${fileExtension}`)
-          
+
           // Copy the file to the resources directory
           await fs.promises.copyFile(sourcePath, destPath)
-          
+
           console.log(`Resource copied to: ${destPath}`)
-          
+
           return resource
         } catch (error) {
           console.error('Error creating resource:', error)
@@ -365,12 +368,9 @@ app.whenReady().then(() => {
       return databaseService!.getResourcesByMimeType(mimeType)
     })
     // Update _________________________________________________________________
-    ipcMain.handle(
-      'db:resources:update',
-      (_event, id: string, title: string, filename: string) => {
-        return databaseService!.updateResource(id, title, filename)
-      }
-    )
+    ipcMain.handle('db:resources:update', (_event, id: string, title: string, filename: string) => {
+      return databaseService!.updateResource(id, title, filename)
+    })
 
     ipcMain.handle(
       'db:resources:updateOcr',
@@ -416,32 +416,32 @@ app.on('will-quit', () => {
 // Helper function to determine MIME type from file extension
 function getMimeType(extension: string): string {
   const mimeTypes: Record<string, string> = {
-    'jpg': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'png': 'image/png',
-    'gif': 'image/gif',
-    'webp': 'image/webp',
-    'svg': 'image/svg+xml',
-    'pdf': 'application/pdf',
-    'doc': 'application/msword',
-    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'xls': 'application/vnd.ms-excel',
-    'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'ppt': 'application/vnd.ms-powerpoint',
-    'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'txt': 'text/plain',
-    'html': 'text/html',
-    'css': 'text/css',
-    'js': 'text/javascript',
-    'json': 'application/json',
-    'xml': 'application/xml',
-    'zip': 'application/zip',
-    'mp3': 'audio/mpeg',
-    'mp4': 'video/mp4',
-    'wav': 'audio/wav',
-    'ogg': 'audio/ogg',
-    'webm': 'video/webm'
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    gif: 'image/gif',
+    webp: 'image/webp',
+    svg: 'image/svg+xml',
+    pdf: 'application/pdf',
+    doc: 'application/msword',
+    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    xls: 'application/vnd.ms-excel',
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ppt: 'application/vnd.ms-powerpoint',
+    pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    txt: 'text/plain',
+    html: 'text/html',
+    css: 'text/css',
+    js: 'text/javascript',
+    json: 'application/json',
+    xml: 'application/xml',
+    zip: 'application/zip',
+    mp3: 'audio/mpeg',
+    mp4: 'video/mp4',
+    wav: 'audio/wav',
+    ogg: 'audio/ogg',
+    webm: 'video/webm'
   }
-  
+
   return mimeTypes[extension.toLowerCase()] || 'application/octet-stream'
 }
