@@ -4,6 +4,7 @@ import type { Component } from 'solid-js'
 /**
  * This simply returns the date and time as it's convenient for users.
  */
+// Will this tick as time moves AI?
 const getCurrentDateTime = (): string => {
   const now = new Date();
   const options: Intl.DateTimeFormatOptions = { 
