@@ -6,8 +6,14 @@ import type { Component } from 'solid-js'
  */
 const getCurrentDateTime = (): string => {
   const now = new Date();
-  // Use something like Saturday 3rd November 20:42 AI!
-  return now.toLocaleString();
+  const options: Intl.DateTimeFormatOptions = { 
+    weekday: 'long', 
+    day: 'numeric', 
+    month: 'long', 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  };
+  return now.toLocaleDateString(undefined, options);
 }
 
 export const AppLogo: Component = () => {
