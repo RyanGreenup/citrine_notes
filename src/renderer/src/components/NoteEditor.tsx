@@ -88,19 +88,24 @@ export const NoteEditor: Component = () => {
   // Does nothing if using Server Side Rendering with Solid Start
   const handleContentChange = (newContent: string) => {
     setContent(newContent)
+  }
 
+  // Effect to handle saving content with debounce
+  createEffect(() => {
+    const currentContent = content();
+    
     // Skip saving content if using SSR with SolidStart
-    if (!isSSR()) {
+    if (!isSSR() && currentContent) {
       // Use debounce to avoid saving on every keystroke
       if (window.saveTimeout) {
         clearTimeout(window.saveTimeout)
       }
 
       window.saveTimeout = setTimeout(() => {
-        saveContent(newContent)
+        saveContent(currentContent)
       }, 1000) // Save after 1 second of inactivity
     }
-  }
+  });
   const splitter = useSplitter({
     defaultSize: [50, 50],
     panels: [{ id: 'editor' }, { id: 'preview' }]
