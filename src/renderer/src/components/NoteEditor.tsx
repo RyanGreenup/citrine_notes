@@ -15,11 +15,20 @@ export const NoteEditor: Component = () => {
     console.log('Saving content:', contentToSave)
   }
 
+  // Check if we're running in SSR mode (SolidStart)
+  const isSSR = () => {
+    return typeof window === 'undefined' || window.location.href.includes('solidstart')
+  }
+
   // Callback function that fires when content changes
-  // NOTE when implementing with SolidStart this will need a save button
+  // Does nothing if using Server Side Rendering with Solid Start
   const handleContentChange = (newContent: string) => {
     setContent(newContent)
-    saveContent(newContent)
+    
+    // Skip saving content if using SSR with SolidStart
+    if (!isSSR()) {
+      saveContent(newContent)
+    }
   }
   const splitter = useSplitter({
     defaultSize: [50, 50],
