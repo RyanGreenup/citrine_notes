@@ -84,14 +84,14 @@ const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
 
 export function FileTree() {
   const handleFocusChange = (details: { value: string }) => {
-    console.log('Focus changed to node:', details.value)
+    console.log('Focus changed to node:', details)
   }
 
   return (
     <div class={theme.sidebar.fileTree.container}>
       <h3 class={`${theme.sidebar.fileTree.heading} ${theme.text.light} ${theme.text.dark}`}>Files</h3>
-      <TreeView.Root 
-        collection={collection} 
+      <TreeView.Root
+        collection={collection}
         lazyMount={true}
         onFocusChange={handleFocusChange}
       >

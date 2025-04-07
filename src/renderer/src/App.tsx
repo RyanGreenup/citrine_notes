@@ -1,9 +1,9 @@
 import type { Component, JSXElement } from 'solid-js'
-import { FillerContent } from './components/FillerContent'
 import { Navbar } from './components/Navbar'
 import { createSignal } from 'solid-js'
 import { theme } from './theme'
 import { Sidebar } from './components/sidebar/Sidebar'
+import { NoteEditor } from './components/NoteEditor'
 
 const DummyContent: Component = () => {
   const [sidebarOpen, setSidebarOpen] = createSignal(false)
@@ -21,7 +21,7 @@ const DummyContent: Component = () => {
       <div
         class={`${theme.layout.content} ${theme.layout.contentBg} ${theme.layout.contentHeight}`}
       >
-        <FillerContent />
+        <NoteEditor />
       </div>
     </>
   )

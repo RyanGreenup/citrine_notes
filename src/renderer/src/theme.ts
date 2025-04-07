@@ -130,9 +130,27 @@ export const theme = {
   
   // Layout
   layout: {
-    content: 'p-4 sm:ml-64 mt-16',
+    content: 'p-4 sm:ml-64 mt-16 flex flex-col',
     contentBg: 'bg-white dark:bg-gray-900',
-    contentHeight: 'min-h-screen',
+    contentHeight: 'min-h-screen h-[calc(100vh-4rem)]',
+  },
+  
+  // Editor
+  editor: {
+    container: 'w-full flex flex-col flex-1',
+    splitter: 'h-full flex-1',
+    controls: 'flex items-center justify-end gap-2 p-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700',
+    controlButton: 'p-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500',
+    panel: {
+      base: 'h-full overflow-auto p-4 flex-grow',
+      textarea: 'w-full h-full p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100',
+      preview: 'w-full h-full p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md',
+      content: 'prose dark:prose-invert max-w-none text-gray-900 dark:text-gray-100'
+    },
+    resizeTrigger: {
+      base: 'w-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-col-resize flex items-center justify-center',
+      handle: 'w-1 h-8 bg-gray-400 dark:bg-gray-500 rounded'
+    }
   },
 
   // Sidebar
