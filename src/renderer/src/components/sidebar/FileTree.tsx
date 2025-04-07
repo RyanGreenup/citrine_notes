@@ -2,6 +2,7 @@
 import { TreeView, createTreeCollection } from '@ark-ui/solid/tree-view'
 import { CheckSquareIcon, ChevronRightIcon, FileIcon, FolderIcon } from 'lucide-solid'
 import { For, Show } from 'solid-js'
+import { theme } from '../../theme'
 
 interface Node {
   id: string
@@ -52,7 +53,7 @@ const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
       <Show
         when={node.children}
         fallback={
-          <TreeView.Item class="flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+          <TreeView.Item class={`flex items-center py-1 px-2 ${theme.bg.hover.light} ${theme.bg.hover.dark} rounded`}>
             <TreeView.ItemText class="flex items-center gap-2 text-sm">
               <FileIcon size={16} />
               {node.name}
@@ -61,7 +62,7 @@ const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
         }
       >
         <TreeView.Branch>
-          <TreeView.BranchControl class="flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+          <TreeView.BranchControl class={`flex items-center py-1 px-2 ${theme.bg.hover.light} ${theme.bg.hover.dark} rounded`}>
             <TreeView.BranchText class="flex items-center gap-2 text-sm">
               <FolderIcon size={16} />
               {node.name}
@@ -84,7 +85,7 @@ const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
 export function FileTree() {
   return (
     <div class="mt-4 px-2">
-      <h3 class="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Files</h3>
+      <h3 class={`text-sm font-medium mb-2 ${theme.text.light} ${theme.text.dark}`}>Files</h3>
       <TreeView.Root collection={collection}>
         <TreeView.Tree class="w-full">
           <For each={collection.rootNode.children}>
