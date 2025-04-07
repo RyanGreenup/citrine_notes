@@ -1,7 +1,6 @@
 import type { Component } from 'solid-js'
 import { ThemeToggle } from './ThemeToggle'
 import { NotificationButton } from './NotificationButton'
-import { UserMenuButton } from './UserMenuButton'
 
 export const NavbarActions: Component = () => {
   return (
@@ -10,7 +9,6 @@ export const NavbarActions: Component = () => {
         <div class="flex space-x-3">
           <ThemeToggle />
           <NotificationButton />
-          <UserMenuButton />
         </div>
       </div>
     </div>
