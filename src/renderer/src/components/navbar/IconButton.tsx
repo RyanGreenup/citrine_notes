@@ -1,5 +1,6 @@
 import type { Component, JSX } from 'solid-js'
 import type { LucideIcon } from 'lucide-solid'
+import { theme } from '../../theme'
 
 interface IconButtonProps {
   icon: LucideIcon
@@ -9,16 +10,11 @@ interface IconButtonProps {
 }
 
 export const IconButton: Component<IconButtonProps> = (props) => {
-  // Color scheme
-  const TEXT_COLOR = "text-gray-500 dark:text-gray-400"
-  const TEXT_COLOR_HOVER = "hover:text-gray-900 dark:hover:text-white"
-  const BG_COLOR_HOVER = "hover:bg-gray-100 dark:hover:bg-gray-700"
-  
   return (
     <button
       type="button"
       onClick={props.onClick}
-      class={`p-2 ${TEXT_COLOR} rounded-lg ${TEXT_COLOR_HOVER} ${BG_COLOR_HOVER} ${props.class || ''}`}
+      class={`p-2 ${theme.text.muted.light} ${theme.text.muted.dark} rounded-lg ${theme.text.hover.light} ${theme.text.hover.dark} ${theme.bg.hover.light} ${theme.bg.hover.dark} ${props.class || ''}`}
       aria-label={props.label}
     >
       {props.label && <span class="sr-only">{props.label}</span>}
