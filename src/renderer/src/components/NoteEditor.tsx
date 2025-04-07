@@ -9,6 +9,12 @@ export const NoteEditor: Component = () => {
   const [content, setContent] = createSignal<string>('# Your note here\n\nStart typing to edit...')
   const [isEditorMaximized, setIsEditorMaximized] = createSignal(false)
   const [isVimEnabled, setIsVimEnabled] = createSignal(false)
+  
+  // Callback function that fires when content changes
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent)
+    console.log('Content changed:', newContent)
+  }
   const splitter = useSplitter({ 
     defaultSize: [50, 50], 
     panels: [{ id: 'editor' }, { id: 'preview' }] 
@@ -77,7 +83,7 @@ export const NoteEditor: Component = () => {
         <Splitter.Panel id="editor" class={theme.editor.panel.base}>
           <TextEditor 
             initialContent={content()} 
-            onContentChange={(newContent) => setContent(newContent)} 
+            onContentChange={handleContentChange} 
           />
         </Splitter.Panel>
         <Splitter.ResizeTrigger 
