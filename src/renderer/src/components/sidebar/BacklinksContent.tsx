@@ -24,8 +24,8 @@ export function BacklinksContent() {
       setLoading(true)
       setError(null)
       
-      // Call the IPC API to get backlinks
-      const notes = await window.api.invoke('db:notes:getBacklinks', noteId)
+      // Call the database API to get backlinks
+      const notes = await window.api.database.getBacklinks(noteId)
       
       // Transform the notes to use content instead of body
       const formattedBacklinks = notes.map(note => ({
