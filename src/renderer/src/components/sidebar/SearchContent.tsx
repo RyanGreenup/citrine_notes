@@ -46,8 +46,8 @@ export function SearchContent() {
     }
     
     try {
-      // Call the database API to search notes
-      const notes = await window.api.database.searchNotes(query)
+      // Call the database API to search notes using the correct IPC channel
+      const notes = await window.api.ipcRenderer.invoke('db:searchNotes', query)
       
       // Transform the notes to include a content field (using body as content)
       const formattedResults: SearchNote[] = notes.map((note: any) => ({
