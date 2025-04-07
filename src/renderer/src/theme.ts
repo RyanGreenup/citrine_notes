@@ -157,6 +157,13 @@ export const theme = {
       folderIcon: 'text-yellow-500 dark:text-yellow-400',
       fileIcon: 'text-blue-500 dark:text-blue-400',
       branchContent: 'ml-4'
+    },
+    noteList: {
+      container: 'space-y-2',
+      item: 'w-full cursor-pointer transition-colors duration-150',
+      selected: 'bg-gray-100 dark:bg-gray-700',
+      title: 'font-medium text-sm',
+      content: 'text-xs line-clamp-2 mt-1 opacity-80'
     }
   }
 }
