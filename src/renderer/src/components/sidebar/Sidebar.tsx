@@ -8,13 +8,13 @@ import { BacklinksContent } from './BacklinksContent'
 import { RelatedContent } from './RelatedContent'
 import { SearchContent } from './SearchContent'
 
-import { 
-  ChartPie, 
-  Group, 
-  KanbanIcon, 
-  LogIn, 
-  Mailbox, 
-  ShoppingBag, 
+import {
+  ChartPie,
+  Group,
+  KanbanIcon,
+  LogIn,
+  Mailbox,
+  ShoppingBag,
   Signature,
   FolderTree,
   Link,
@@ -24,37 +24,12 @@ import {
 } from 'lucide-solid'
 import { Tag } from '../common/Tag'
 import { Badge } from '../common/Badge'
+import FileTree from './FileTree'
 
 interface SidebarProps {
   isOpen: boolean
 }
 
-function FileTree() {
-  return (
-    <>
-      <ul class="space-y-2 font-medium">
-        <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
-        <SidebarItem icon={Mailbox} href="#" label="Inbox" />
-        <SidebarItemWithElement
-          icon={KanbanIcon}
-          href="#"
-          label="Kanban"
-          element={<Tag text="pro" />}
-        />
-        <SidebarItemWithElement
-          icon={Mailbox}
-          href="#"
-          label="Inbox"
-          element={<Badge text="3" />}
-        />
-        <SidebarItem icon={Group} href="#" label="Users" />
-        <SidebarItem icon={ShoppingBag} href="#" label="Products" />
-        <SidebarItem icon={LogIn} href="#" label="Log In" />
-        <SidebarItem icon={Signature} href="#" label="Sign Up" />
-      </ul>
-    </>
-  )
-}
 
 export function Sidebar(props: SidebarProps) {
   // Required because of the Button
@@ -93,7 +68,7 @@ export function Sidebar(props: SidebarProps) {
               </Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="note_tree">
-              <FileTree />
+            <FileTree/>
             </Tabs.Content>
             <Tabs.Content value="links">
               <BacklinksContent />
