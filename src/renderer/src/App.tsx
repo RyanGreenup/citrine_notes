@@ -235,8 +235,8 @@ const DummyContent: Component = () => {
     <>
       <Navbar toggleSidebar={toggleSidebar} />
       <Sidebar isOpen={sidebarOpen()} />
-      <div class="p-4 sm:ml-64 mt-16">
-      <h1>hello</h1>
+      <div class="p-4 sm:ml-64 mt-16 bg-white dark:bg-gray-900 min-h-screen">
+      <h1 class="text-gray-900 dark:text-white">hello</h1>
       </div>
     </>
   )

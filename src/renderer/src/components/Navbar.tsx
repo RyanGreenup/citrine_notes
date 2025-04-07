@@ -12,6 +12,7 @@ export const Navbar: Component<NavbarProps> = (props) => {
   // Color scheme
   const BG_COLOR = "bg-white dark:bg-gray-800"
   const BORDER_COLOR = "border-gray-200 dark:border-gray-700"
+  const TEXT_COLOR = "text-gray-900 dark:text-white"
 
   return (
     <nav class={`fixed top-0 z-50 w-full ${NAVBAR_HEIGHT} ${BG_COLOR} border-b ${BORDER_COLOR}`}>

@@ -54,11 +54,11 @@ const NoteList = () => {
   })
 
   return (
-    <div class="mt-6 p-4 bg-white rounded shadow">
+    <div class="mt-6 p-4 bg-white dark:bg-gray-800 rounded shadow">
       <h2 class="text-xl font-semibold mb-4">Notes List (First 10)</h2>
 
       <Show when={loading()}>
-        <p class="text-gray-500">Loading notes...</p>
+        <p class="text-gray-500 dark:text-gray-400">Loading notes...</p>
       </Show>
 
       <Show when={error()}>
@@ -76,10 +76,10 @@ const NoteList = () => {
       </Show>
 
       <Show when={!loading() && !error() && notes().length === 0}>
-        <p class="text-gray-500">No notes found in database.</p>
+        <p class="text-gray-500 dark:text-gray-400">No notes found in database.</p>
         <Show when={dbStatus().path}>
-          <p class="text-sm text-gray-400 mt-1">
-            Database path: <code class="bg-gray-100 px-1 py-0.5 rounded">{dbStatus().path}</code>
+          <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
+            Database path: <code class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">{dbStatus().path}</code>
           </p>
         </Show>
       </Show>
@@ -87,10 +87,10 @@ const NoteList = () => {
       <ul class="space-y-2">
         <For each={notes()}>
           {(note) => (
-            <li class="p-3 border border-gray-200 rounded hover:bg-gray-50">
-              <h3 class="font-medium">{note.title} </h3>
-              <p class="text-sm text-gray-600 truncate">{note.title}</p>
-              <div class="text-xs text-gray-400 mt-1">
+            <li class="p-3 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800">
+              <h3 class="font-medium text-gray-900 dark:text-white">{note.title} </h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 truncate">{note.title}</p>
+              <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">
                 Last updated: {new Date(note.user_updated_time).toLocaleString()}
                 <br />
                 {note.body.length > 80 ? note.body.substring(0, 80) + '...' : note.body}
