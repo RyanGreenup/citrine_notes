@@ -1609,6 +1609,36 @@ export class DatabaseService {
     }
   }
 
+  /**
+   * Gets all notes that link to a specific note (backlinks)
+   * @param noteId The ID of the note to find backlinks for
+   * @returns Array of notes that contain references to the specified note
+   */
+  public getBacklinks(noteId: string): Note[] {
+    try {
+      // Check if the note exists
+      const note = this.getNoteById(noteId)
+      if (!note) {
+        console.error(`Cannot get backlinks: Note with ID ${noteId} not found`)
+        return []
+      }
+
+      // Find all notes that contain the noteId in their body
+      // This uses a simple LIKE query to find the ID in the body text
+      const stmt = this.db.prepare(`
+        SELECT id, title, body, parent_id, user_created_time, user_updated_time
+        FROM notes
+        WHERE body LIKE ? AND id != ?
+      `)
+
+      // Use % wildcards to find the ID anywhere in the body text
+      return stmt.all(`%${noteId}%`, noteId) as Note[]
+    } catch (error) {
+      console.error(`Error fetching backlinks for note with ID ${noteId}:`, error)
+      return []
+    }
+  }
+
   // Update ///////////////////////////////////////////////////////////////////
 
   // Not implemented, just use Create and delete accordingly
