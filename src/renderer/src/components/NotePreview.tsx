@@ -8,6 +8,7 @@ import markedAlert from 'marked-alert'
 import { createDirectives } from 'marked-directive'
 import markedExtendedTables from 'marked-extended-tables'
 import markedCodePreview from 'marked-code-preview'
+import markedLinkifyIt from 'marked-linkify-it'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github-dark.css'
 import 'katex/dist/katex.min.css'
@@ -319,7 +320,7 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
   </figure>
   `;
 
-  // Create a marked instance with the highlight plugin, KaTeX extension, footnotes, alerts, directives, extended tables, and code preview
+  // Create a marked instance with the highlight plugin, KaTeX extension, footnotes, alerts, directives, extended tables, code preview, and linkify-it
   const markedInstance = new Marked(
     markedHighlight({
       langPrefix: 'hljs language-',
@@ -338,7 +339,8 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
     markedAlert(),
     createDirectives(),
     markedExtendedTables(),
-    markedCodePreview({ template: customTemplate })
+    markedCodePreview({ template: customTemplate }),
+    markedLinkifyIt() // Auto-link URLs in plain text
   );
 
   // Memoize the parsed markdown to avoid unnecessary re-rendering
