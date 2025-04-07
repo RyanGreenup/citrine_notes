@@ -43,15 +43,15 @@ export function SearchContent() {
       <div class="px-3 pt-3">
         <SearchInput onSearch={handleSearch} />
       </div>
-      
+
       <Show when={hasSearched()}>
         <div class="px-3">
           <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2">
-            {searchResults().length > 0 
-              ? `Results for "${searchQuery()}" (${searchResults().length})` 
+            {searchResults().length > 0
+              ? `Results for "${searchQuery()}" (${searchResults().length})`
               : `No results for "${searchQuery()}"`}
           </h3>
-          
+
           <div class="max-h-[calc(100vh-200px)] overflow-y-auto">
             <Show when={searchResults().length > 0}>
               <TreeView.Root collection={getCollection()} lazyMount={true}>
@@ -80,12 +80,12 @@ export function SearchContent() {
           </div>
         </div>
       </Show>
-      
+
       <Show when={!hasSearched()}>
         <div class="px-3 pt-2">
           <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2">Quick Access</h3>
         </div>
-        <ul class={unordered_list_with_top_line}>
+        <ul>
           <SidebarItem icon={BookIcon} href="#" label="Recent Notes" />
           <SidebarItem icon={PanelLeft} href="#" label="Knowledge Base" />
           <SidebarItem icon={FlameIcon} href="#" label="Bookmarked Pages" />
