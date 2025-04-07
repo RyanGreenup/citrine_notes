@@ -234,6 +234,11 @@ app.whenReady().then(() => {
       return databaseService!.searchNotes(query, limit)
     })
     
+    // Get backlinks for a note
+    ipcMain.handle('db:notes:getBacklinks', (_event, noteId: string): Note[] => {
+      return databaseService!.getBacklinks(noteId)
+    })
+    
     // Update _________________________________________________________________
 
     ipcMain.handle(
