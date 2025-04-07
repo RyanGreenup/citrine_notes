@@ -161,35 +161,48 @@ export const NoteEditor: Component = () => {
       </Show>
 
       <Show when={!loading() && !error()}>
-        <div class={theme.editor.controls}>
-          <button onClick={equalSplit} class={theme.editor.controlButton} title="Equal split">
-            <Columns size={16} />
-          </button>
-          <button
-            onClick={toggleMaximized}
-            class={theme.editor.controlButton}
-            title={isEditorMaximized() ? 'Maximize preview' : 'Maximize editor'}
-          >
-            {isEditorMaximized() ? <AlignCenter size={16} /> : <Maximize2 size={16} />}
-          </button>
-          <button
-            onClick={toggleVim}
-            class={`${theme.editor.controlButton} ${isVimEnabled() ? theme.editor.controlButtonActive : ''}`}
-            title="Toggle Vim mode"
-          >
-            <Terminal size={16} />
-          </button>
-          <button
-            onClick={saveContentButton}
-            class={theme.editor.controlButton}
-            title="Save content"
-          >
-            <Save size={16} />
-          </button>
+        <div class={`${theme.editor.controls} flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b ${theme.border.light} ${theme.border.dark} shadow-sm`}>
+          <div class="flex items-center">
+            <Show when={currentNote()}>
+              <h2 class="text-lg font-medium text-gray-800 dark:text-gray-200 mr-4">
+                {currentNote()?.title}
+              </h2>
+            </Show>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button 
+              onClick={equalSplit} 
+              class={`${theme.editor.controlButton} rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 ${animations.transition.fast}`} 
+              title="Equal split"
+            >
+              <Columns size={16} />
+            </button>
+            <button
+              onClick={toggleMaximized}
+              class={`${theme.editor.controlButton} rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 ${animations.transition.fast}`}
+              title={isEditorMaximized() ? 'Maximize preview' : 'Maximize editor'}
+            >
+              {isEditorMaximized() ? <AlignCenter size={16} /> : <Maximize2 size={16} />}
+            </button>
+            <button
+              onClick={toggleVim}
+              class={`${theme.editor.controlButton} rounded-md ${isVimEnabled() ? 'bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200' : 'hover:bg-gray-100 dark:hover:bg-gray-700'} ${animations.transition.fast}`}
+              title="Toggle Vim mode"
+            >
+              <Terminal size={16} />
+            </button>
+            <button
+              onClick={saveContentButton}
+              class={`${theme.editor.controlButton} rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 ${animations.transition.fast}`}
+              title="Save content"
+            >
+              <Save size={16} />
+            </button>
+          </div>
         </div>
         <Splitter.RootProvider
           value={splitter}
-          class={`flex-grow h-full overflow-hidden rounded-md shadow-sm border ${theme.border.light} ${theme.border.dark} ${animations.transition.normal}`}
+          class={`flex-grow h-full overflow-hidden rounded-b-md shadow-sm border-x border-b ${theme.border.light} ${theme.border.dark} ${animations.transition.normal}`}
         >
           <Splitter.Panel
             id="editor"
