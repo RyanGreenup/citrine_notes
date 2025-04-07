@@ -8,15 +8,7 @@ import { BacklinksContent } from './BacklinksContent'
 import { RelatedContent } from './RelatedContent'
 import { SearchContent } from './SearchContent'
 
-import {
-  ChartPie,
-  Group,
-  KanbanIcon,
-  LogIn,
-  Mailbox,
-  ShoppingBag,
-  Signature
-} from 'lucide-solid'
+import { ChartPie, Group, KanbanIcon, LogIn, Mailbox, ShoppingBag, Signature } from 'lucide-solid'
 import { Tag } from '../common/Tag'
 import { Badge } from '../common/Badge'
 
@@ -57,7 +49,6 @@ export function Sidebar(props: SidebarProps) {
     initFlowbite()
   })
 
-
   return (
     <>
       <aside
@@ -72,14 +63,18 @@ export function Sidebar(props: SidebarProps) {
         >
           <Tabs.Root>
             <Tabs.List>
+              <Tabs.Trigger value="note_tree">Tree</Tabs.Trigger>
               <Tabs.Trigger value="links">Links</Tabs.Trigger>
               <Tabs.Trigger value="backlinks">Backlinks</Tabs.Trigger>
               <Tabs.Trigger value="related">Related Pages</Tabs.Trigger>
               <Tabs.Trigger value="search">Search</Tabs.Trigger>
               <Tabs.Indicator />
             </Tabs.List>
-            <Tabs.Content value="links">
+            <Tabs.Content value="note_tree">
               <FileTree />
+            </Tabs.Content>
+            <Tabs.Content value="links">
+              <BacklinksContent />
             </Tabs.Content>
             <Tabs.Content value="backlinks">
               <BacklinksContent />
