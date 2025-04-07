@@ -2,6 +2,7 @@ import type { Component } from 'solid-js'
 import { SidebarToggleButton } from './navbar/SidebarToggleButton'
 import { AppLogo } from './navbar/AppLogo'
 import { NavbarActions } from './navbar/NavbarActions'
+import { ZoomControls } from './navbar/ZoomControls'
 import { NAVBAR_HEIGHT } from '../constants/layout'
 
 interface NavbarProps {
@@ -22,7 +23,10 @@ export const Navbar: Component<NavbarProps> = (props) => {
             <SidebarToggleButton onClick={props.toggleSidebar} />
             <AppLogo />
           </div>
-          <NavbarActions />
+          <div class="flex items-center space-x-3">
+            <ZoomControls />
+            <NavbarActions />
+          </div>
         </div>
       </div>
     </nav>

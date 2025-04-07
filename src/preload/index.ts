@@ -10,6 +10,13 @@ interface Note {
   user_updated_time: number;
 }
 
+interface ZoomAPI {
+  zoomIn: () => Promise<number>;
+  zoomOut: () => Promise<number>;
+  resetZoom: () => Promise<number>;
+  getZoomFactor: () => Promise<number>;
+}
+
 interface DatabaseAPI {
   getAllNotes: () => Promise<Note[]>;
   getNoteById: (id: string) => Promise<Note | null>;
@@ -27,7 +34,13 @@ const api = {
     createNote: (title: string, body: string): Promise<Note | null> => ipcRenderer.invoke('db:createNote', title, body),
     updateNote: (id: string, title: string, body: string): Promise<Note | null> => 
       ipcRenderer.invoke('db:updateNote', id, title, body)
-  } as DatabaseAPI
+  } as DatabaseAPI,
+  zoom: {
+    zoomIn: (): Promise<number> => ipcRenderer.invoke('zoom:in'),
+    zoomOut: (): Promise<number> => ipcRenderer.invoke('zoom:out'),
+    resetZoom: (): Promise<number> => ipcRenderer.invoke('zoom:reset'),
+    getZoomFactor: (): Promise<number> => ipcRenderer.invoke('zoom:get')
+  } as ZoomAPI
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

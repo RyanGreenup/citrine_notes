@@ -77,6 +77,31 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
   
+  // Handle zoom level changes
+  ipcMain.handle('zoom:in', (event) => {
+    const webContents = event.sender
+    const currentZoom = webContents.getZoomFactor()
+    webContents.setZoomFactor(Math.min(currentZoom + 0.1, 3.0))
+    return webContents.getZoomFactor()
+  })
+
+  ipcMain.handle('zoom:out', (event) => {
+    const webContents = event.sender
+    const currentZoom = webContents.getZoomFactor()
+    webContents.setZoomFactor(Math.max(currentZoom - 0.1, 0.5))
+    return webContents.getZoomFactor()
+  })
+
+  ipcMain.handle('zoom:reset', (event) => {
+    const webContents = event.sender
+    webContents.setZoomFactor(1.0)
+    return 1.0
+  })
+
+  ipcMain.handle('zoom:get', (event) => {
+    return event.sender.getZoomFactor()
+  })
+  
   // Handle file selection for resource upload
   ipcMain.handle('dialog:openFile', async () => {
     const { dialog } = require('electron')
