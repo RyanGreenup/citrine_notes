@@ -47,7 +47,7 @@ export function SearchContent() {
     
     try {
       // Call the database API to search notes
-      const notes = await window.api.database.searchNotes(query)
+      const notes = await window.database.searchNotes(query)
       
       // Transform the notes to include a content field (using body as content)
       const formattedResults: SearchNote[] = notes.map((note: any) => ({
