@@ -1,6 +1,6 @@
 import { Splitter, useSplitter } from '@ark-ui/solid/splitter'
 import { Component, createSignal, createEffect } from 'solid-js'
-import { theme } from '../theme'
+import { theme, animations } from '../theme'
 import { Maximize2, AlignCenter, Columns, Terminal, Save } from 'lucide-solid'
 import { TextEditor } from './TextEditor'
 import { NotePreview } from './NotePreview'
@@ -144,18 +144,18 @@ $$`
           <Save size={16} />
         </button>
       </div>
-      <Splitter.RootProvider value={splitter} class="flex-grow h-full overflow-hidden rounded-md shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out">
-        <Splitter.Panel id="editor" class="h-full overflow-hidden transition-all duration-300 ease-in-out">
+      <Splitter.RootProvider value={splitter} class={`flex-grow h-full overflow-hidden rounded-md shadow-sm border ${theme.border.light} ${theme.border.dark} ${animations.transition.normal}`}>
+        <Splitter.Panel id="editor" class={`h-full overflow-hidden ${animations.transition.normal}`}>
           <TextEditor initialContent={content()} onContentChange={handleContentChange} />
         </Splitter.Panel>
         <Splitter.ResizeTrigger
           id="editor:preview"
           aria-label="Resize"
-          class="flex items-center justify-center w-2 cursor-col-resize hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 ease-in-out"
+          class={`flex items-center justify-center w-2 cursor-col-resize hover:bg-gray-200 dark:hover:bg-gray-700 ${animations.transition.fast}`}
         >
-          <div class="w-[3px] h-16 rounded-full bg-gray-300 dark:bg-gray-600 hover:bg-blue-400 dark:hover:bg-blue-500 transition-colors duration-200"></div>
+          <div class={`w-[3px] h-16 rounded-full bg-gray-300 dark:bg-gray-600 hover:bg-blue-400 dark:hover:bg-blue-500 ${animations.transition.fast}`}></div>
         </Splitter.ResizeTrigger>
-        <Splitter.Panel id="preview" class="h-full overflow-auto bg-white dark:bg-gray-800 transition-all duration-300 ease-in-out">
+        <Splitter.Panel id="preview" class={`h-full overflow-auto bg-white dark:bg-gray-800 ${animations.transition.normal}`}>
           <NotePreview content={content()} />
         </Splitter.Panel>
       </Splitter.RootProvider>

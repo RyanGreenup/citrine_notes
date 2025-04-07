@@ -94,6 +94,15 @@ export const shadows = {
   xl: 'var(--shadow-xl)',
 }
 
+// Animations
+export const animations = {
+  transition: {
+    fast: 'transition-all duration-150 ease-in-out',
+    normal: 'transition-all duration-300 ease-in-out',
+    slow: 'transition-all duration-500 ease-in-out',
+  }
+}
+
 // Tailwind CSS class mappings for common use cases
 export const theme = {
   // Background colors
@@ -138,19 +147,19 @@ export const theme = {
   // Editor
   editor: {
     container: 'w-full flex flex-col flex-1',
-    splitter: 'h-full flex-1',
+    splitter: 'h-full flex-1 transition-all duration-300 ease-in-out',
     controls: 'flex items-center justify-end gap-2 p-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700',
     controlButton: 'p-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500',
     controlButtonActive: 'bg-gray-700 text-white dark:bg-blue-600 dark:text-white',
     panel: {
-      base: 'h-full overflow-auto flex-grow',
+      base: 'h-full overflow-auto flex-grow transition-all duration-300 ease-in-out',
       textarea: 'w-full h-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100',
       preview: 'w-full h-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md',
       content: 'prose dark:prose-invert max-w-none text-gray-900 dark:text-gray-100'
     },
     resizeTrigger: {
-      base: 'w-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-col-resize flex items-center justify-center',
-      handle: 'w-1 h-8 bg-gray-400 dark:bg-gray-500 rounded'
+      base: 'w-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-col-resize flex items-center justify-center transition-colors duration-200 ease-in-out',
+      handle: 'w-1 h-8 bg-gray-400 dark:bg-gray-500 rounded hover:bg-blue-400 dark:hover:bg-blue-500 transition-colors duration-200'
     }
   },
 
