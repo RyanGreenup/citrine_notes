@@ -224,19 +224,19 @@ function SidebarIcon({ icon: Icon }: { icon: LucideIcon }): JSXElement {
 
 const DummyContent: Component = () => {
   const [sidebarOpen, setSidebarOpen] = createSignal(false)
-  
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen())
   }
-  
+
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-  
+
   return (
     <>
       <Navbar toggleSidebar={toggleSidebar} />
       <Sidebar isOpen={sidebarOpen()} />
       <div class="p-4 sm:ml-64 mt-16">
-        <FillerContent />
+      <h1>hello</h1>
       </div>
     </>
   )
