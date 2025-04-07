@@ -7,6 +7,7 @@ import markedFootnote from 'marked-footnote'
 import markedAlert from 'marked-alert'
 import { createDirectives } from 'marked-directive'
 import markedExtendedTables from 'marked-extended-tables'
+import markedCodePreview from 'marked-code-preview'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github-dark.css'
 import 'katex/dist/katex.min.css'
@@ -226,6 +227,42 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
         border-color: #334155;
       }
       
+      /* Code preview styles */
+      .code-preview {
+        margin: 1.5rem 0;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        overflow: hidden;
+      }
+      
+      .dark .code-preview {
+        border-color: #334155;
+      }
+      
+      .code-preview .preview-container {
+        padding: 1rem;
+        background-color: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      
+      .dark .code-preview .preview-container {
+        background-color: #1e293b;
+        border-color: #334155;
+      }
+      
+      .code-preview figcaption {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        background-color: #f8fafc;
+        color: #475569;
+      }
+      
+      .dark .code-preview figcaption {
+        background-color: #0f172a;
+        color: #94a3b8;
+      }
+      
       .directive-tabs {
         border: 1px solid #e2e8f0;
         border-radius: 0.375rem;
@@ -272,7 +309,17 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
     `);
   });
 
-  // Create a marked instance with the highlight plugin, KaTeX extension, footnotes, alerts, directives, and extended tables
+  // Custom template for code previews
+  const customTemplate = `
+  <figure class="code-preview">
+    <div class="preview-container">
+      {preview}
+    </div>
+    <figcaption>{title}</figcaption>
+  </figure>
+  `;
+
+  // Create a marked instance with the highlight plugin, KaTeX extension, footnotes, alerts, directives, extended tables, and code preview
   const markedInstance = new Marked(
     markedHighlight({
       langPrefix: 'hljs language-',
@@ -290,7 +337,8 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
     markedFootnote(),
     markedAlert(),
     createDirectives(),
-    markedExtendedTables()
+    markedExtendedTables(),
+    markedCodePreview({ template: customTemplate })
   );
 
   // Memoize the parsed markdown to avoid unnecessary re-rendering
