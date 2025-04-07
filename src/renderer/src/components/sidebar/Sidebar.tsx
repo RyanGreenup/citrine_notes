@@ -4,17 +4,16 @@ import { theme } from '@renderer/theme'
 import { initFlowbite } from 'flowbite'
 import { onMount } from 'solid-js'
 import { SidebarItem, SidebarItemWithElement } from './SidebarItem'
+import { BacklinksContent } from './BacklinksContent'
+import { RelatedContent } from './RelatedContent'
+import { SearchContent } from './SearchContent'
 
 import {
-  BookIcon,
   ChartPie,
-  Compass,
-  FlameIcon,
   Group,
   KanbanIcon,
   LogIn,
   Mailbox,
-  PanelLeft,
   ShoppingBag,
   Signature
 } from 'lucide-solid'
@@ -58,10 +57,6 @@ export function Sidebar(props: SidebarProps) {
     initFlowbite()
   })
 
-  /**
-   * Draw a line above an unordered list but not between items. Draws a line between two lists to separate them
-   */
-  let unordered_list_with_top_line = `pt-4 mt-4 space-y-2 font-medium border-t ${theme.border.light} ${theme.border.dark}`
 
   return (
     <>
@@ -87,28 +82,13 @@ export function Sidebar(props: SidebarProps) {
               <FileTree />
             </Tabs.Content>
             <Tabs.Content value="backlinks">
-              <ul class={unordered_list_with_top_line}>
-                <SidebarItem icon={FlameIcon} href="#" label="Upgrade to Pro" />
-                <SidebarItem icon={BookIcon} href="#" label="Documentation" />
-                <SidebarItem icon={PanelLeft} href="#" label="Components" />
-                <SidebarItem icon={Compass} href="#" label="Help" />
-              </ul>
+              <BacklinksContent />
             </Tabs.Content>
             <Tabs.Content value="related">
-              <ul class={unordered_list_with_top_line}>
-                <SidebarItem icon={FlameIcon} href="#" label="Upgrade to Pro" />
-                <SidebarItem icon={BookIcon} href="#" label="Documentation" />
-                <SidebarItem icon={PanelLeft} href="#" label="Components" />
-                <SidebarItem icon={Compass} href="#" label="Help" />
-              </ul>
+              <RelatedContent />
             </Tabs.Content>
             <Tabs.Content value="search">
-              <ul class={unordered_list_with_top_line}>
-                <SidebarItem icon={FlameIcon} href="#" label="Upgrade to Pro" />
-                <SidebarItem icon={BookIcon} href="#" label="Documentation" />
-                <SidebarItem icon={PanelLeft} href="#" label="Components" />
-                <SidebarItem icon={Compass} href="#" label="Help" />
-              </ul>
+              <SearchContent />
             </Tabs.Content>
           </Tabs.Root>
         </div>
