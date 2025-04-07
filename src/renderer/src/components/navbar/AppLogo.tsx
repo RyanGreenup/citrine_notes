@@ -4,7 +4,6 @@ import { onCleanup, onMount, createSignal } from 'solid-js'
 /**
  * This simply returns the date and time as it's convenient for users.
  */
-// Use 24 hour time always AI!
 const getCurrentDateTime = (): string => {
   const now = new Date()
   const options: Intl.DateTimeFormatOptions = {
@@ -12,7 +11,8 @@ const getCurrentDateTime = (): string => {
     day: 'numeric',
     month: 'long',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
+    hour12: false
   }
   return now.toLocaleDateString(undefined, options)
 }
