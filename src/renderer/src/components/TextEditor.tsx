@@ -49,7 +49,7 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
   return (
     <div 
       ref={editorRef} 
-      class={`${theme.editor.panel.textarea} h-full w-full`}
+      class={`h-full w-full`}
     />
   )
 }
