@@ -1575,6 +1575,22 @@ export class DatabaseService {
   }
 
   /**
+   * Gets the home note (most recently updated note with title "Homepage")
+   * @returns The home note or null if not found
+   */
+  public getHomeNote(): Note | null {
+    try {
+      const stmt = this.db.prepare(
+        'SELECT id, title, body, parent_id, user_created_time, user_updated_time FROM notes WHERE title = ? ORDER BY user_updated_time DESC LIMIT 1'
+      )
+      return (stmt.get('Homepage') as Note) || null
+    } catch (error) {
+      console.error('Error fetching home note:', error)
+      return null
+    }
+  }
+
+  /**
    * Gets all notes that a specific note links to (forward links)
    * @param noteId The ID of the note to find forward links from
    * @returns Array of notes that are referenced by the specified note
