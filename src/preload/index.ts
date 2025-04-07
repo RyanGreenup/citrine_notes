@@ -32,7 +32,8 @@ interface DatabaseAPI {
 const api = {
   database: {
     getAllNotes: (): Promise<Note[]> => ipcRenderer.invoke('db:getAllNotes'),
-    getNoteById: (id: string): Promise<Note | null> => ipcRenderer.invoke('db:getNoteById', id),
+    getNoteById: (id: string): Promise<Note | null> =>
+      ipcRenderer.invoke('db:notes:getNoteById', id),
     getNoteBodyById: (id: string): Promise<string | null> =>
       ipcRenderer.invoke('db:notes:getNoteBodyById', id),
     getStatus: (): Promise<{ connected: boolean; path: string | null }> =>
@@ -45,8 +46,7 @@ const api = {
       ipcRenderer.invoke('db:searchNotes', query, limit),
     getBacklinks: (noteId: string): Promise<Note[]> =>
       ipcRenderer.invoke('db:notes:getBacklinks', noteId),
-    getHomeNote: (): Promise<Note | null> =>
-      ipcRenderer.invoke('db:notes:getHomeNote')
+    getHomeNote: (): Promise<Note | null> => ipcRenderer.invoke('db:notes:getHomeNote')
   } as DatabaseAPI,
   zoom: {
     zoomIn: (): Promise<number> => ipcRenderer.invoke('zoom:in'),

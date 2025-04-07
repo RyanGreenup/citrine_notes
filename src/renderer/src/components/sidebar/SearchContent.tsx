@@ -38,24 +38,24 @@ export function SearchContent() {
     setIsSearching(true)
     setHasSearched(query.trim() !== '')
     setSelectedNoteId(null)
-    
+
     if (!query.trim()) {
       setSearchResults([])
       setIsSearching(false)
       return
     }
-    
+
     try {
-      // Call the database API to search notes using the correct IPC channel
-      const notes = await window.api.ipcRenderer.invoke('db:searchNotes', query)
-      
+      // Call the database API to search notes
+      const notes = await window.api.database.searchNotes(query)
+
       // Transform the notes to include a content field (using body as content)
       const formattedResults: SearchNote[] = notes.map((note: any) => ({
         id: note.id,
         title: note.title,
         content: note.body
       }))
-      
+
       setSearchResults(formattedResults)
     } catch (error) {
       console.error('Error searching notes:', error)
@@ -79,7 +79,7 @@ export function SearchContent() {
       <Show when={hasSearched()}>
         <div class={theme.sidebar.search.resultsContainer}>
           <h3 class={theme.sidebar.search.resultsHeading}>
-            {isSearching() 
+            {isSearching()
               ? `Searching for "${searchQuery()}"...`
               : searchResults().length > 0
                 ? `Results for "${searchQuery()}" (${searchResults().length})`
