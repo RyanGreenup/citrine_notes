@@ -98,18 +98,18 @@ export const NoteEditor: Component = () => {
           <Save size={16} />
         </button>
       </div>
-      <Splitter.RootProvider value={splitter} class="flex-grow h-full">
-        <Splitter.Panel id="editor" class={theme.editor.panel.base}>
+      <Splitter.RootProvider value={splitter} class="flex-grow h-full overflow-hidden rounded-md shadow-sm border border-gray-200 dark:border-gray-700">
+        <Splitter.Panel id="editor" class="h-full overflow-hidden">
           <TextEditor initialContent={content()} onContentChange={handleContentChange} />
         </Splitter.Panel>
         <Splitter.ResizeTrigger
           id="editor:preview"
           aria-label="Resize"
-          class={theme.editor.resizeTrigger.base}
+          class="flex items-center justify-center w-2 cursor-col-resize hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 ease-in-out"
         >
-          <div class={theme.editor.resizeTrigger.handle}></div>
+          <div class="w-[3px] h-16 rounded-full bg-gray-300 dark:bg-gray-600 hover:bg-blue-400 dark:hover:bg-blue-500 transition-colors duration-200"></div>
         </Splitter.ResizeTrigger>
-        <Splitter.Panel id="preview" class={theme.editor.panel.base}>
+        <Splitter.Panel id="preview" class="h-full overflow-auto bg-white dark:bg-gray-800">
           <NotePreview content={content()} />
         </Splitter.Panel>
       </Splitter.RootProvider>
