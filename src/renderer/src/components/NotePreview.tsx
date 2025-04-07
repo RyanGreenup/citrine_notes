@@ -6,6 +6,7 @@ import markedKatex from 'marked-katex-extension'
 import markedFootnote from 'marked-footnote'
 import markedAlert from 'marked-alert'
 import { createDirectives } from 'marked-directive'
+import markedExtendedTables from 'marked-extended-tables'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github-dark.css'
 import 'katex/dist/katex.min.css'
@@ -271,7 +272,7 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
     `);
   });
 
-  // Create a marked instance with the highlight plugin, KaTeX extension, footnotes, alerts, and directives
+  // Create a marked instance with the highlight plugin, KaTeX extension, footnotes, alerts, directives, and extended tables
   const markedInstance = new Marked(
     markedHighlight({
       langPrefix: 'hljs language-',
@@ -288,7 +289,8 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
     }),
     markedFootnote(),
     markedAlert(),
-    createDirectives()
+    createDirectives(),
+    markedExtendedTables()
   );
 
   // Memoize the parsed markdown to avoid unnecessary re-rendering
