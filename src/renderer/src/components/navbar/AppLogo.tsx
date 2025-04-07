@@ -1,5 +1,4 @@
 
-// Not all of thesse should be type AI!
 import type { Component, onCleanup, onMount, createSignal } from 'solid-js'
 
 /**
