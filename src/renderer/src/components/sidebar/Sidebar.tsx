@@ -1,4 +1,5 @@
 import { SIDEBAR_TOP_PADDING } from '@renderer/constants/layout'
+import { Tabs } from '@ark-ui/solid/tabs'
 import { theme } from '@renderer/theme'
 import { initFlowbite } from 'flowbite'
 import { onMount } from 'solid-js'
@@ -47,32 +48,61 @@ export function Sidebar(props: SidebarProps) {
         <div
           class={`h-full px-3 py-4 overflow-y-auto ${theme.bg.light} ${theme.bg.dark} ${SIDEBAR_TOP_PADDING}`}
         >
-          <ul class="space-y-2 font-medium">
-            <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
-            <SidebarItem icon={Mailbox} href="#" label="Inbox" />
-            <SidebarItemWithElement
-              icon={KanbanIcon}
-              href="#"
-              label="Kanban"
-              element={<Tag text="pro" />}
-            />
-            <SidebarItemWithElement
-              icon={Mailbox}
-              href="#"
-              label="Inbox"
-              element={<Badge text="3" />}
-            />
-            <SidebarItem icon={Group} href="#" label="Users" />
-            <SidebarItem icon={ShoppingBag} href="#" label="Products" />
-            <SidebarItem icon={LogIn} href="#" label="Log In" />
-            <SidebarItem icon={Signature} href="#" label="Sign Up" />
-          </ul>
-          <ul class={unordered_list_with_top_line}>
-            <SidebarItem icon={FlameIcon} href="#" label="Upgrade to Pro" />
-            <SidebarItem icon={BookIcon} href="#" label="Documentation" />
-            <SidebarItem icon={PanelLeft} href="#" label="Components" />
-            <SidebarItem icon={Compass} href="#" label="Help" />
-          </ul>
+          <Tabs.Root>
+            <Tabs.List>
+              <Tabs.Trigger value="links">Links</Tabs.Trigger>
+              <Tabs.Trigger value="backlinks">Backlinks</Tabs.Trigger>
+              <Tabs.Trigger value="related">Related Pages</Tabs.Trigger>
+              <Tabs.Trigger value="search">Search</Tabs.Trigger>
+              <Tabs.Indicator />
+            </Tabs.List>
+            <Tabs.Content value="links">
+              <ul class="space-y-2 font-medium">
+                <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
+                <SidebarItem icon={Mailbox} href="#" label="Inbox" />
+                <SidebarItemWithElement
+                  icon={KanbanIcon}
+                  href="#"
+                  label="Kanban"
+                  element={<Tag text="pro" />}
+                />
+                <SidebarItemWithElement
+                  icon={Mailbox}
+                  href="#"
+                  label="Inbox"
+                  element={<Badge text="3" />}
+                />
+                <SidebarItem icon={Group} href="#" label="Users" />
+                <SidebarItem icon={ShoppingBag} href="#" label="Products" />
+                <SidebarItem icon={LogIn} href="#" label="Log In" />
+                <SidebarItem icon={Signature} href="#" label="Sign Up" />
+              </ul>
+            </Tabs.Content>
+            <Tabs.Content value="backlinks">
+              <ul class={unordered_list_with_top_line}>
+                <SidebarItem icon={FlameIcon} href="#" label="Upgrade to Pro" />
+                <SidebarItem icon={BookIcon} href="#" label="Documentation" />
+                <SidebarItem icon={PanelLeft} href="#" label="Components" />
+                <SidebarItem icon={Compass} href="#" label="Help" />
+              </ul>
+            </Tabs.Content>
+            <Tabs.Content value="related">
+              <ul class={unordered_list_with_top_line}>
+                <SidebarItem icon={FlameIcon} href="#" label="Upgrade to Pro" />
+                <SidebarItem icon={BookIcon} href="#" label="Documentation" />
+                <SidebarItem icon={PanelLeft} href="#" label="Components" />
+                <SidebarItem icon={Compass} href="#" label="Help" />
+              </ul>
+            </Tabs.Content>
+            <Tabs.Content value="search">
+              <ul class={unordered_list_with_top_line}>
+                <SidebarItem icon={FlameIcon} href="#" label="Upgrade to Pro" />
+                <SidebarItem icon={BookIcon} href="#" label="Documentation" />
+                <SidebarItem icon={PanelLeft} href="#" label="Components" />
+                <SidebarItem icon={Compass} href="#" label="Help" />
+              </ul>
+            </Tabs.Content>
+          </Tabs.Root>
         </div>
       </aside>
     </>
