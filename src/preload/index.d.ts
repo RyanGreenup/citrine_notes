@@ -1,13 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-
-interface Note {
-  id: string
-  title: string
-  body: string
-  parent_id: string
-  user_created_time: number
-  user_updated_time: number
-}
+import { Note } from '../shared/types'
 
 interface DatabaseAPI {
   getAllNotes: () => Promise<Note[]>
