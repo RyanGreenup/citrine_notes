@@ -6,11 +6,23 @@ import { createSignal, createEffect } from 'solid-js'
 // Create a signal to track the currently viewed note ID
 const [currentNoteId, setCurrentNoteId] = createSignal<string | null>(null)
 
-// Initialize from URL hash if available
-createEffect(() => {
+// Initialize from URL hash if available or load home note
+createEffect(async () => {
   const hashId = window.location.hash.replace('#', '')
-  if (hashId && hashId !== currentNoteId()) {
+  if (hashId) {
     setCurrentNoteId(hashId)
+  } else {
+    // If no hash is present, try to load the home note
+    try {
+      const homeNote = await window.electron.database.getHomeNote()
+      if (homeNote) {
+        setCurrentNoteId(homeNote.id)
+        window.location.hash = homeNote.id
+        console.log('Set default view to home note:', homeNote.title)
+      }
+    } catch (error) {
+      console.error('Failed to load home note:', error)
+    }
   }
 })
 
