@@ -88,70 +88,114 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
         margin-left: 0.25rem;
       }
       
-      /* Alert styling */
-      .alert {
+      /* GitHub-style Alert styling */
+      .markdown-alert {
         padding: 1rem;
         margin: 1rem 0;
         border-radius: 0.375rem;
         border-left-width: 4px;
+        position: relative;
       }
       
-      .alert-note {
+      .markdown-alert-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+      }
+      
+      /* Octicon placeholders - will be replaced by actual icons */
+      .octicon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+      }
+      
+      .mr-2 {
+        margin-right: 0.5rem;
+      }
+      
+      /* Note alert (blue) */
+      .markdown-alert-note {
         background-color: #e0f2fe;
         border-left-color: #0ea5e9;
         color: #0c4a6e;
       }
       
-      .alert-tip {
+      .markdown-alert-note .octicon-info::before {
+        content: "ℹ️";
+      }
+      
+      /* Tip alert (green) */
+      .markdown-alert-tip {
         background-color: #dcfce7;
         border-left-color: #22c55e;
         color: #166534;
       }
       
-      .alert-important {
+      .markdown-alert-tip .octicon-light-bulb::before {
+        content: "💡";
+      }
+      
+      /* Important alert (yellow) */
+      .markdown-alert-important {
         background-color: #fef3c7;
         border-left-color: #f59e0b;
         color: #78350f;
       }
       
-      .alert-warning {
+      .markdown-alert-important .octicon-report::before {
+        content: "📢";
+      }
+      
+      /* Warning alert (red) */
+      .markdown-alert-warning {
         background-color: #fee2e2;
         border-left-color: #ef4444;
         color: #7f1d1d;
       }
       
-      .alert-caution {
+      .markdown-alert-warning .octicon-alert::before {
+        content: "⚠️";
+      }
+      
+      /* Caution alert (pink) */
+      .markdown-alert-caution {
         background-color: #fce7f3;
         border-left-color: #ec4899;
         color: #831843;
       }
       
+      .markdown-alert-caution .octicon-stop::before {
+        content: "🛑";
+      }
+      
       /* Dark mode alert styling */
-      .dark .alert-note {
+      .dark .markdown-alert-note {
         background-color: rgba(14, 165, 233, 0.15);
         border-left-color: #0ea5e9;
         color: #e0f2fe;
       }
       
-      .dark .alert-tip {
+      .dark .markdown-alert-tip {
         background-color: rgba(34, 197, 94, 0.15);
         border-left-color: #22c55e;
         color: #dcfce7;
       }
       
-      .dark .alert-important {
+      .dark .markdown-alert-important {
         background-color: rgba(245, 158, 11, 0.15);
         border-left-color: #f59e0b;
         color: #fef3c7;
       }
       
-      .dark .alert-warning {
+      .dark .markdown-alert-warning {
         background-color: rgba(239, 68, 68, 0.15);
         border-left-color: #ef4444;
         color: #fee2e2;
       }
       
-      .dark .alert-caution {
+      .dark .markdown-alert-caution {
         background-color: rgba(236, 72, 153, 0.15);
         border-left-color: #ec4899;
         color: #fce7f3;
