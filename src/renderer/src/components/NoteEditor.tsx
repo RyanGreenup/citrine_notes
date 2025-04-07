@@ -66,6 +66,7 @@ export const NoteEditor: Component = () => {
       // Use updateNoteBody instead of updateNote since we're only changing the content
       const result = await window.api.database.updateNoteBody(
         noteId,
+        // Shouldn't this be a function given that we are using prop drilling to pass the variable around AI!
         contentToSave
       )
 
