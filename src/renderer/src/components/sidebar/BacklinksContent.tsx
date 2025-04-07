@@ -2,7 +2,7 @@ import { theme } from '@renderer/theme'
 import { TreeView, createTreeCollection } from '@ark-ui/solid/tree-view'
 import { For, createSignal, createEffect, Show } from 'solid-js'
 import { NoteListItem } from '@renderer/components/common/NoteListItem'
-import { setCurrentView } from '@renderer/utils/viewUtils'
+import { setCurrentView, getCurrentNoteId, onNoteChange } from '@renderer/utils/viewUtils'
 
 export function BacklinksContent() {
   const containerClass = `pt-4 mt-4 space-y-2 font-medium border-t ${theme.border.light} ${theme.border.dark}`
@@ -10,15 +10,10 @@ export function BacklinksContent() {
   const [backlinks, setBacklinks] = createSignal<any[]>([])
   const [loading, setLoading] = createSignal(true)
   const [error, setError] = createSignal<string | null>(null)
-  const [currentNoteId, setCurrentNoteId] = createSignal<string | null>(null)
   
-  // Listen for changes to the current note
-  createEffect(async () => {
-    // Get the current note ID from the URL or state
-    const noteId = window.location.hash.replace('#', '') || null
-    
-    if (noteId && noteId !== currentNoteId()) {
-      setCurrentNoteId(noteId)
+  // Listen for changes to the current note using the centralized view utils
+  onNoteChange(async (noteId) => {
+    if (noteId) {
       await loadBacklinks(noteId)
     }
   })
@@ -64,7 +59,7 @@ export function BacklinksContent() {
   // Handle note selection
   const handleNoteClick = (id: string) => {
     setSelectedNoteId(id)
-    setCurrentView(id)
+    setCurrentView(id) // This will update the centralized state
   }
 
   return (
