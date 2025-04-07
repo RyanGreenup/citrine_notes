@@ -58,13 +58,11 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
   onMount(() => {
     initEditor()
 
-    // Listen for theme changes
+    // Listen for theme changes via MutationObserver
     const observer = new MutationObserver(() => {
       const newIsDark = checkDarkMode()
       if (newIsDark !== isDarkMode()) {
-        // Recreate editor with new theme
-        editorView?.destroy()
-        initEditor()
+        updateEditorTheme(newIsDark);
       }
     });
     
@@ -72,11 +70,60 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
       attributes: true,
       attributeFilter: ['class']
     });
+    
+    // Also listen for the custom theme-changed event
+    const themeChangeHandler = (e: CustomEvent) => {
+      const newIsDark = e.detail.isDark;
+      if (newIsDark !== isDarkMode()) {
+        updateEditorTheme(newIsDark);
+      }
+    };
+    
+    window.addEventListener('theme-changed', themeChangeHandler as EventListener);
 
     onCleanup(() => {
-      observer.disconnect()
-    })
-  })
+      observer.disconnect();
+      window.removeEventListener('theme-changed', themeChangeHandler as EventListener);
+    });
+  });
+  
+  // Function to update the editor theme
+  const updateEditorTheme = (isDark: boolean) => {
+    if (editorView) {
+      const currentContent = editorView.state.doc.toString();
+      editorView.destroy();
+      
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        if (editorRef) {
+          const startState = EditorState.create({
+            doc: currentContent,
+            extensions: [
+              basicSetup,
+              markdown(),
+              isDark ? oneDark : [],
+              EditorView.updateListener.of(update => {
+                if (update.docChanged) {
+                  const newContent = update.state.doc.toString()
+                  setContent(newContent)
+                  if (props.onContentChange) {
+                    props.onContentChange(newContent)
+                  }
+                }
+              })
+            ]
+          });
+          
+          editorView = new EditorView({
+            state: startState,
+            parent: editorRef
+          });
+          
+          setIsDarkMode(isDark);
+        }
+      }, 10);
+    }
+  }
 
   onCleanup(() => {
     editorView?.destroy()

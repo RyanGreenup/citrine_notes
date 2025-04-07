@@ -24,10 +24,16 @@ export const ThemeToggle: Component = () => {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('color-theme', 'light');
       setIsDark(false);
+      
+      // Dispatch an event to notify other components
+      window.dispatchEvent(new CustomEvent('theme-changed', { detail: { isDark: false } }));
     } else {
       document.documentElement.classList.add('dark');
       localStorage.setItem('color-theme', 'dark');
       setIsDark(true);
+      
+      // Dispatch an event to notify other components
+      window.dispatchEvent(new CustomEvent('theme-changed', { detail: { isDark: true } }));
     }
   }
   
