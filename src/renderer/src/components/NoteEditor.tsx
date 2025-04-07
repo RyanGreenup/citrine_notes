@@ -8,7 +8,6 @@ import { getCurrentNoteId, onNoteChange } from '../utils/viewUtils'
 
 export const NoteEditor: Component = () => {
   const [content, setContent] = createSignal<string>('')
-  const [isEditorMaximized, setIsEditorMaximized] = createSignal(false)
   const [isVimEnabled, setIsVimEnabled] = createSignal(false)
   const [loading, setLoading] = createSignal(false)
   const [error, setError] = createSignal<string | null>(null)
@@ -92,15 +91,12 @@ export const NoteEditor: Component = () => {
     panels: [{ id: 'editor' }, { id: 'preview' }]
   })
 
-  const toggleMaximized = () => {
-    if (isEditorMaximized()) {
-      // Switch to preview maximized
-      splitter().setSizes([0, 100])
-    } else {
-      // Switch to editor maximized
-      splitter().setSizes([100, 0])
-    }
-    setIsEditorMaximized(!isEditorMaximized())
+  const maximizeEditor = () => {
+    splitter().setSizes([100, 0])
+  }
+
+  const maximizePreview = () => {
+    splitter().setSizes([0, 100])
   }
 
   const equalSplit = () => {
@@ -167,11 +163,18 @@ export const NoteEditor: Component = () => {
                 <Columns size={18} />
               </button>
               <button
-                onClick={toggleMaximized}
+                onClick={maximizeEditor}
                 class={`${theme.editor.header.button} text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 ${animations.transition.fast}`}
-                title={isEditorMaximized() ? 'Maximize preview' : 'Maximize editor'}
+                title="Maximize editor"
               >
-                {isEditorMaximized() ? <AlignCenter size={18} /> : <Maximize2 size={18} />}
+                <Maximize2 size={18} />
+              </button>
+              <button
+                onClick={maximizePreview}
+                class={`${theme.editor.header.button} text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 ${animations.transition.fast}`}
+                title="Maximize preview"
+              >
+                <AlignCenter size={18} />
               </button>
             </div>
 
