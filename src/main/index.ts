@@ -228,6 +228,12 @@ app.whenReady().then(() => {
     ipcMain.handle('db:note_folders:getNotesByFolderId', (_event, folderId: string): Note[] => {
       return databaseService!.getNotesByFolderId(folderId)
     })
+    
+    // Search notes
+    ipcMain.handle('db:searchNotes', (_event, query: string, limit: number = 20): Note[] => {
+      return databaseService!.searchNotes(query, limit)
+    })
+    
     // Update _________________________________________________________________
 
     ipcMain.handle(
