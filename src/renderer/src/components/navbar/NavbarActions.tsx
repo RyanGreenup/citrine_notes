@@ -8,7 +8,6 @@ export const NavbarActions: Component = () => {
       <div class="flex items-center ml-3">
         <div class="flex space-x-3">
           <ThemeToggle />
-          <NotificationButton />
         </div>
       </div>
     </div>
