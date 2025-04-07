@@ -5,6 +5,7 @@ import { markedHighlight } from 'marked-highlight'
 import markedKatex from 'marked-katex-extension'
 import markedFootnote from 'marked-footnote'
 import markedAlert from 'marked-alert'
+import { createDirectives } from 'marked-directive'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github-dark.css'
 import 'katex/dist/katex.min.css'
@@ -200,10 +201,77 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
         border-left-color: #ec4899;
         color: #fce7f3;
       }
+      
+      /* Directive styling */
+      .directive {
+        margin: 1rem 0;
+      }
+      
+      .directive-label {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+      
+      /* Custom directive styles */
+      .directive-mermaid {
+        background-color: #f8fafc;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        border: 1px solid #e2e8f0;
+      }
+      
+      .dark .directive-mermaid {
+        background-color: #1e293b;
+        border-color: #334155;
+      }
+      
+      .directive-tabs {
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        overflow: hidden;
+      }
+      
+      .dark .directive-tabs {
+        border-color: #334155;
+      }
+      
+      .directive-tab-labels {
+        display: flex;
+        background-color: #f1f5f9;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      
+      .dark .directive-tab-labels {
+        background-color: #1e293b;
+        border-color: #334155;
+      }
+      
+      .directive-tab-label {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        border-right: 1px solid #e2e8f0;
+      }
+      
+      .dark .directive-tab-label {
+        border-color: #334155;
+      }
+      
+      .directive-tab-label.active {
+        background-color: #ffffff;
+        font-weight: 600;
+      }
+      
+      .dark .directive-tab-label.active {
+        background-color: #0f172a;
+      }
+      
+      .directive-tab-content {
+        padding: 1rem;
+      }
     `);
   });
 
-  // Create a marked instance with the highlight plugin, KaTeX extension, footnotes, and alerts
+  // Create a marked instance with the highlight plugin, KaTeX extension, footnotes, alerts, and directives
   const markedInstance = new Marked(
     markedHighlight({
       langPrefix: 'hljs language-',
@@ -219,7 +287,8 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
       nonStandard: true // Allow KaTeX without spaces around delimiters
     }),
     markedFootnote(),
-    markedAlert()
+    markedAlert(),
+    createDirectives()
   );
 
   // Memoize the parsed markdown to avoid unnecessary re-rendering
