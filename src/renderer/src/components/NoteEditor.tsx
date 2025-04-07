@@ -10,11 +10,16 @@ export const NoteEditor: Component = () => {
   const [isEditorMaximized, setIsEditorMaximized] = createSignal(false)
   const [isVimEnabled, setIsVimEnabled] = createSignal(false)
 
+  // Function to save content
+  const saveContent = (contentToSave: string) => {
+    console.log('Saving content:', contentToSave)
+  }
+
   // Callback function that fires when content changes
   // NOTE when implementing with SolidStart this will need a save button
   const handleContentChange = (newContent: string) => {
     setContent(newContent)
-    console.log('Content changed:', newContent)
+    saveContent(newContent)
   }
   const splitter = useSplitter({
     defaultSize: [50, 50],
@@ -45,9 +50,9 @@ export const NoteEditor: Component = () => {
     }
   }
 
-  const saveContent = () => {
-    // Manually trigger the content change handler with current content
-    handleContentChange(content())
+  const saveContentButton = () => {
+    // Manually trigger the save function with current content
+    saveContent(content())
   }
 
   // When the splitter changes, we may need to refresh the editor
@@ -85,7 +90,7 @@ export const NoteEditor: Component = () => {
           <Terminal size={16} />
         </button>
         <button
-          onClick={saveContent}
+          onClick={saveContentButton}
           class={theme.editor.controlButton}
           title="Save content"
         >
