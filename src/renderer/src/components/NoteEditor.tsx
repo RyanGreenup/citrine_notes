@@ -22,12 +22,18 @@ export const NoteEditor: Component = () => {
       setLoading(true)
       setError(null)
       
-      const noteBody = await window.electron.database.getNoteBodyById(noteId)
+      // Make sure the API is available
+      if (!window.api || !window.api.database) {
+        setError("Database API not available")
+        return
+      }
+      
+      const noteBody = await window.api.database.getNoteBodyById(noteId)
       if (noteBody) {
         setContent(noteBody)
         
         // Get the full note to display title
-        const fullNote = await window.electron.database.getNoteById(noteId)
+        const fullNote = await window.api.database.getNoteById(noteId)
         if (fullNote) {
           setCurrentNote({ id: fullNote.id, title: fullNote.title })
         }
@@ -51,7 +57,13 @@ export const NoteEditor: Component = () => {
     }
     
     try {
-      const result = await window.electron.database.updateNote(
+      // Make sure the API is available
+      if (!window.api || !window.api.database) {
+        console.error("Database API not available")
+        return
+      }
+      
+      const result = await window.api.database.updateNote(
         noteId, 
         currentNote()!.title, 
         contentToSave

@@ -6,25 +6,32 @@ import { createSignal, createEffect } from 'solid-js'
 // Create a signal to track the currently viewed note ID
 const [currentNoteId, setCurrentNoteId] = createSignal<string | null>(null)
 
-// Initialize from URL hash if available or load home note
-createEffect(async () => {
-  const hashId = window.location.hash.replace('#', '')
-  if (hashId) {
-    setCurrentNoteId(hashId)
-  } else {
-    // If no hash is present, try to load the home note
-    try {
-      const homeNote = await window.electron.database.getHomeNote()
-      if (homeNote) {
-        setCurrentNoteId(homeNote.id)
-        window.location.hash = homeNote.id
-        console.log('Set default view to home note:', homeNote.title)
+// Function to initialize view - exported for use in App.tsx
+export const initializeView = () => {
+  createEffect(async () => {
+    const hashId = window.location.hash.replace('#', '')
+    if (hashId) {
+      setCurrentNoteId(hashId)
+    } else {
+      // If no hash is present, try to load the home note
+      try {
+        // Make sure the API is available before trying to use it
+        if (window.api && window.api.database) {
+          const homeNote = await window.api.database.getHomeNote()
+          if (homeNote) {
+            setCurrentNoteId(homeNote.id)
+            window.location.hash = homeNote.id
+            console.log('Set default view to home note:', homeNote.title)
+          }
+        } else {
+          console.warn('API not available yet, cannot load home note')
+        }
+      } catch (error) {
+        console.error('Failed to load home note:', error)
       }
-    } catch (error) {
-      console.error('Failed to load home note:', error)
     }
-  }
-})
+  })
+}
 
 /**
  * Sets the current view to display a specific note
