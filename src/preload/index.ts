@@ -33,7 +33,7 @@ const api = {
   database: {
     getAllNotes: (): Promise<Note[]> => ipcRenderer.invoke('db:getAllNotes'),
     getNoteById: (id: string): Promise<Note | null> => ipcRenderer.invoke('db:getNoteById', id),
-    getNoteBodyById: (id: string): Promise<Note | null> =>
+    getNoteBodyById: (id: string): Promise<string | null> =>
       ipcRenderer.invoke('db:notes:getNoteBodyById', id),
     getStatus: (): Promise<{ connected: boolean; path: string | null }> =>
       ipcRenderer.invoke('db:getStatus'),

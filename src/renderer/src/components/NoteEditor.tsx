@@ -1,64 +1,70 @@
 import { Splitter, useSplitter } from '@ark-ui/solid/splitter'
-import { Component, createSignal, createEffect } from 'solid-js'
+import { Component, createSignal, createEffect, Show } from 'solid-js'
 import { theme, animations } from '../theme'
 import { Maximize2, AlignCenter, Columns, Terminal, Save } from 'lucide-solid'
 import { TextEditor } from './TextEditor'
 import { NotePreview } from './NotePreview'
+import { getCurrentNoteId, onNoteChange } from '../utils/viewUtils'
 
 export const NoteEditor: Component = () => {
-  const [content, setContent] = createSignal<string>(
-    `# Example Python Code with a Mathematical Equation
-
-\`\`\`python
-def calculate_fibonacci(n):
-    if n <= 0:
-        return 0
-    elif n == 1:
-        return 1
-    else:
-        return calculate_fibonacci(n-1) + calculate_fibonacci(n-2)
-
-# Calculate the 10th Fibonacci number
-fib_10 = calculate_fibonacci(10)
-print(f"The 10th Fibonacci number is: {fib_10}")
-\`\`\`
-
-## The Fibonacci Sequence
-
-The Fibonacci sequence is a series of numbers where each number is the sum of the two preceding ones, usually starting with 0 and 1. Mathematically, it can be expressed as:
-
-$$
-F(n) = F(n-1) + F(n-2)
-$$
-
-with initial conditions:
-
-$$
-F(0) = 0, \\ F(1) = 1
-$$
-
-The closed-form expression for the Fibonacci sequence, known as Binet's formula, is:
-
-$$
-F(n) = \\frac{{\\phi^n - \\psi^n}}{{\\sqrt{5}}}
-$$
-
-where:
-
-$$
-\\phi = \\frac{{1 + \\sqrt{5}}}{2} \\quad \\text{(the golden ratio)}
-$$
-
-$$
-\\psi = \\frac{{1 - \\sqrt{5}}}{2}
-$$`
-  )
+  const [content, setContent] = createSignal<string>('')
   const [isEditorMaximized, setIsEditorMaximized] = createSignal(false)
   const [isVimEnabled, setIsVimEnabled] = createSignal(false)
+  const [loading, setLoading] = createSignal(false)
+  const [error, setError] = createSignal<string | null>(null)
+  const [currentNote, setCurrentNote] = createSignal<{ id: string; title: string } | null>(null)
+
+  // Load note content when the current note ID changes
+  onNoteChange(async (noteId) => {
+    if (!noteId) return
+    
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const noteBody = await window.electron.database.getNoteBodyById(noteId)
+      if (noteBody) {
+        setContent(noteBody)
+        
+        // Get the full note to display title
+        const fullNote = await window.electron.database.getNoteById(noteId)
+        if (fullNote) {
+          setCurrentNote({ id: fullNote.id, title: fullNote.title })
+        }
+      } else {
+        setError(`Could not load note content for ID: ${noteId}`)
+      }
+    } catch (err) {
+      console.error('Error loading note content:', err)
+      setError(`Failed to load note: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setLoading(false)
+    }
+  })
 
   // Function to save content
-  const saveContent = (contentToSave: string) => {
-    console.log('Saving content:', contentToSave)
+  const saveContent = async (contentToSave: string) => {
+    const noteId = getCurrentNoteId()
+    if (!noteId || !currentNote()) {
+      console.warn('Cannot save: No note is currently selected')
+      return
+    }
+    
+    try {
+      const result = await window.electron.database.updateNote(
+        noteId, 
+        currentNote()!.title, 
+        contentToSave
+      )
+      
+      if (result) {
+        console.log('Note saved successfully:', result.id)
+      } else {
+        console.error('Failed to save note')
+      }
+    } catch (err) {
+      console.error('Error saving note:', err)
+    }
   }
 
   // Check if we're running in SSR mode (SolidStart)
@@ -73,7 +79,14 @@ $$`
 
     // Skip saving content if using SSR with SolidStart
     if (!isSSR()) {
-      saveContent(newContent)
+      // Use debounce to avoid saving on every keystroke
+      if (window.saveTimeout) {
+        clearTimeout(window.saveTimeout)
+      }
+      
+      window.saveTimeout = setTimeout(() => {
+        saveContent(newContent)
+      }, 1000) // Save after 1 second of inactivity
     }
   }
   const splitter = useSplitter({
@@ -122,7 +135,28 @@ $$`
 
   return (
     <div class={`${theme.editor.container} h-full`}>
-      <div class={theme.editor.controls}>
+      <Show when={currentNote()}>
+        <div class="px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-lg font-medium text-gray-800 dark:text-gray-200">
+            {currentNote()?.title}
+          </h2>
+        </div>
+      </Show>
+      
+      <Show when={loading()}>
+        <div class="flex items-center justify-center h-full">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      </Show>
+      
+      <Show when={error()}>
+        <div class="p-4 m-4 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-md">
+          <p>{error()}</p>
+        </div>
+      </Show>
+      
+      <Show when={!loading() && !error()}>
+        <div class={theme.editor.controls}>
         <button onClick={equalSplit} class={theme.editor.controlButton} title="Equal split">
           <Columns size={16} />
         </button>
@@ -143,8 +177,8 @@ $$`
         <button onClick={saveContentButton} class={theme.editor.controlButton} title="Save content">
           <Save size={16} />
         </button>
-      </div>
-      <Splitter.RootProvider value={splitter} class={`flex-grow h-full overflow-hidden rounded-md shadow-sm border ${theme.border.light} ${theme.border.dark} ${animations.transition.normal}`}>
+        </div>
+        <Splitter.RootProvider value={splitter} class={`flex-grow h-full overflow-hidden rounded-md shadow-sm border ${theme.border.light} ${theme.border.dark} ${animations.transition.normal}`}>
         <Splitter.Panel id="editor" class={`h-full overflow-hidden ${animations.transition.normal}`}>
           <TextEditor initialContent={content()} onContentChange={handleContentChange} />
         </Splitter.Panel>
@@ -158,7 +192,8 @@ $$`
         <Splitter.Panel id="preview" class={`h-full overflow-auto bg-white dark:bg-gray-800 ${animations.transition.normal}`}>
           <NotePreview content={content()} />
         </Splitter.Panel>
-      </Splitter.RootProvider>
+        </Splitter.RootProvider>
+      </Show>
     </div>
   )
 }
