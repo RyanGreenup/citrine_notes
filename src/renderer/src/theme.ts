@@ -151,6 +151,12 @@ export const theme = {
     controls: 'flex items-center justify-end gap-2 p-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700',
     controlButton: 'p-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500',
     controlButtonActive: 'bg-gray-700 text-white dark:bg-blue-600 dark:text-white',
+    header: {
+      container: 'flex items-center justify-between px-3 py-2 border-b',
+      buttonGroup: 'flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5',
+      buttonGroupSpacing: 'ml-1',
+      button: 'p-1 rounded-md',
+    },
     panel: {
       base: 'h-full overflow-auto flex-grow transition-all duration-300 ease-in-out',
       textarea: 'w-full h-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100',
