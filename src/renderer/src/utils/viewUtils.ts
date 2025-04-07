@@ -38,11 +38,14 @@ export const initializeView = () => {
  * @param noteId The ID of the note to display
  */
 export const setCurrentView = (noteId: string): void => {
-  console.log(`Setting view to note: ${noteId}`)
-  setCurrentNoteId(noteId)
-  
-  // Update URL hash to reflect the current note
-  window.location.hash = noteId
+  // Only update if the note ID has changed
+  if (noteId !== currentNoteId()) {
+    console.log(`Setting view to note: ${noteId}`)
+    setCurrentNoteId(noteId)
+    
+    // Update URL hash to reflect the current note
+    window.location.hash = noteId
+  }
 }
 
 /**
