@@ -74,6 +74,8 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
     // Register Vim keybindings
     Vim.map("jj", "<Esc>", "insert"); // in insert mode
     Vim.map("Y", "y$"); // in normal mode
+    Vim.map("za", "za"); // toggle fold
+    Vim.map("zc", "zc"); // close fold
     
     initEditor()
 
