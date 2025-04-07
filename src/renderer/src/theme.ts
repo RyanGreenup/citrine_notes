@@ -147,6 +147,16 @@ export const theme = {
     },
     tabs: {
       trigger: 'p-2 rounded-t-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 data-[state=active]:text-gray-900 data-[state=active]:dark:text-white data-[state=active]:border-b-2 data-[state=active]:border-blue-500'
+    },
+    fileTree: {
+      container: 'mt-4 px-2',
+      heading: 'text-sm font-medium mb-2',
+      item: 'flex items-center py-1 px-2 rounded',
+      itemHover: 'hover:bg-gray-100 dark:hover:bg-gray-700',
+      itemText: 'flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300',
+      folderIcon: 'text-yellow-500 dark:text-yellow-400',
+      fileIcon: 'text-blue-500 dark:text-blue-400',
+      branchContent: 'ml-4'
     }
   }
 }

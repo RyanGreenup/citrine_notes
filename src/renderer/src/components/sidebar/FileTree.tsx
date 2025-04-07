@@ -1,6 +1,6 @@
 
 import { TreeView, createTreeCollection } from '@ark-ui/solid/tree-view'
-import { CheckSquareIcon, ChevronRightIcon, FileIcon, FolderIcon } from 'lucide-solid'
+import { ChevronRightIcon, FileIcon, FolderIcon } from 'lucide-solid'
 import { For, Show } from 'solid-js'
 import { theme } from '../../theme'
 
@@ -53,25 +53,25 @@ const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
       <Show
         when={node.children}
         fallback={
-          <TreeView.Item class={`flex items-center py-1 px-2 ${theme.bg.hover.light} ${theme.bg.hover.dark} rounded`}>
-            <TreeView.ItemText class="flex items-center gap-2 text-sm">
-              <FileIcon size={16} />
+          <TreeView.Item class={`${theme.sidebar.fileTree.item} ${theme.sidebar.fileTree.itemHover}`}>
+            <TreeView.ItemText class={theme.sidebar.fileTree.itemText}>
+              <FileIcon size={16} class={theme.sidebar.fileTree.fileIcon} />
               {node.name}
             </TreeView.ItemText>
           </TreeView.Item>
         }
       >
         <TreeView.Branch>
-          <TreeView.BranchControl class={`flex items-center py-1 px-2 ${theme.bg.hover.light} ${theme.bg.hover.dark} rounded`}>
-            <TreeView.BranchText class="flex items-center gap-2 text-sm">
-              <FolderIcon size={16} />
+          <TreeView.BranchControl class={`${theme.sidebar.fileTree.item} ${theme.sidebar.fileTree.itemHover}`}>
+            <TreeView.BranchText class={theme.sidebar.fileTree.itemText}>
+              <FolderIcon size={16} class={theme.sidebar.fileTree.folderIcon} />
               {node.name}
             </TreeView.BranchText>
             <TreeView.BranchIndicator class="ml-auto">
-              <ChevronRightIcon size={16} />
+              <ChevronRightIcon size={16} class={`transition-transform duration-200 ${theme.text.muted.light} ${theme.text.muted.dark}`} />
             </TreeView.BranchIndicator>
           </TreeView.BranchControl>
-          <TreeView.BranchContent class="ml-4">
+          <TreeView.BranchContent class={theme.sidebar.fileTree.branchContent}>
             <For each={node.children}>
               {(child, index) => <TreeNode node={child} indexPath={[...indexPath, index()]} />}
             </For>
@@ -84,8 +84,8 @@ const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
 
 export function FileTree() {
   return (
-    <div class="mt-4 px-2">
-      <h3 class={`text-sm font-medium mb-2 ${theme.text.light} ${theme.text.dark}`}>Files</h3>
+    <div class={theme.sidebar.fileTree.container}>
+      <h3 class={`${theme.sidebar.fileTree.heading} ${theme.text.light} ${theme.text.dark}`}>Files</h3>
       <TreeView.Root collection={collection}>
         <TreeView.Tree class="w-full">
           <For each={collection.rootNode.children}>
