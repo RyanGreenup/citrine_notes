@@ -161,7 +161,7 @@ export const NoteEditor: Component = () => {
       </Show>
 
       <Show when={!loading() && !error()}>
-        <div class={`flex items-center justify-between px-6 py-3 border-b ${theme.border.light} ${theme.border.dark}`}>
+        <div class={`flex items-center justify-between px-3 py-2 border-b ${theme.border.light} ${theme.border.dark}`}>
           <div class="flex items-center">
             <Show when={currentNote()}>
               <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
@@ -170,37 +170,37 @@ export const NoteEditor: Component = () => {
             </Show>
           </div>
           <div class="flex items-center gap-1">
-            <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
               <button 
                 onClick={equalSplit} 
-                class={`p-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 ${animations.transition.fast}`} 
+                class={`p-1 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 ${animations.transition.fast}`} 
                 title="Equal split"
               >
                 <Columns size={18} />
               </button>
               <button
                 onClick={toggleMaximized}
-                class={`p-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 ${animations.transition.fast}`}
+                class={`p-1 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 ${animations.transition.fast}`}
                 title={isEditorMaximized() ? 'Maximize preview' : 'Maximize editor'}
               >
                 {isEditorMaximized() ? <AlignCenter size={18} /> : <Maximize2 size={18} />}
               </button>
             </div>
             
-            <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1 ml-2">
+            <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5 ml-1">
               <button
                 onClick={toggleVim}
-                class={`p-1.5 rounded-md ${isVimEnabled() ? 'bg-blue-500 text-white dark:bg-blue-600 dark:text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'} ${animations.transition.fast}`}
+                class={`p-1 rounded-md ${isVimEnabled() ? 'bg-blue-500 text-white dark:bg-blue-600 dark:text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'} ${animations.transition.fast}`}
                 title="Toggle Vim mode"
               >
                 <Terminal size={18} />
               </button>
             </div>
             
-            <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1 ml-2">
+            <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5 ml-1">
               <button
                 onClick={saveContentButton}
-                class={`p-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 ${animations.transition.fast}`}
+                class={`p-1 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 ${animations.transition.fast}`}
                 title="Save content"
               >
                 <Save size={18} />
