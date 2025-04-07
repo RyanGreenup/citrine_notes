@@ -11,7 +11,7 @@ const getCurrentDateTime = (): string => {
 
 export const AppLogo: Component = () => {
   // Color scheme
-  const HEADING_TEXT = "text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white"
+  const HEADING_TEXT = "text-xl font-semibold sm:text-2xl whitespace-nowrakkkkkkp dark:text-white"
 
   return (
     <a href="#" class="flex ml-2 md:mr-24">
