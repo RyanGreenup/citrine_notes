@@ -19,25 +19,7 @@ import { FillerContent } from './components/FillerContent'
 import { Navbar } from './components/Navbar'
 import { initFlowbite } from 'flowbite'
 import { onMount, createSignal } from 'solid-js'
-
-// AI!
-// Based on the following documentation:
-//   - https://tailwindcss.com/docs/theme
-// What is the correct way to handle colours across the project?
-
-// Color scheme variables
-const BG_COLOR_LIGHT = 'bg-gray-50'
-const BG_COLOR_DARK = 'dark:bg-gray-800'
-const TEXT_COLOR_LIGHT = 'text-gray-900'
-const TEXT_COLOR_DARK = 'dark:text-white'
-const TEXT_COLOR_MUTED_LIGHT = 'text-gray-500'
-const TEXT_COLOR_MUTED_DARK = 'dark:text-gray-400'
-const HOVER_BG_LIGHT = 'hover:bg-gray-100'
-const HOVER_BG_DARK = 'dark:hover:bg-gray-700'
-const HOVER_TEXT_LIGHT = 'group-hover:text-gray-900'
-const HOVER_TEXT_DARK = 'dark:group-hover:text-white'
-const BORDER_COLOR_LIGHT = 'border-gray-200'
-const BORDER_COLOR_DARK = 'dark:border-gray-700'
+import { theme } from './theme'
 
 const SidebarText: Component<{
   text: string
@@ -50,7 +32,7 @@ const SidebarItem: Component<{
   label: string
   href: string
 }> = (props) => {
-  let default_class = `flex items-center p-2 rounded-lg ${TEXT_COLOR_LIGHT} ${TEXT_COLOR_DARK} ${HOVER_BG_LIGHT} ${HOVER_BG_DARK} group`
+  let default_class = `flex items-center p-2 rounded-lg ${theme.text.light} ${theme.text.dark} ${theme.bg.hover.light} ${theme.bg.hover.dark} group`
   return (
     <>
       <li>
@@ -70,8 +52,8 @@ const SidebarItemWithElement: Component<{
   element: JSXElement
 }> = (props) => {
   const baseClass = ' flex items-center p-2 rounded-lg group '
-  const textColor = ` ${TEXT_COLOR_LIGHT} ${TEXT_COLOR_DARK}`
-  const bgColor = ` ${HOVER_BG_LIGHT} ${HOVER_BG_DARK} `
+  const textColor = ` ${theme.text.light} ${theme.text.dark}`
+  const bgColor = ` ${theme.bg.hover.light} ${theme.bg.hover.dark} `
   return (
     <li>
       <a href={props.href} class={baseClass + textColor + bgColor}>
@@ -96,7 +78,7 @@ function Sidebar(props: SidebarProps) {
   /**
    * Draw a line above an unordered list but not between items. Draws a line between two lists to separate them
    */
-  let unordered_list_with_top_line = `pt-4 mt-4 space-y-2 font-medium border-t ${BORDER_COLOR_LIGHT} ${BORDER_COLOR_DARK}`
+  let unordered_list_with_top_line = `pt-4 mt-4 space-y-2 font-medium border-t ${theme.border.light} ${theme.border.dark}`
 
   let bgColor = ' bg-gray-900 dark:bg-gray-700 '
   let textColor = ' text-white '
@@ -110,7 +92,7 @@ function Sidebar(props: SidebarProps) {
         aria-label="Sidebar"
       >
         <div
-          class={`h-full px-3 py-4 overflow-y-auto ${BG_COLOR_LIGHT} ${BG_COLOR_DARK} ${SIDEBAR_TOP_PADDING}`}
+          class={`h-full px-3 py-4 overflow-y-auto ${theme.bg.light} ${theme.bg.dark} ${SIDEBAR_TOP_PADDING}`}
         >
           <ul class="space-y-2 font-medium">
             <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
@@ -221,7 +203,7 @@ function Badge(props: BadgeProps): JSXElement {
 function SidebarIcon({ icon: Icon }: { icon: LucideIcon }): JSXElement {
   return (
     <Icon
-      class={`shrink-0 w-5 h-5 ${TEXT_COLOR_MUTED_LIGHT} ${TEXT_COLOR_MUTED_DARK} transition duration-75 ${HOVER_TEXT_LIGHT} ${HOVER_TEXT_DARK}`}
+      class={`shrink-0 w-5 h-5 ${theme.text.muted.light} ${theme.text.muted.dark} transition duration-75 ${theme.text.hover.light} ${theme.text.hover.dark}`}
       aria-hidden="true"
     />
   )
@@ -236,19 +218,11 @@ const DummyContent: Component = () => {
 
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
-  // Content layout classes
-  const CONTENT_LAYOUT = 'p-4 sm:ml-64 mt-16'
-  const CONTENT_BG = 'bg-white dark:bg-gray-900'
-  const CONTENT_HEIGHT = 'min-h-screen'
-
-  // Heading text colors
-  const HEADING_TEXT = 'text-gray-900 dark:text-white'
-
   return (
     <>
       <Navbar toggleSidebar={toggleSidebar} />
       <Sidebar isOpen={sidebarOpen()} />
-      <div class={`${CONTENT_LAYOUT} ${CONTENT_BG} ${CONTENT_HEIGHT}`}>
+      <div class={`${theme.layout.content} ${theme.layout.contentBg} ${theme.layout.contentHeight}`}>
         <FillerContent/>
       </div>
     </>

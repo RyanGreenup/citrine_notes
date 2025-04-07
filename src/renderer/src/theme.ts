@@ -1,0 +1,137 @@
+/**
+ * Theme configuration for the application
+ * 
+ * This file centralizes all theme-related variables following Tailwind CSS best practices.
+ * It exports theme objects that can be imported and used throughout the application.
+ */
+
+// Color palette
+export const colors = {
+  // Base colors
+  white: '#fff',
+  black: '#000',
+  
+  // Gray scale
+  gray: {
+    50: 'var(--color-gray-50)',
+    100: 'var(--color-gray-100)',
+    200: 'var(--color-gray-200)',
+    300: 'var(--color-gray-300)',
+    400: 'var(--color-gray-400)',
+    500: 'var(--color-gray-500)',
+    600: 'var(--color-gray-600)',
+    700: 'var(--color-gray-700)',
+    800: 'var(--color-gray-800)',
+    900: 'var(--color-gray-900)',
+    950: 'var(--color-gray-950)',
+  },
+  
+  // Brand colors
+  blue: {
+    100: 'var(--color-blue-100)',
+    300: 'var(--color-blue-300)',
+    500: 'var(--color-blue-500)',
+    700: 'var(--color-blue-700)',
+    900: 'var(--color-blue-900)',
+  },
+}
+
+// Typography
+export const typography = {
+  fontFamily: {
+    sans: 'var(--font-sans)',
+    serif: 'var(--font-serif)',
+    mono: 'var(--font-mono)',
+  },
+  fontSize: {
+    xs: 'var(--text-xs)',
+    sm: 'var(--text-sm)',
+    base: 'var(--text-base)',
+    lg: 'var(--text-lg)',
+    xl: 'var(--text-xl)',
+    '2xl': 'var(--text-2xl)',
+  },
+  fontWeight: {
+    normal: 'var(--font-weight-normal)',
+    medium: 'var(--font-weight-medium)',
+    semibold: 'var(--font-weight-semibold)',
+    bold: 'var(--font-weight-bold)',
+  },
+}
+
+// Spacing
+export const spacing = {
+  px: '1px',
+  0: '0',
+  1: 'var(--spacing)',
+  2: 'calc(var(--spacing) * 2)',
+  3: 'calc(var(--spacing) * 3)',
+  4: 'calc(var(--spacing) * 4)',
+  5: 'calc(var(--spacing) * 5)',
+  6: 'calc(var(--spacing) * 6)',
+  8: 'calc(var(--spacing) * 8)',
+  10: 'calc(var(--spacing) * 10)',
+  12: 'calc(var(--spacing) * 12)',
+  16: 'calc(var(--spacing) * 16)',
+}
+
+// Borders
+export const borders = {
+  radius: {
+    sm: 'var(--radius-sm)',
+    md: 'var(--radius-md)',
+    lg: 'var(--radius-lg)',
+    xl: 'var(--radius-xl)',
+    full: '9999px',
+  },
+}
+
+// Shadows
+export const shadows = {
+  sm: 'var(--shadow-sm)',
+  md: 'var(--shadow-md)',
+  lg: 'var(--shadow-lg)',
+  xl: 'var(--shadow-xl)',
+}
+
+// Tailwind CSS class mappings for common use cases
+export const theme = {
+  // Background colors
+  bg: {
+    light: 'bg-gray-50',
+    dark: 'dark:bg-gray-800',
+    white: 'bg-white',
+    primary: 'bg-blue-500 dark:bg-blue-700',
+    hover: {
+      light: 'hover:bg-gray-100',
+      dark: 'dark:hover:bg-gray-700',
+    }
+  },
+  
+  // Text colors
+  text: {
+    light: 'text-gray-900',
+    dark: 'dark:text-white',
+    muted: {
+      light: 'text-gray-500',
+      dark: 'dark:text-gray-400',
+    },
+    hover: {
+      light: 'group-hover:text-gray-900',
+      dark: 'dark:group-hover:text-white',
+    }
+  },
+  
+  // Border colors
+  border: {
+    light: 'border-gray-200',
+    dark: 'dark:border-gray-700',
+  },
+  
+  // Layout
+  layout: {
+    content: 'p-4 sm:ml-64 mt-16',
+    contentBg: 'bg-white dark:bg-gray-900',
+    contentHeight: 'min-h-screen',
+  }
+}
