@@ -25,6 +25,33 @@ interface SidebarProps {
   isOpen: boolean
 }
 
+function FileTree() {
+  return (
+    <>
+      <ul class="space-y-2 font-medium">
+        <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
+        <SidebarItem icon={Mailbox} href="#" label="Inbox" />
+        <SidebarItemWithElement
+          icon={KanbanIcon}
+          href="#"
+          label="Kanban"
+          element={<Tag text="pro" />}
+        />
+        <SidebarItemWithElement
+          icon={Mailbox}
+          href="#"
+          label="Inbox"
+          element={<Badge text="3" />}
+        />
+        <SidebarItem icon={Group} href="#" label="Users" />
+        <SidebarItem icon={ShoppingBag} href="#" label="Products" />
+        <SidebarItem icon={LogIn} href="#" label="Log In" />
+        <SidebarItem icon={Signature} href="#" label="Sign Up" />
+      </ul>
+    </>
+  )
+}
+
 export function Sidebar(props: SidebarProps) {
   // Required because of the Button
   onMount(() => {
@@ -57,26 +84,7 @@ export function Sidebar(props: SidebarProps) {
               <Tabs.Indicator />
             </Tabs.List>
             <Tabs.Content value="links">
-              <ul class="space-y-2 font-medium">
-                <SidebarItem icon={ChartPie} href="#" label="Dashboard" />
-                <SidebarItem icon={Mailbox} href="#" label="Inbox" />
-                <SidebarItemWithElement
-                  icon={KanbanIcon}
-                  href="#"
-                  label="Kanban"
-                  element={<Tag text="pro" />}
-                />
-                <SidebarItemWithElement
-                  icon={Mailbox}
-                  href="#"
-                  label="Inbox"
-                  element={<Badge text="3" />}
-                />
-                <SidebarItem icon={Group} href="#" label="Users" />
-                <SidebarItem icon={ShoppingBag} href="#" label="Products" />
-                <SidebarItem icon={LogIn} href="#" label="Log In" />
-                <SidebarItem icon={Signature} href="#" label="Sign Up" />
-              </ul>
+              <FileTree />
             </Tabs.Content>
             <Tabs.Content value="backlinks">
               <ul class={unordered_list_with_top_line}>
