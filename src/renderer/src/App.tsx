@@ -1,9 +1,10 @@
 import type { Component, JSXElement } from 'solid-js'
 import { Navbar } from './components/Navbar'
-import { createSignal } from 'solid-js'
+import { createSignal, onMount } from 'solid-js'
 import { theme } from './theme'
 import { Sidebar } from './components/sidebar/Sidebar'
 import { NoteEditor } from './components/NoteEditor'
+import { initializeView } from './utils/viewUtils'
 
 const DummyContent: Component = () => {
   const [sidebarOpen, setSidebarOpen] = createSignal(false)
@@ -28,6 +29,11 @@ const DummyContent: Component = () => {
 }
 
 const App: Component = () => {
+  onMount(() => {
+    // Initialize the view after the app is mounted
+    initializeView()
+  })
+
   return (
     <>
       <DummyContent />
