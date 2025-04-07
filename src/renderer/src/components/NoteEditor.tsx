@@ -6,7 +6,53 @@ import { TextEditor } from './TextEditor'
 import { NotePreview } from './NotePreview'
 
 export const NoteEditor: Component = () => {
-  const [content, setContent] = createSignal<string>('# Your note here\n\nStart typing to edit...')
+  const [content, setContent] = createSignal<string>(
+    `# Example Python Code with a Mathematical Equation
+
+\`\`\`python
+def calculate_fibonacci(n):
+    if n <= 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        return calculate_fibonacci(n-1) + calculate_fibonacci(n-2)
+
+# Calculate the 10th Fibonacci number
+fib_10 = calculate_fibonacci(10)
+print(f"The 10th Fibonacci number is: {fib_10}")
+\`\`\`
+
+## The Fibonacci Sequence
+
+The Fibonacci sequence is a series of numbers where each number is the sum of the two preceding ones, usually starting with 0 and 1. Mathematically, it can be expressed as:
+
+$$
+F(n) = F(n-1) + F(n-2)
+$$
+
+with initial conditions:
+
+$$
+F(0) = 0, \\ F(1) = 1
+$$
+
+The closed-form expression for the Fibonacci sequence, known as Binet's formula, is:
+
+$$
+F(n) = \\frac{{\\phi^n - \\psi^n}}{{\\sqrt{5}}}
+$$
+
+where:
+
+$$
+\\phi = \\frac{{1 + \\sqrt{5}}}{2} \\quad \\text{(the golden ratio)}
+$$
+
+$$
+\\psi = \\frac{{1 - \\sqrt{5}}}{2}
+$$`
+  )
   const [isEditorMaximized, setIsEditorMaximized] = createSignal(false)
   const [isVimEnabled, setIsVimEnabled] = createSignal(false)
 
