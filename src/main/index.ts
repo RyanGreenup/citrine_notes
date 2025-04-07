@@ -185,11 +185,11 @@ app.whenReady().then(() => {
     )
     // Delete _________________________________________________________________
     ipcMain.handle('db:deleteNote', (_event, id: string): boolean => {
-      return databaseService.deleteNote(id)
+      return databaseService!.deleteNote(id)
     })
     // Tree ___________________________________________________________________
     ipcMain.handle('db:buildNoteTree', (_event): any => {
-      return databaseService.buildNoteTree()
+      return databaseService!.buildNoteTree()
     })
 
     // Folders ////////////////////////////////////////////////////////////////
@@ -197,7 +197,7 @@ app.whenReady().then(() => {
     ipcMain.handle(
       'db:createFolder',
       (_event, title: string, parentId: string = ''): Folder | null => {
-        return databaseService.createFolder(title, parentId)
+        return databaseService!.createFolder(title, parentId)
       }
     )
     // Read ___________________________________________________________________
@@ -244,6 +244,11 @@ app.whenReady().then(() => {
     ipcMain.handle('db:getBacklinks', (_event, noteId: string): Note[] => {
       return databaseService!.getBacklinks(noteId)
     })
+    
+    // Get forward links for a note
+    ipcMain.handle('db:getForwardLinks', (_event, noteId: string): Note[] => {
+      return databaseService!.getForwardLinks(noteId)
+    })
 
     // Update _________________________________________________________________
 
@@ -266,7 +271,10 @@ app.whenReady().then(() => {
       return databaseService!.getTagById(id)
     })
     // Read ___________________________________________________________________
-    // NONE
+    ipcMain.handle('db:getAllTags', (_event): Tag[] => {
+      return databaseService!.getAllTags()
+    })
+    // Update _________________________________________________________________
     ipcMain.handle('db:updateTag', (_event, id: string, title: string): Tag | null => {
       return databaseService!.updateTag(id, title)
     })
@@ -277,7 +285,7 @@ app.whenReady().then(() => {
 
     // Delete _________________________________________________________________
     ipcMain.handle('db:deleteTag', (_event, id: string): boolean => {
-      return databaseService.deleteTag(id)
+      return databaseService!.deleteTag(id)
     })
     // Tree
     ipcMain.handle('db:buildTagTree', (_event): any => {
@@ -304,7 +312,7 @@ app.whenReady().then(() => {
     // NONE
     // Delete _________________________________________________________________
     ipcMain.handle('db:removeTagFromNote', (_event, noteId: string, tagId: string): boolean => {
-      return databaseService.removeTagFromNote(noteId, tagId)
+      return databaseService!.removeTagFromNote(noteId, tagId)
     })
     // ........................................................................
 
