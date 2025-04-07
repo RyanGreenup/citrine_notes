@@ -6,12 +6,13 @@ import type { Component } from 'solid-js'
  */
 const getCurrentDateTime = (): string => {
   const now = new Date();
+  // Use something like Saturday 3rd November AI!
   return now.toLocaleString();
 }
 
 export const AppLogo: Component = () => {
   // Color scheme
-  const HEADING_TEXT = "text-xl font-semibold sm:text-2xl whitespace-nowrakkkkkkp dark:text-white"
+  const HEADING_TEXT = "text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white"
 
   return (
     <a href="#" class="flex ml-2 md:mr-24">
