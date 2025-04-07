@@ -4,12 +4,25 @@ import { Marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github-dark.css'
+import { createStyleTag } from '../utils/styleUtils'
 
 interface NotePreviewProps {
   content: string
 }
 
 export const NotePreview: Component<NotePreviewProps> = (props) => {
+  // Add custom CSS to make highlight.js backgrounds transparent
+  onMount(() => {
+    createStyleTag(`
+      .hljs {
+        background: transparent !important;
+      }
+      pre code.hljs {
+        background: transparent !important;
+      }
+    `);
+  });
+
   // Create a marked instance with the highlight plugin
   const markedInstance = new Marked(
     markedHighlight({
