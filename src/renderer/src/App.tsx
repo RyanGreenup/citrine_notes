@@ -20,7 +20,6 @@ import { Navbar } from './components/Navbar'
 import { initFlowbite } from 'flowbite'
 import { onMount, createSignal } from 'solid-js'
 
-// AI: Here are the variables
 // Color scheme variables
 const BG_COLOR_LIGHT = 'bg-gray-50'
 const BG_COLOR_DARK = 'dark:bg-gray-800'
@@ -231,14 +230,21 @@ const DummyContent: Component = () => {
   }
 
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+  
+  // Content layout classes
+  const CONTENT_LAYOUT = 'p-4 sm:ml-64 mt-16'
+  const CONTENT_BG = 'bg-white dark:bg-gray-900'
+  const CONTENT_HEIGHT = 'min-h-screen'
+  
+  // Heading text colors
+  const HEADING_TEXT = 'text-gray-900 dark:text-white'
 
   return (
     <>
       <Navbar toggleSidebar={toggleSidebar} />
       <Sidebar isOpen={sidebarOpen()} />
-      // Refactor the appropriate class utilities into variables AI!
-      <div class="p-4 sm:ml-64 mt-16 bg-white dark:bg-gray-900 min-h-screen">
-        <h1 class="text-gray-900 dark:text-white">hello</h1>
+      <div class={`${CONTENT_LAYOUT} ${CONTENT_BG} ${CONTENT_HEIGHT}`}>
+        <h1 class={HEADING_TEXT}>hello</h1>
       </div>
     </>
   )
