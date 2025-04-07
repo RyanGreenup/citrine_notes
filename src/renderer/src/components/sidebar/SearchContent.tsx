@@ -46,7 +46,7 @@ export function SearchContent() {
                   onClick={handleNoteClick}
                   truncateContent={true}
                   maxContentLength={80}
-                  class="border rounded p-2"
+                  class="rounded p-2"
                 />
               )}
             </For>
