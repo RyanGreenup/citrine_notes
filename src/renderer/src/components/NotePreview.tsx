@@ -3,6 +3,7 @@ import { theme } from '../theme'
 import { Marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
 import markedKatex from 'marked-katex-extension'
+import markedFootnote from 'marked-footnote'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github-dark.css'
 import 'katex/dist/katex.min.css'
@@ -62,10 +63,33 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
       .dark .katex {
         color: #e2e8f0;
       }
+      
+      /* Footnote styling */
+      .footnotes {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+        font-size: 0.875rem;
+      }
+      
+      .dark .footnotes {
+        border-top-color: #4b5563;
+      }
+      
+      .footnote-ref {
+        font-size: 0.75rem;
+        vertical-align: super;
+        margin-left: 0.125rem;
+      }
+      
+      .footnote-backref {
+        text-decoration: none;
+        margin-left: 0.25rem;
+      }
     `);
   });
 
-  // Create a marked instance with the highlight plugin and KaTeX extension
+  // Create a marked instance with the highlight plugin, KaTeX extension, and footnotes
   const markedInstance = new Marked(
     markedHighlight({
       langPrefix: 'hljs language-',
@@ -79,7 +103,8 @@ export const NotePreview: Component<NotePreviewProps> = (props) => {
       throwOnError: false,
       output: 'html',
       nonStandard: true // Allow KaTeX without spaces around delimiters
-    })
+    }),
+    markedFootnote()
   );
 
   // Memoize the parsed markdown to avoid unnecessary re-rendering
