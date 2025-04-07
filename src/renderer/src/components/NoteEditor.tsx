@@ -24,7 +24,7 @@ export const NoteEditor: Component = () => {
   // Does nothing if using Server Side Rendering with Solid Start
   const handleContentChange = (newContent: string) => {
     setContent(newContent)
-    
+
     // Skip saving content if using SSR with SolidStart
     if (!isSSR()) {
       saveContent(newContent)
@@ -77,17 +77,13 @@ export const NoteEditor: Component = () => {
   return (
     <div class={`${theme.editor.container} h-full`}>
       <div class={theme.editor.controls}>
-        <button
-          onClick={equalSplit}
-          class={theme.editor.controlButton}
-          title="Equal split"
-        >
+        <button onClick={equalSplit} class={theme.editor.controlButton} title="Equal split">
           <Columns size={16} />
         </button>
         <button
           onClick={toggleMaximized}
           class={theme.editor.controlButton}
-          title={isEditorMaximized() ? "Maximize preview" : "Maximize editor"}
+          title={isEditorMaximized() ? 'Maximize preview' : 'Maximize editor'}
         >
           {isEditorMaximized() ? <AlignCenter size={16} /> : <Maximize2 size={16} />}
         </button>
@@ -98,20 +94,13 @@ export const NoteEditor: Component = () => {
         >
           <Terminal size={16} />
         </button>
-        <button
-          onClick={saveContentButton}
-          class={theme.editor.controlButton}
-          title="Save content"
-        >
+        <button onClick={saveContentButton} class={theme.editor.controlButton} title="Save content">
           <Save size={16} />
         </button>
       </div>
       <Splitter.RootProvider value={splitter} class="flex-grow h-full">
         <Splitter.Panel id="editor" class={theme.editor.panel.base}>
-          <TextEditor
-            initialContent={content()}
-            onContentChange={handleContentChange}
-          />
+          <TextEditor initialContent={content()} onContentChange={handleContentChange} />
         </Splitter.Panel>
         <Splitter.ResizeTrigger
           id="editor:preview"
