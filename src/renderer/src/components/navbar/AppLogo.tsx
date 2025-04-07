@@ -40,7 +40,7 @@ export const AppLogo: Component = () => {
 
   return (
     <a href="#" class="flex ml-2 md:mr-24">
-      <span class={`self-center ${HEADING_TEXT}`}>{currentDateTime()}</span>
+      <span class={`self-center ${HEADING_TEXT} text-sm`}>{currentDateTime()}</span>
     </a>
   )
 }
