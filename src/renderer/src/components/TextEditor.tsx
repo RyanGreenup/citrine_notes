@@ -7,6 +7,7 @@ import { oneDark } from '@codemirror/theme-one-dark'
 import { vim, Vim } from '@replit/codemirror-vim'
 import { Terminal } from 'lucide-solid'
 import { isMobileDevice } from '@renderer/utils/check_mobile'
+import { scrollPastEnd, highlightActiveLine } from '@codemirror/view'
 
 interface TextEditorProps {
   initialContent?: string
@@ -45,6 +46,10 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
       basicSetup,
       markdown(),
       isDark ? oneDark : [],
+      // Enable scrolling past the end of the document
+      scrollPastEnd(),
+      // Highlight the active line to improve cursor visibility
+      highlightActiveLine(),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           const newContent = update.state.doc.toString()
@@ -123,6 +128,10 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
             basicSetup,
             markdown(),
             isDark ? oneDark : [],
+            // Enable scrolling past the end of the document
+            scrollPastEnd(),
+            // Highlight the active line to improve cursor visibility
+            highlightActiveLine(),
             EditorView.updateListener.of((update) => {
               if (update.docChanged) {
                 const newContent = update.state.doc.toString()
@@ -196,7 +205,11 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
           VIM
         </div>
       )}
-      <div ref={editorRef} class={`h-full w-full p-0`} />
+      <div 
+        ref={editorRef} 
+        class={`h-full w-full p-0 overflow-auto`} 
+        style="scroll-behavior: smooth;"
+      />
     </div>
   )
 }
