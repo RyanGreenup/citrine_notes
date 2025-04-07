@@ -2,6 +2,7 @@ import { theme } from '@renderer/theme'
 import { TreeView, createTreeCollection } from '@ark-ui/solid/tree-view'
 import { For, createSignal } from 'solid-js'
 import { NoteListItem } from '@renderer/components/common/NoteListItem'
+import { setCurrentView } from '@renderer/utils/viewUtils'
 
 interface BacklinkNote {
   id: string
@@ -52,8 +53,7 @@ export function BacklinksContent() {
   // Handle note selection
   const handleNoteClick = (id: string) => {
     setSelectedNoteId(id)
-    // In a real app, you would navigate to the note or show it in the editor
-    console.log(`Opening backlinked note: ${id}`)
+    setCurrentView(id)
   }
 
   return (

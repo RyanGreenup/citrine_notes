@@ -5,6 +5,7 @@ import { SearchInput } from './SearchInput'
 import { createSignal, For, Show } from 'solid-js'
 import { NoteListItem } from '../common/NoteListItem'
 import { TreeView, createTreeCollection } from '@ark-ui/solid/tree-view'
+import { setCurrentView } from '@renderer/utils/viewUtils'
 
 interface SearchNote {
   id: string;
@@ -62,11 +63,6 @@ export function SearchContent() {
     } finally {
       setIsSearching(false)
     }
-  }
-
-  const setCurrentView = (noteId: string) => {
-    console.log(`Setting view to note: ${noteId}`)
-    // In a real implementation, this would navigate to the note or open it
   }
 
   const handleNoteClick = (id: string) => {
