@@ -49,7 +49,7 @@ export function Sidebar(props: SidebarProps) {
         <div
           class={`h-full px-3 py-4 overflow-y-auto ${theme.bg.light} ${theme.bg.dark} ${SIDEBAR_TOP_PADDING}`}
         >
-          <Tabs.Root>
+          <Tabs.Root defaultValue="note_tree">
             <Tabs.List class={`flex justify-between mb-4 border-b ${theme.border.light} ${theme.border.dark}`}>
               <Tabs.Trigger value="note_tree" class={theme.sidebar.tabs.trigger}>
                 <FolderTree size={18} />
