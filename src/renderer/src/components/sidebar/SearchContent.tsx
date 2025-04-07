@@ -1,17 +1,24 @@
 import { theme } from '@renderer/theme'
 import { SidebarItem } from './SidebarItem'
 import { BookIcon, Compass, FlameIcon, PanelLeft } from 'lucide-solid'
-import { DUMMY_NOTES, SearchInput } from './SearchInput'
+import { SearchInput } from './SearchInput'
 import { createSignal, For, Show } from 'solid-js'
 import { NoteListItem } from '../common/NoteListItem'
 import { TreeView, createTreeCollection } from '@ark-ui/solid/tree-view'
 
+interface SearchNote {
+  id: string;
+  title: string;
+  content: string;
+}
+
 export function SearchContent() {
   const unordered_list_with_top_line = `pt-4 mt-4 space-y-2 font-medium border-t ${theme.border.light} ${theme.border.dark}`
   const [searchQuery, setSearchQuery] = createSignal('')
-  const [searchResults, setSearchResults] = createSignal<typeof DUMMY_NOTES>([])
+  const [searchResults, setSearchResults] = createSignal<SearchNote[]>([])
   const [hasSearched, setHasSearched] = createSignal(false)
   const [selectedNoteId, setSelectedNoteId] = createSignal<string | null>(null)
+  const [isSearching, setIsSearching] = createSignal(false)
 
   // Create a tree collection for search results
   const getCollection = () => createTreeCollection({
@@ -25,11 +32,36 @@ export function SearchContent() {
     }
   })
 
-  const handleSearch = (query: string, results: typeof DUMMY_NOTES) => {
+  const handleSearch = async (query: string) => {
     setSearchQuery(query)
-    setSearchResults(results)
+    setIsSearching(true)
     setHasSearched(query.trim() !== '')
     setSelectedNoteId(null)
+    
+    if (!query.trim()) {
+      setSearchResults([])
+      setIsSearching(false)
+      return
+    }
+    
+    try {
+      // Call the database API to search notes
+      const notes = await window.api.database.searchNotes(query)
+      
+      // Transform the notes to include a content field (using body as content)
+      const formattedResults: SearchNote[] = notes.map((note: any) => ({
+        id: note.id,
+        title: note.title,
+        content: note.body
+      }))
+      
+      setSearchResults(formattedResults)
+    } catch (error) {
+      console.error('Error searching notes:', error)
+      setSearchResults([])
+    } finally {
+      setIsSearching(false)
+    }
   }
 
   const handleNoteClick = (id: string) => {
@@ -47,9 +79,11 @@ export function SearchContent() {
       <Show when={hasSearched()}>
         <div class={theme.sidebar.search.resultsContainer}>
           <h3 class={theme.sidebar.search.resultsHeading}>
-            {searchResults().length > 0
-              ? `Results for "${searchQuery()}" (${searchResults().length})`
-              : `No results for "${searchQuery()}"`}
+            {isSearching() 
+              ? `Searching for "${searchQuery()}"...`
+              : searchResults().length > 0
+                ? `Results for "${searchQuery()}" (${searchResults().length})`
+                : `No results for "${searchQuery()}"`}
           </h3>
 
           <div class={theme.sidebar.search.resultsList}>

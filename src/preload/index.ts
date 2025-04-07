@@ -23,6 +23,7 @@ interface DatabaseAPI {
   getStatus: () => Promise<{ connected: boolean; path: string | null }>;
   createNote: (title: string, body: string) => Promise<Note | null>;
   updateNote: (id: string, title: string, body: string) => Promise<Note | null>;
+  searchNotes: (query: string, limit?: number) => Promise<Note[]>;
 }
 
 // Custom APIs for renderer
@@ -33,7 +34,9 @@ const api = {
     getStatus: (): Promise<{ connected: boolean; path: string | null }> => ipcRenderer.invoke('db:getStatus'),
     createNote: (title: string, body: string): Promise<Note | null> => ipcRenderer.invoke('db:createNote', title, body),
     updateNote: (id: string, title: string, body: string): Promise<Note | null> => 
-      ipcRenderer.invoke('db:updateNote', id, title, body)
+      ipcRenderer.invoke('db:updateNote', id, title, body),
+    searchNotes: (query: string, limit: number = 20): Promise<Note[]> => 
+      ipcRenderer.invoke('db:searchNotes', query, limit)
   } as DatabaseAPI,
   zoom: {
     zoomIn: (): Promise<number> => ipcRenderer.invoke('zoom:in'),

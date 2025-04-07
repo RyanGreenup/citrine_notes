@@ -13,7 +13,7 @@ export const DUMMY_NOTES = [
 ]
 
 export interface SearchInputProps {
-  onSearch: (query: string, results: typeof DUMMY_NOTES) => void
+  onSearch: (query: string) => void
 }
 
 export const SearchInput: Component<SearchInputProps> = (props) => {
@@ -21,19 +21,7 @@ export const SearchInput: Component<SearchInputProps> = (props) => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
-    
-    if (!query.trim()) {
-      props.onSearch('', [])
-      return
-    }
-    
-    // Filter dummy data based on search query
-    const results = DUMMY_NOTES.filter(note => 
-      note.title.toLowerCase().includes(query.toLowerCase()) || 
-      note.content.toLowerCase().includes(query.toLowerCase())
-    )
-    
-    props.onSearch(query, results)
+    props.onSearch(query)
   }
 
   return (
