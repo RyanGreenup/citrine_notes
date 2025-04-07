@@ -1,7 +1,7 @@
 import { Splitter, useSplitter } from '@ark-ui/solid/splitter'
 import { Component, createSignal, createEffect } from 'solid-js'
 import { theme } from '../theme'
-import { Maximize2, AlignCenter, Columns, Terminal } from 'lucide-solid'
+import { Maximize2, AlignCenter, Columns, Terminal, Save } from 'lucide-solid'
 import { TextEditor } from './TextEditor'
 import { NotePreview } from './NotePreview'
 
@@ -45,6 +45,11 @@ export const NoteEditor: Component = () => {
     }
   }
 
+  const saveContent = () => {
+    // Manually trigger the content change handler with current content
+    handleContentChange(content())
+  }
+
   // When the splitter changes, we may need to refresh the editor
   createEffect(() => {
     // This will re-run when splitter state changes
@@ -78,6 +83,13 @@ export const NoteEditor: Component = () => {
           title="Toggle Vim mode"
         >
           <Terminal size={16} />
+        </button>
+        <button
+          onClick={saveContent}
+          class={theme.editor.controlButton}
+          title="Save content"
+        >
+          <Save size={16} />
         </button>
       </div>
       <Splitter.RootProvider value={splitter} class="flex-grow h-full">
