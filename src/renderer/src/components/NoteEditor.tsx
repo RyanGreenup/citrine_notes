@@ -63,19 +63,19 @@ export const NoteEditor: Component = () => {
         return
       }
 
-      const result = await window.api.database.updateNote(
+      // Use updateNoteBody instead of updateNote since we're only changing the content
+      const result = await window.api.database.updateNoteBody(
         noteId,
-        currentNote()!.title,
         contentToSave
       )
 
       if (result) {
-        console.log('Note saved successfully:', result.id)
+        console.log('Note content saved successfully:', result.id)
       } else {
-        console.error('Failed to save note')
+        console.error('Failed to save note content')
       }
     } catch (err) {
-      console.error('Error saving note:', err)
+      console.error('Error saving note content:', err)
     }
   }
 
