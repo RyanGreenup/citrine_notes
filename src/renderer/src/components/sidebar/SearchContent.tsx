@@ -64,10 +64,14 @@ export function SearchContent() {
     }
   }
 
+  const setCurrentView = (noteId: string) => {
+    console.log(`Setting view to note: ${noteId}`)
+    // In a real implementation, this would navigate to the note or open it
+  }
+
   const handleNoteClick = (id: string) => {
     setSelectedNoteId(id)
-    console.log(`Note clicked: ${id}`)
-    // In a real implementation, this would navigate to the note or open it
+    setCurrentView(id)
   }
 
   return (
