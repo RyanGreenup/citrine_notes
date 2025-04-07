@@ -141,6 +141,7 @@ export const theme = {
     splitter: 'h-full flex-1',
     controls: 'flex items-center justify-end gap-2 p-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700',
     controlButton: 'p-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500',
+    controlButtonActive: 'bg-gray-700 text-white dark:bg-blue-600 dark:text-white',
     panel: {
       base: 'h-full overflow-auto flex-grow',
       textarea: 'w-full h-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100',

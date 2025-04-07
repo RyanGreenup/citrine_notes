@@ -66,9 +66,7 @@ export const NoteEditor: Component = () => {
         </button>
         <button 
           onClick={toggleVim} 
-          class={`${theme.editor.controlButton} ${isVimEnabled() ? 
-            // integrate this with the theme AI!
-            'bg-gray-700 text-white' : ''}`}
+          class={`${theme.editor.controlButton} ${isVimEnabled() ? theme.editor.controlButtonActive : ''}`}
           title="Toggle Vim mode"
         >
           <Terminal size={16} />
