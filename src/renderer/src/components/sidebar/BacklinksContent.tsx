@@ -25,7 +25,7 @@ export function BacklinksContent() {
       setError(null)
 
       // Call the database API to get backlinks
-      const notes = await window.api.database.invoke('db:notes:getBacklinks', noteId)
+      const notes = await window.api.database.getBacklinks(noteId)
 
       console.log("------------------------------");
       console.log(notes);
