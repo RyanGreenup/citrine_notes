@@ -2,3 +2,48 @@
 
 /* Enable dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Modern scrollbar styling */
+* {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 20px;
+  border: 2px solid transparent;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(107, 114, 128, 0.7);
+}
+
+/* Dark mode scrollbar */
+.dark *::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.5);
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(107, 114, 128, 0.7);
+}
+
+/* For code blocks and editor regions specifically */
+pre::-webkit-scrollbar,
+.CodeMirror-scroll::-webkit-scrollbar,
+[class*="editor"]::-webkit-scrollbar,
+[class*="preview"]::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
