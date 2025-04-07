@@ -17,21 +17,21 @@ export const NoteEditor: Component = () => {
   // Load note content when the current note ID changes
   onNoteChange(async (noteId) => {
     if (!noteId) return
-    
+
     try {
       setLoading(true)
       setError(null)
-      
+
       // Make sure the API is available
       if (!window.api || !window.api.database) {
-        setError("Database API not available")
+        setError('Database API not available')
         return
       }
-      
+
       const noteBody = await window.api.database.getNoteBodyById(noteId)
       if (noteBody) {
         setContent(noteBody)
-        
+
         // Get the full note to display title
         const fullNote = await window.api.database.getNoteById(noteId)
         if (fullNote) {
@@ -55,20 +55,20 @@ export const NoteEditor: Component = () => {
       console.warn('Cannot save: No note is currently selected')
       return
     }
-    
+
     try {
       // Make sure the API is available
       if (!window.api || !window.api.database) {
-        console.error("Database API not available")
+        console.error('Database API not available')
         return
       }
-      
+
       const result = await window.api.database.updateNote(
-        noteId, 
-        currentNote()!.title, 
+        noteId,
+        currentNote()!.title,
         contentToSave
       )
-      
+
       if (result) {
         console.log('Note saved successfully:', result.id)
       } else {
@@ -95,7 +95,7 @@ export const NoteEditor: Component = () => {
       if (window.saveTimeout) {
         clearTimeout(window.saveTimeout)
       }
-      
+
       window.saveTimeout = setTimeout(() => {
         saveContent(newContent)
       }, 1000) // Save after 1 second of inactivity
@@ -154,56 +154,72 @@ export const NoteEditor: Component = () => {
           </h2>
         </div>
       </Show>
-      
+
       <Show when={loading()}>
         <div class="flex items-center justify-center h-full">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
         </div>
       </Show>
-      
+
       <Show when={error()}>
         <div class="p-4 m-4 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-md">
           <p>{error()}</p>
         </div>
       </Show>
-      
+
       <Show when={!loading() && !error()}>
         <div class={theme.editor.controls}>
-        <button onClick={equalSplit} class={theme.editor.controlButton} title="Equal split">
-          <Columns size={16} />
-        </button>
-        <button
-          onClick={toggleMaximized}
-          class={theme.editor.controlButton}
-          title={isEditorMaximized() ? 'Maximize preview' : 'Maximize editor'}
-        >
-          {isEditorMaximized() ? <AlignCenter size={16} /> : <Maximize2 size={16} />}
-        </button>
-        <button
-          onClick={toggleVim}
-          class={`${theme.editor.controlButton} ${isVimEnabled() ? theme.editor.controlButtonActive : ''}`}
-          title="Toggle Vim mode"
-        >
-          <Terminal size={16} />
-        </button>
-        <button onClick={saveContentButton} class={theme.editor.controlButton} title="Save content">
-          <Save size={16} />
-        </button>
+          <button onClick={equalSplit} class={theme.editor.controlButton} title="Equal split">
+            <Columns size={16} />
+          </button>
+          <button
+            onClick={toggleMaximized}
+            class={theme.editor.controlButton}
+            title={isEditorMaximized() ? 'Maximize preview' : 'Maximize editor'}
+          >
+            {isEditorMaximized() ? <AlignCenter size={16} /> : <Maximize2 size={16} />}
+          </button>
+          <button
+            onClick={toggleVim}
+            class={`${theme.editor.controlButton} ${isVimEnabled() ? theme.editor.controlButtonActive : ''}`}
+            title="Toggle Vim mode"
+          >
+            <Terminal size={16} />
+          </button>
+          <button
+            onClick={saveContentButton}
+            class={theme.editor.controlButton}
+            title="Save content"
+          >
+            <Save size={16} />
+          </button>
         </div>
-        <Splitter.RootProvider value={splitter} class={`flex-grow h-full overflow-hidden rounded-md shadow-sm border ${theme.border.light} ${theme.border.dark} ${animations.transition.normal}`}>
-        <Splitter.Panel id="editor" class={`h-full overflow-hidden ${animations.transition.normal}`}>
-          <TextEditor initialContent={content()} onContentChange={handleContentChange} />
-        </Splitter.Panel>
-        <Splitter.ResizeTrigger
-          id="editor:preview"
-          aria-label="Resize"
-          class={`flex items-center justify-center w-2 cursor-col-resize hover:bg-gray-200 dark:hover:bg-gray-700 ${animations.transition.fast}`}
+        <Splitter.RootProvider
+          value={splitter}
+          class={`flex-grow h-full overflow-hidden rounded-md shadow-sm border ${theme.border.light} ${theme.border.dark} ${animations.transition.normal}`}
         >
-          <div class={`w-[3px] h-16 rounded-full bg-gray-300 dark:bg-gray-600 hover:bg-blue-400 dark:hover:bg-blue-500 ${animations.transition.fast}`}></div>
-        </Splitter.ResizeTrigger>
-        <Splitter.Panel id="preview" class={`h-full overflow-y-auto bg-white dark:bg-gray-800 ${animations.transition.normal}`} style="overflow-y: auto;">
-          <NotePreview content={content()} />
-        </Splitter.Panel>
+          <Splitter.Panel
+            id="editor"
+            class={`h-full overflow-hidden ${animations.transition.normal}`}
+          >
+            <TextEditor initialContent={content()} onContentChange={handleContentChange} />
+          </Splitter.Panel>
+          <Splitter.ResizeTrigger
+            id="editor:preview"
+            aria-label="Resize"
+            class={`flex items-center justify-center w-2 cursor-col-resize hover:bg-gray-200 dark:hover:bg-gray-700 ${animations.transition.fast}`}
+          >
+            <div
+              class={`w-[3px] h-16 rounded-full bg-gray-300 dark:bg-gray-600 hover:bg-blue-400 dark:hover:bg-blue-500 ${animations.transition.fast}`}
+            ></div>
+          </Splitter.ResizeTrigger>
+          <Splitter.Panel
+            id="preview"
+            class={`h-full overflow-y-auto bg-white dark:bg-gray-800 ${animations.transition.normal}`}
+            style="overflow-y: auto;"
+          >
+            <NotePreview content={content()} />
+          </Splitter.Panel>
         </Splitter.RootProvider>
       </Show>
     </div>
