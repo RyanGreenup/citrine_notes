@@ -133,5 +133,17 @@ export const theme = {
     content: 'p-4 sm:ml-64 mt-16',
     contentBg: 'bg-white dark:bg-gray-900',
     contentHeight: 'min-h-screen',
+  },
+
+  // Sidebar
+  sidebar: {
+    item: {
+      base: 'flex items-center p-2 rounded-lg group',
+      text: {
+        base: 'ml-3',
+        muted: 'text-gray-400 dark:text-gray-400 group-hover:text-gray-200 dark:group-hover:text-gray-300',
+        normal: 'text-gray-900 dark:text-gray-100 group-hover:text-gray-700 dark:group-hover:text-white'
+      }
+    }
   }
 }
