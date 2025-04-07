@@ -1,5 +1,8 @@
-import { Component, createSignal } from 'solid-js'
+import { Component, createSignal, onMount, onCleanup } from 'solid-js'
 import { theme } from '../theme'
+import { EditorView, basicSetup } from 'codemirror'
+import { EditorState } from '@codemirror/state'
+import { markdown } from '@codemirror/lang-markdown'
 
 interface TextEditorProps {
   initialContent?: string
@@ -10,21 +13,43 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
   const [content, setContent] = createSignal<string>(
     props.initialContent || '# Your note here\n\nStart typing to edit...'
   )
+  let editorRef: HTMLDivElement | undefined
+  let editorView: EditorView | undefined
 
-  const handleInput = (e: Event) => {
-    const value = (e.target as HTMLTextAreaElement).value
-    setContent(value)
-    if (props.onContentChange) {
-      props.onContentChange(value)
-    }
-  }
+  onMount(() => {
+    if (!editorRef) return
+
+    const startState = EditorState.create({
+      doc: content(),
+      extensions: [
+        basicSetup,
+        markdown(),
+        EditorView.updateListener.of(update => {
+          if (update.docChanged) {
+            const newContent = update.state.doc.toString()
+            setContent(newContent)
+            if (props.onContentChange) {
+              props.onContentChange(newContent)
+            }
+          }
+        })
+      ]
+    })
+
+    editorView = new EditorView({
+      state: startState,
+      parent: editorRef
+    })
+  })
+
+  onCleanup(() => {
+    editorView?.destroy()
+  })
 
   return (
-    <textarea
-      class={theme.editor.panel.textarea}
-      value={content()}
-      onInput={handleInput}
-      placeholder="Start typing..."
+    <div 
+      ref={editorRef} 
+      class={`${theme.editor.panel.textarea} h-full w-full`}
     />
   )
 }

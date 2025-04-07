@@ -1,5 +1,5 @@
 import { Splitter, useSplitter } from '@ark-ui/solid/splitter'
-import { Component, createSignal } from 'solid-js'
+import { Component, createSignal, createEffect } from 'solid-js'
 import { theme } from '../theme'
 import { Maximize2, AlignCenter, Columns } from 'lucide-solid'
 import { TextEditor } from './TextEditor'
@@ -27,6 +27,16 @@ export const NoteEditor: Component = () => {
     splitter().setSizes([50, 50])
     setIsEditorMaximized(false)
   }
+
+  // When the splitter changes, we may need to refresh the editor
+  createEffect(() => {
+    // This will re-run when splitter state changes
+    const sizes = splitter().getSizes()
+    if (sizes[0] > 0) {
+      // Force a layout recalculation for CodeMirror
+      window.dispatchEvent(new Event('resize'))
+    }
+  })
 
   return (
     <div class={`${theme.editor.container} h-full`}>
