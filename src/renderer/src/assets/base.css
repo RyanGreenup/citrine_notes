@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "flowbite/src/themes/default";
 @plugin "flowbite/plugin";
+@plugin "@tailwindcss/typography";
 /* @source "../node_modules/flowbite"; */
 @source "../../../../node_modules/flowbite";
