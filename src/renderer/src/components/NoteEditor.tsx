@@ -161,7 +161,7 @@ export const NoteEditor: Component = () => {
       </Show>
 
       <Show when={!loading() && !error()}>
-        <div class={`flex items-center justify-between px-6 py-3 bg-white dark:bg-gray-800 border-b ${theme.border.light} ${theme.border.dark} shadow-md`}>
+        <div class={`flex items-center justify-between px-6 py-3 border-b ${theme.border.light} ${theme.border.dark}`}>
           <div class="flex items-center">
             <Show when={currentNote()}>
               <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
