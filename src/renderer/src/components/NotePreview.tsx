@@ -1,16 +1,31 @@
-import { Component, createMemo } from 'solid-js'
+import { Component, createMemo, onMount } from 'solid-js'
 import { theme } from '../theme'
-import { marked } from 'marked'
+import { Marked } from 'marked'
+import { markedHighlight } from 'marked-highlight'
+import hljs from 'highlight.js'
+import 'highlight.js/styles/github-dark.css'
 
 interface NotePreviewProps {
   content: string
 }
 
 export const NotePreview: Component<NotePreviewProps> = (props) => {
+  // Create a marked instance with the highlight plugin
+  const markedInstance = new Marked(
+    markedHighlight({
+      langPrefix: 'hljs language-',
+      emptyLangClass: 'hljs',
+      highlight(code, lang) {
+        const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+        return hljs.highlight(code, { language }).value;
+      }
+    })
+  );
+
   // Memoize the parsed markdown to avoid unnecessary re-rendering
   const parsedMarkdown = createMemo(() => {
     try {
-      return marked.parse(props.content || '', { 
+      return markedInstance.parse(props.content || '', { 
         gfm: true, // GitHub Flavored Markdown
         breaks: true // Convert line breaks to <br>
       });

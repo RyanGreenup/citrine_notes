@@ -21,4 +21,21 @@ declare module 'marked' {
     parseInline: typeof parseInline;
     setOptions: (options: MarkedOptions) => void;
   };
+
+  export class Marked {
+    constructor(...extensions: any[]);
+    parse(src: string, options?: MarkedOptions): string;
+    parseInline(src: string, options?: MarkedOptions): string;
+  }
+}
+
+declare module 'marked-highlight' {
+  export interface MarkedHighlightOptions {
+    async?: boolean;
+    langPrefix?: string;
+    emptyLangClass?: string;
+    highlight: (code: string, lang: string, info?: string) => string | Promise<string>;
+  }
+
+  export function markedHighlight(options: MarkedHighlightOptions): any;
 }
