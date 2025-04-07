@@ -50,7 +50,7 @@ export const NoteEditor: Component = () => {
 
   // Function to save content
   const saveContent = async (contentToSave: string) => {
-    console.log(contentToSave);
+    console.log(contentToSave)
   }
 
   // Check if we're running in SSR mode (SolidStart)
@@ -69,7 +69,7 @@ export const NoteEditor: Component = () => {
 
   // Effect to handle saving content with debounce
   createEffect(() => {
-    const currentContent = content();
+    const currentContent = content()
 
     // Skip saving content if using SSR with SolidStart
     if (!isSSR() && currentContent && currentNote()) {
@@ -80,13 +80,13 @@ export const NoteEditor: Component = () => {
 
       window.saveTimeout = setTimeout(() => {
         // Only save if we have a valid note ID
-        const noteId = getCurrentNoteId();
+        const noteId = getCurrentNoteId()
         if (noteId) {
-          saveContent(currentContent);
+          saveContent(currentContent)
         }
       }, 1000) // Save after 1 second of inactivity
     }
-  });
+  })
   const splitter = useSplitter({
     defaultSize: [50, 50],
     panels: [{ id: 'editor' }, { id: 'preview' }]
@@ -118,7 +118,7 @@ export const NoteEditor: Component = () => {
 
   const saveContentButton = () => {
     // Manually trigger the save function with current content
-    const currentContent = content();
+    const currentContent = content()
     if (currentContent && getCurrentNoteId()) {
       saveContent(currentContent)
     }
@@ -136,7 +136,6 @@ export const NoteEditor: Component = () => {
 
   return (
     <div class={`${theme.editor.container} h-full`}>
-
       <Show when={loading()}>
         <div class="flex items-center justify-center h-full">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -176,7 +175,9 @@ export const NoteEditor: Component = () => {
               </button>
             </div>
 
-            <div class={`${theme.editor.header.buttonGroup} ${theme.editor.header.buttonGroupSpacing}`}>
+            <div
+              class={`${theme.editor.header.buttonGroup} ${theme.editor.header.buttonGroupSpacing}`}
+            >
               <button
                 onClick={toggleVim}
                 class={`${theme.editor.header.button} ${isVimEnabled() ? 'bg-blue-500 text-white dark:bg-blue-600 dark:text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'} ${animations.transition.fast}`}
@@ -186,7 +187,9 @@ export const NoteEditor: Component = () => {
               </button>
             </div>
 
-            <div class={`${theme.editor.header.buttonGroup} ${theme.editor.header.buttonGroupSpacing}`}>
+            <div
+              class={`${theme.editor.header.buttonGroup} ${theme.editor.header.buttonGroupSpacing}`}
+            >
               <button
                 onClick={saveContentButton}
                 class={`${theme.editor.header.button} text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 ${animations.transition.fast}`}
