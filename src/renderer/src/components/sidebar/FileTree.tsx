@@ -86,7 +86,7 @@ export function FileTree() {
   return (
     <div class={theme.sidebar.fileTree.container}>
       <h3 class={`${theme.sidebar.fileTree.heading} ${theme.text.light} ${theme.text.dark}`}>Files</h3>
-      <TreeView.Root collection={collection}>
+      <TreeView.Root collection={collection} lazyMount={true}>
         <TreeView.Tree class="w-full">
           <For each={collection.rootNode.children}>
             {(node, index) => <TreeNode node={node} indexPath={[index()]} />}
