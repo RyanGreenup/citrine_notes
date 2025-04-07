@@ -4,10 +4,17 @@ import { EditorView, basicSetup } from 'codemirror'
 import { EditorState } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown'
 import { oneDark } from '@codemirror/theme-one-dark'
+import { vim } from '@replit/codemirror-vim'
+import { Terminal } from 'lucide-solid'
 
 interface TextEditorProps {
   initialContent?: string
   onContentChange?: (content: string) => void
+}
+
+interface EditorControls {
+  toggleVim: () => void
+  isVimEnabled: () => boolean
 }
 
 export const TextEditor: Component<TextEditorProps> = (props) => {
@@ -17,6 +24,7 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
   let editorRef: HTMLDivElement | undefined
   let editorView: EditorView | undefined
   const [isDarkMode, setIsDarkMode] = createSignal(false)
+  const [vimEnabled, setVimEnabled] = createSignal(false)
 
   // Check if dark mode is active
   const checkDarkMode = () => {
@@ -31,22 +39,29 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
 
     const isDark = checkDarkMode()
     
+    const extensions = [
+      basicSetup,
+      markdown(),
+      isDark ? oneDark : [],
+      EditorView.updateListener.of(update => {
+        if (update.docChanged) {
+          const newContent = update.state.doc.toString()
+          setContent(newContent)
+          if (props.onContentChange) {
+            props.onContentChange(newContent)
+          }
+        }
+      })
+    ]
+    
+    // Add vim extension if enabled
+    if (vimEnabled()) {
+      extensions.push(vim())
+    }
+    
     const startState = EditorState.create({
       doc: content(),
-      extensions: [
-        basicSetup,
-        markdown(),
-        isDark ? oneDark : [],
-        EditorView.updateListener.of(update => {
-          if (update.docChanged) {
-            const newContent = update.state.doc.toString()
-            setContent(newContent)
-            if (props.onContentChange) {
-              props.onContentChange(newContent)
-            }
-          }
-        })
-      ]
+      extensions
     })
 
     editorView = new EditorView({
@@ -96,22 +111,29 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
       // Small delay to ensure DOM is updated
       setTimeout(() => {
         if (editorRef) {
+          const extensions = [
+            basicSetup,
+            markdown(),
+            isDark ? oneDark : [],
+            EditorView.updateListener.of(update => {
+              if (update.docChanged) {
+                const newContent = update.state.doc.toString()
+                setContent(newContent)
+                if (props.onContentChange) {
+                  props.onContentChange(newContent)
+                }
+              }
+            })
+          ]
+          
+          // Add vim extension if enabled
+          if (vimEnabled()) {
+            extensions.push(vim())
+          }
+          
           const startState = EditorState.create({
             doc: currentContent,
-            extensions: [
-              basicSetup,
-              markdown(),
-              isDark ? oneDark : [],
-              EditorView.updateListener.of(update => {
-                if (update.docChanged) {
-                  const newContent = update.state.doc.toString()
-                  setContent(newContent)
-                  if (props.onContentChange) {
-                    props.onContentChange(newContent)
-                  }
-                }
-              })
-            ]
+            extensions
           });
           
           editorView = new EditorView({
@@ -125,14 +147,51 @@ export const TextEditor: Component<TextEditorProps> = (props) => {
     }
   }
 
+  // Toggle Vim mode
+  const toggleVim = () => {
+    const newVimState = !vimEnabled()
+    setVimEnabled(newVimState)
+    
+    // Recreate the editor with or without vim bindings
+    if (editorView) {
+      const currentContent = editorView.state.doc.toString()
+      editorView.destroy()
+      
+      setTimeout(() => {
+        if (editorRef) {
+          initEditor()
+        }
+      }, 10)
+    }
+  }
+  
+  // Expose controls to parent component
+  const editorControls: EditorControls = {
+    toggleVim,
+    isVimEnabled: vimEnabled
+  }
+  
+  // Expose the controls to the parent component
+  if (typeof window !== 'undefined') {
+    // @ts-ignore - Adding a custom property to window
+    window.editorControls = editorControls
+  }
+
   onCleanup(() => {
     editorView?.destroy()
   })
 
   return (
-    <div 
-      ref={editorRef} 
-      class={`h-full w-full p-0`}
-    />
+    <div class="relative h-full w-full">
+      {vimEnabled() && (
+        <div class="absolute bottom-2 right-2 z-10 bg-gray-700 text-white text-xs px-2 py-1 rounded opacity-70">
+          VIM
+        </div>
+      )}
+      <div 
+        ref={editorRef} 
+        class={`h-full w-full p-0`}
+      />
+    </div>
   )
 }
